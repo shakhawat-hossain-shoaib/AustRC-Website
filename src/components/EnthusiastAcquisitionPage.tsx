@@ -11,7 +11,6 @@ import {
   CheckCircle,
   ArrowRight,
   Mail,
-  MapPin,
   Facebook,
   Linkedin,
   Instagram
@@ -68,27 +67,6 @@ export function EnthusiastAcquisitionPage() {
     'You are eager to learn, collaborate and grow in an inspiring environment',
     'You want to develop leadership and organizational skills',
     'You seek hands-on experience in your field of interest'
-  ];
-
-  const socialLinks = [
-    {
-      name: 'Facebook',
-      icon: <Facebook className="w-5 h-5" />,
-      url: 'https://www.facebook.com/austrc',
-      color: '#1877F2'
-    },
-    {
-      name: 'LinkedIn',
-      icon: <Linkedin className="w-5 h-5" />,
-      url: 'https://www.linkedin.com/company/austrc',
-      color: '#0A66C2'
-    },
-    {
-      name: 'Instagram',
-      icon: <Instagram className="w-5 h-5" />,
-      url: 'https://www.instagram.com/austrc',
-      color: '#E4405F'
-    }
   ];
 
   return (

@@ -5,6 +5,7 @@ import { Button } from './ui/button';
 import { useEffect, useState } from 'react';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '@/config/firebase';
+import { useNavigate } from 'react-router-dom';
 
 interface Event {
   id: string;
@@ -18,6 +19,7 @@ export function EventsSection() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -39,7 +41,6 @@ export function EventsSection() {
           }
         });
         
-        // Sort by Order field to ensure correct sequence (1, 2, 3)
         fetchedEvents.sort((a, b) => a.Order - b.Order);
         
         setEvents(fetchedEvents);
@@ -147,6 +148,40 @@ export function EventsSection() {
               ))
             )}
           </div>
+
+          {/* Explore All Events Button */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="flex justify-center mt-12"
+          >
+            <motion.button
+              onClick={() => navigate('/events')}
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+              className="relative px-8 py-3 bg-gradient-to-r from-[rgba(46,204,113,0.15)] to-[rgba(46,204,113,0.05)] rounded-full border border-[rgba(46,204,113,0.4)] hover:border-[rgba(46,204,113,0.7)] text-[#2ECC71] font-semibold text-base transition-all duration-300 hover:shadow-[0_0_30px_0_rgba(46,204,113,0.4)] overflow-hidden group"
+            >
+              {/* Shine effect */}
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                initial={{ x: '-100%' }}
+                whileHover={{ x: '100%' }}
+                transition={{ duration: 0.6 }}
+              />
+
+              <span className="relative inline-flex items-center gap-2">
+                Explore All Events
+                <motion.span
+                  animate={{ x: [0, 4, 0] }}
+                  transition={{ duration: 1, repeat: Infinity }}
+                >
+                  <ArrowRight className="w-5 h-5" />
+                </motion.span>
+              </span>
+            </motion.button>
+          </motion.div>
         </div>
       </section>
 
@@ -181,7 +216,6 @@ export function EventsSection() {
               className="bg-gradient-to-br from-[rgba(46,204,113,0.1)] to-transparent border border-[rgba(46,204,113,0.3)] rounded-lg max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl pointer-events-auto"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Close Button */}
               <div className="sticky top-0 flex justify-end p-4 bg-black/40 backdrop-blur-sm border-b border-[rgba(46,204,113,0.3)]">
                 <button
                   onClick={() => setSelectedEvent(null)}
@@ -191,9 +225,7 @@ export function EventsSection() {
                 </button>
               </div>
 
-              {/* Modal Content */}
               <div className="p-6 space-y-6">
-                {/* Cover Image */}
                 <div className="relative rounded-lg overflow-hidden">
                   <img
                     src={selectedEvent.Cover_Picture}
@@ -202,7 +234,6 @@ export function EventsSection() {
                   />
                 </div>
 
-                {/* Event Title */}
                 <div>
                   <h2 className="text-3xl font-bold text-white mb-2">
                     {selectedEvent.Event_Name}
@@ -210,7 +241,6 @@ export function EventsSection() {
                   <div className="w-12 h-1 bg-[#2ECC71] rounded-full" />
                 </div>
 
-                {/* Full Introduction */}
                 <div>
                   <h3 className="text-lg font-semibold text-[#2ECC71] mb-3">
                     About This Event
@@ -220,7 +250,6 @@ export function EventsSection() {
                   </p>
                 </div>
 
-                {/* Close Button at Bottom */}
                 <Button
                   onClick={() => setSelectedEvent(null)}
                   className="w-full bg-[#2ECC71] text-white hover:bg-[#27AE60] transition-all"
