@@ -20,7 +20,8 @@ export function Navbar() {
   }, []);
 
   const navItems = [
-    { name: 'ARC 2.0', path: '/', section: 'arc-2.0' },
+    { name: 'ARC 2.0', path: 'https://arc.austrc.com/', section: null, external: true },
+    { name: 'Robomania 2.0', path: 'https://robomania.austrc.com/', section: null, external: true },
     { name: 'Governing Panel', path: '/', section: 'governing-panel' },
     { name: 'Activities', path: '/activities', section: null },
     { name: 'Research and project', path: '/research-projects', section: null },
@@ -152,6 +153,17 @@ export function Navbar() {
                   )}
                 </AnimatePresence>
               </div>
+            ) : 'external' in item && item.external ? (
+              <a
+                key={item.name}
+                href={item.path}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="relative text-gray-400 hover:text-[#2ECC71] transition-all group text-sm whitespace-nowrap"
+              >
+                {item.name}
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-[#2ECC71] to-[#27AE60] group-hover:w-full transition-all duration-300 shadow-[0_0_10px_0_rgba(46,204,113,0.8)]" />
+              </a>
             ) : (
               <Link
                 key={item.name}
@@ -166,19 +178,6 @@ export function Navbar() {
           ))}
         </div>
 
-        {/* Fixed Buttons - Right */}
-        <div className="fixed right-6 top-5 z-50 flex items-center gap-4">
-          <Button
-            variant="ghost"
-            className="text-gray-300 hover:text-white hover:bg-[#2ECC71]/10 transition-all border border-[rgba(46,204,113,0.2)] hover:border-[rgba(46,204,113,0.5)] px-6 rounded-lg backdrop-blur-sm"
-          >
-            Sign In
-          </Button>
-          <Button className="relative overflow-hidden bg-gradient-to-r from-[#2ECC71] to-[#27AE60] hover:from-[#27AE60] hover:to-[#2ECC71] text-white shadow-[0_0_40px_0_rgba(46,204,113,0.8),0_0_80px_0_rgba(46,204,113,0.6)] transition-all hover:shadow-[0_0_60px_0_rgba(46,204,113,1)] hover:scale-105 px-6 rounded-lg group">
-            <span className="relative z-10">Sign Up</span>
-            <div className="absolute inset-0 bg-white/20 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
-          </Button>
-        </div>
       </div>
     </motion.nav>
   );
