@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { Instagram, Linkedin, Youtube, Github, Mail, MapPin, Phone } from 'lucide-react';
+import { Facebook, Instagram, Linkedin, Youtube, Github, Mail, MapPin, Phone } from 'lucide-react';
 import logo from '@/assets/logo.png';
 
 interface FooterProps {
@@ -23,10 +23,10 @@ export function Footer({ theme = 'dark' }: FooterProps) {
   };
 
   const socialLinks = [
-    { icon: Instagram, href: '#', label: 'Instagram' },
-    { icon: Linkedin, href: '#', label: 'LinkedIn' },
-    { icon: Youtube, href: '#', label: 'YouTube' },
-    { icon: Github, href: '#', label: 'GitHub' },
+    { icon: Facebook, href: 'https://www.facebook.com/AustRoboticsClub', label: 'Facebook' },
+    { icon: Instagram, href: 'https://www.instagram.com/aust_robotics_club', label: 'Instagram' },
+    { icon: Linkedin, href: 'https://www.linkedin.com/company/aust-robotics-club/', label: 'LinkedIn' },
+    { icon: Github, href: 'https://github.com/webdevaustrc-2025/AustRC-Website', label: 'GitHub' },
   ];
 
   const isDark = theme === 'dark';
@@ -152,7 +152,7 @@ export function Footer({ theme = 'dark' }: FooterProps) {
                 © 2025 Aust Robotics Club. All rights reserved.
               </p>
               <p className="text-[#2ECC71] text-sm">
-                Built with ❤️ on Innovation & Technology
+                Developed by AUSTRC Web Development Team
               </p>
             </div>
           </motion.div>

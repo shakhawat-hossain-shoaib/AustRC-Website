@@ -9,6 +9,7 @@ import { ProjectDetailPage } from './components/ProjectDetailPage';
 import { AboutPage } from './components/AboutPage';
 import { EnthusiastAcquisitionPage } from './components/EnthusiastAcquisitionPage';
 import { Footer } from './components/Footer';
+import { CursorGlow } from './components/CursorGlow';
 
 // Sub-Pages
 import { EventsPage } from './components/activities/EventsPage';
@@ -26,6 +27,7 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-black">
+      <CursorGlow />
       <Navbar />
       <Routes>
         <Route path="/" element={<HomePage />} />
