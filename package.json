@@ -35,11 +35,7 @@
             "embla-carousel-react": "^8.6.0",
             "firebase": "^12.6.0",
             "input-otp": "^1.4.2",
-<<<<<<< HEAD
             "lucide-react": "^0.487.0",
-=======
-            "lucide-react": "^0.562.0",
->>>>>>> e3159407ec27fe3b2dce6612b51c372d4253c44e
             "motion": "*",
             "next-themes": "^0.4.6",
             "react": "^18.3.1",
