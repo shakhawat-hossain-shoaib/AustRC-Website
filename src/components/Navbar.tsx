@@ -30,11 +30,11 @@ export function Navbar() {
   ];
 
   const activitiesDropdownItems = [
-    { name: 'Workshops', path: '/activities#workshops' },
-    { name: 'Events', path: '/activities#events' },
-    { name: 'Achievements', path: '/activities#achievements' },
-    { name: 'Educational Activities', path: '/activities#educational-activities' },
-    { name: 'Social Activities', path: '/activities#social-activities' },
+    { name: 'Events', path: '/activities/events' },
+    { name: 'Achievements', path: '/activities/achievements' },
+    { name: 'Social Activities', path: '/activities/social-activities' },
+    { name: 'Educational Activities', path: '/activities/educational-activities' },
+    { name: 'Our Event Website', path: '/activities/event-website' },
   ];
 
   const governingPanelDropdownItems = [
@@ -50,7 +50,6 @@ export function Navbar() {
 
   const handleNavClick = (item: typeof navItems[0]) => {
     if (item.section && location.pathname === '/') {
-      // Scroll to section on same page
       const element = document.getElementById(item.section);
       if (element) {
         element.scrollIntoView({ behavior: 'smooth' });
@@ -91,19 +90,22 @@ export function Navbar() {
         {/* Scrollable Nav Items - Middle */}
         <div className="hidden lg:flex items-center gap-8 bg-black/10 backdrop-blur-md px-6 py-3 rounded-full border border-[rgba(46,204,113,0.2)] mx-auto">
           {navItems.map((item) => (
-            item.path === '/activities' ? (
+            item.name === 'Activities' ? (
               <div
                 key={item.name}
                 className="relative text-gray-400 hover:text-[#2ECC71] transition-all group text-sm whitespace-nowrap"
                 onMouseEnter={() => setActivitiesOpen(true)}
                 onMouseLeave={() => setActivitiesOpen(false)}
               >
-                {item.name}
-                <ChevronDown className="inline-block w-4 h-4 ml-1" />
+                <Link to={item.path} className="flex items-center">
+                   {item.name}
+                   <ChevronDown className="inline-block w-4 h-4 ml-1" />
+                </Link>
                 <AnimatePresence>
                   {activitiesOpen && (
                     <motion.div
-                      className="absolute left-0 top-full mt-2 bg-white/95 backdrop-blur-xl shadow-[0_0_40px_0_rgba(46,204,113,0.2)] rounded-md w-48"
+                      // FIXED: Using bg-white/95 to match the Governing Panel style
+                      className="absolute left-0 top-full mt-2 bg-white/95 backdrop-blur-xl shadow-[0_0_40px_0_rgba(46,204,113,0.2)] rounded-md w-56 overflow-hidden"
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
@@ -113,7 +115,8 @@ export function Navbar() {
                         <Link
                           key={dropdownItem.name}
                           to={dropdownItem.path}
-                          className="block px-4 py-2 text-gray-400 hover:text-[#2ECC71] transition-all"
+                          // FIXED: Text colors updated to gray and green hover (matching 2nd image)
+                          className="block px-4 py-3 text-gray-400 hover:text-[#2ECC71] transition-all text-sm font-medium"
                         >
                           {dropdownItem.name}
                         </Link>
