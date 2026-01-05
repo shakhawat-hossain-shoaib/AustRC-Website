@@ -1,6 +1,7 @@
-import { motion } from 'motion/react';
-import { Code2, Users, Sparkles, ChevronLeft } from 'lucide-react';
+import { motion, useScroll, useTransform, useSpring, useInView, AnimatePresence } from 'motion/react';
+import { Code2, Users, Sparkles, ChevronLeft, Star, Zap, Heart, Terminal, Coffee, Rocket, GitBranch, GitCommit, GitFork, Eye, ExternalLink, Trophy, Medal, Award, Github, RefreshCw, Clock, AlertCircle, Wifi } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useRef, useState, useEffect, useCallback } from 'react';
 
 // Import social icons from assets
 import FacebookIcon from '@/assets/icons/facebook.png';
@@ -32,6 +33,39 @@ interface Developer {
   github?: string;
   email?: string;
   isModerator?: boolean;
+}
+
+interface GitHubContributor {
+  login: string;
+  avatar_url: string;
+  html_url: string;
+  contributions: number;
+}
+
+interface GitHubRepo {
+  stargazers_count: number;
+  forks_count: number;
+  watchers_count: number;
+  open_issues_count: number;
+  subscribers_count: number;
+  language: string;
+  default_branch: string;
+  size: number;
+  created_at: string;
+  updated_at: string;
+  pushed_at: string;
+}
+
+interface GitHubData {
+  contributors: GitHubContributor[];
+  repoData: GitHubRepo | null;
+  totalCommits: number;
+  lastFetched: Date | null;
+  loading: boolean;
+  refreshing: boolean;
+  error: string | null;
+  rateLimitRemaining: number | null;
+  rateLimitReset: Date | null;
 }
 
 const moderator: Developer = {
@@ -155,170 +189,1548 @@ const developers: Developer[] = [
   }
 ];
 
+// Constants
+const GITHUB_REPO = 'webdevaustrc-2025/AustRC-Website';
+const REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes in milliseconds
+const CACHE_KEY = 'github_stats_cache';
+
+// Floating Particles Component
+const FloatingParticles = () => {
+  const particles = Array.from({ length: 50 }, (_, i) => ({
+    id: i,
+    size: Math.random() * 4 + 1,
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    duration: Math.random() * 20 + 10,
+    delay: Math.random() * 5,
+  }));
+
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {particles.map((particle) => (
+        <motion.div
+          key={particle.id}
+          className="absolute rounded-full bg-[#2ECC71]"
+          style={{
+            width: particle.size,
+            height: particle.size,
+            left: `${particle.x}%`,
+            top: `${particle.y}%`,
+          }}
+          animate={{
+            y: [0, -100, 0],
+            x: [0, Math.random() * 50 - 25, 0],
+            opacity: [0, 0.6, 0],
+            scale: [0, 1, 0],
+          }}
+          transition={{
+            duration: particle.duration,
+            delay: particle.delay,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
+    </div>
+  );
+};
+
+// Animated Grid Lines
+const GridLines = () => {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-10">
+      <svg className="w-full h-full">
+        <defs>
+          <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+            <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#2ECC71" strokeWidth="0.5" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#grid)" />
+      </svg>
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-b from-transparent via-[#2ECC71] to-transparent opacity-20"
+        style={{ height: '2px' }}
+        animate={{ y: ['-100%', '100vh'] }}
+        transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+      />
+    </div>
+  );
+};
+
+// Animated Code Lines
+const CodeLines = () => {
+  const codeSnippets = [
+    "const team = await buildAmazing();",
+    "function createMagic() { return ✨; }",
+    "npm install creativity passion",
+    "<Developer passion={∞} />",
+    "git commit -m 'Made it awesome'",
+    "while(true) { innovate(); }",
+  ];
+
+  return (
+    <div className="absolute left-4 top-1/4 hidden xl:block pointer-events-none">
+      {codeSnippets.map((code, index) => (
+        <motion.div
+          key={index}
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: [0, 0.3, 0], x: [-50, 0, 50] }}
+          transition={{
+            duration: 8,
+            delay: index * 2,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+          className="text-[#2ECC71] font-mono text-xs mb-4 whitespace-nowrap"
+        >
+          {code}
+        </motion.div>
+      ))}
+    </div>
+  );
+};
+
+// Enhanced GitHub Stats Hook with Real-time Updates
+const useGitHubData = () => {
+  const [data, setData] = useState<GitHubData>({
+    contributors: [],
+    repoData: null,
+    totalCommits: 0,
+    lastFetched: null,
+    loading: true,
+    refreshing: false,
+    error: null,
+    rateLimitRemaining: null,
+    rateLimitReset: null,
+  });
+
+  const fetchGitHubData = useCallback(async (isRefresh = false) => {
+    try {
+      setData(prev => ({
+        ...prev,
+        loading: !isRefresh,
+        refreshing: isRefresh,
+        error: null
+      }));
+
+      // Check cache first (only on initial load)
+      if (!isRefresh) {
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (cached) {
+          const parsedCache = JSON.parse(cached);
+          const cacheAge = Date.now() - new Date(parsedCache.lastFetched).getTime();
+          
+          // Use cache if it's less than 5 minutes old
+          if (cacheAge < REFRESH_INTERVAL) {
+            setData({
+              ...parsedCache,
+              lastFetched: new Date(parsedCache.lastFetched),
+              rateLimitReset: parsedCache.rateLimitReset ? new Date(parsedCache.rateLimitReset) : null,
+              loading: false,
+              refreshing: false,
+            });
+            return;
+          }
+        }
+      }
+
+      // Fetch contributors
+      const contributorsRes = await fetch(
+        `https://api.github.com/repos/${GITHUB_REPO}/contributors?per_page=20`
+      );
+      
+      // Check rate limit
+      const rateLimitRemaining = parseInt(contributorsRes.headers.get('X-RateLimit-Remaining') || '60');
+      const rateLimitResetTimestamp = parseInt(contributorsRes.headers.get('X-RateLimit-Reset') || '0') * 1000;
+      const rateLimitReset = new Date(rateLimitResetTimestamp);
+
+      if (!contributorsRes.ok) {
+        if (contributorsRes.status === 403 && rateLimitRemaining === 0) {
+          throw new Error(`Rate limit exceeded. Resets at ${rateLimitReset.toLocaleTimeString()}`);
+        }
+        throw new Error('Failed to fetch contributors');
+      }
+      
+      const contributorsData = await contributorsRes.json();
+      
+      // Calculate total commits
+      const totalCommits = contributorsData.reduce(
+        (acc: number, c: GitHubContributor) => acc + c.contributions, 
+        0
+      );
+
+      // Fetch repo data
+      const repoRes = await fetch(
+        `https://api.github.com/repos/${GITHUB_REPO}`
+      );
+      
+      if (!repoRes.ok) {
+        throw new Error('Failed to fetch repo data');
+      }
+      
+      const repoInfo = await repoRes.json();
+
+      const newData: GitHubData = {
+        contributors: contributorsData,
+        repoData: repoInfo,
+        totalCommits,
+        lastFetched: new Date(),
+        loading: false,
+        refreshing: false,
+        error: null,
+        rateLimitRemaining,
+        rateLimitReset,
+      };
+
+      // Update state
+      setData(newData);
+
+      // Cache the data
+      localStorage.setItem(CACHE_KEY, JSON.stringify({
+        ...newData,
+        lastFetched: newData.lastFetched?.toISOString() ?? null,
+        rateLimitReset: newData.rateLimitReset?.toISOString(),
+      }));
+
+    } catch (err) {
+      setData(prev => ({
+        ...prev,
+        loading: false,
+        refreshing: false,
+        error: err instanceof Error ? err.message : 'An error occurred'
+      }));
+    }
+  }, []);
+
+  // Initial fetch
+  useEffect(() => {
+    fetchGitHubData();
+  }, [fetchGitHubData]);
+
+  // Auto-refresh every 5 minutes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchGitHubData(true);
+    }, REFRESH_INTERVAL);
+
+    return () => clearInterval(interval);
+  }, [fetchGitHubData]);
+
+  // Refetch on window focus
+  useEffect(() => {
+    const handleFocus = () => {
+      const lastFetched = data.lastFetched;
+      if (lastFetched) {
+        const timeSinceLastFetch = Date.now() - lastFetched.getTime();
+        // Only refetch if last fetch was more than 2 minutes ago
+        if (timeSinceLastFetch > 2 * 60 * 1000) {
+          fetchGitHubData(true);
+        }
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [data.lastFetched, fetchGitHubData]);
+
+  // Refetch on online
+  useEffect(() => {
+    const handleOnline = () => {
+      fetchGitHubData(true);
+    };
+
+    window.addEventListener('online', handleOnline);
+    return () => window.removeEventListener('online', handleOnline);
+  }, [fetchGitHubData]);
+
+  return { ...data, refetch: () => fetchGitHubData(true) };
+};
+
+// Time Ago Component
+const TimeAgo = ({ date }: { date: Date }) => {
+  const [timeAgo, setTimeAgo] = useState('');
+
+  useEffect(() => {
+    const updateTimeAgo = () => {
+      const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+      
+      if (seconds < 60) {
+        setTimeAgo('just now');
+      } else if (seconds < 3600) {
+        const minutes = Math.floor(seconds / 60);
+        setTimeAgo(`${minutes} min${minutes > 1 ? 's' : ''} ago`);
+      } else if (seconds < 86400) {
+        const hours = Math.floor(seconds / 3600);
+        setTimeAgo(`${hours} hour${hours > 1 ? 's' : ''} ago`);
+      } else {
+        const days = Math.floor(seconds / 86400);
+        setTimeAgo(`${days} day${days > 1 ? 's' : ''} ago`);
+      }
+    };
+
+    updateTimeAgo();
+    const interval = setInterval(updateTimeAgo, 30000); // Update every 30 seconds
+
+    return () => clearInterval(interval);
+  }, [date]);
+
+  return <span>{timeAgo}</span>;
+};
+
+// Live Indicator Component
+const LiveIndicator = ({ isLive, isRefreshing }: { isLive: boolean; isRefreshing: boolean }) => {
+  return (
+    <motion.div
+      className="flex items-center gap-2"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+    >
+      {isRefreshing ? (
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+        >
+          <RefreshCw className="w-3 h-3 text-[#2ECC71]" />
+        </motion.div>
+      ) : (
+        <motion.div
+          className={`w-2 h-2 rounded-full ${isLive ? 'bg-[#2ECC71]' : 'bg-yellow-500'}`}
+          animate={isLive ? { opacity: [1, 0.3, 1], scale: [1, 1.2, 1] } : {}}
+          transition={{ duration: 1.5, repeat: Infinity }}
+        />
+      )}
+      <span className="text-xs text-gray-400">
+        {isRefreshing ? 'Syncing...' : isLive ? 'Live' : 'Cached'}
+      </span>
+    </motion.div>
+  );
+};
+
+// Top Contributor Card
+const TopContributorCard = ({ 
+  contributor, 
+  rank, 
+  delay 
+}: { 
+  contributor: GitHubContributor; 
+  rank: number; 
+  delay: number;
+}) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true });
+  const [isHovered, setIsHovered] = useState(false);
+
+  const rankConfig = {
+    1: { 
+      icon: Trophy, 
+      color: 'from-yellow-400 to-yellow-600', 
+      bgColor: 'rgba(234,179,8,0.1)',
+      borderColor: 'rgba(234,179,8,0.3)',
+      glowColor: 'rgba(234,179,8,0.5)',
+      label: '1st',
+      size: 'w-32 h-32'
+    },
+    2: { 
+      icon: Medal, 
+      color: 'from-gray-300 to-gray-500', 
+      bgColor: 'rgba(156,163,175,0.1)',
+      borderColor: 'rgba(156,163,175,0.3)',
+      glowColor: 'rgba(156,163,175,0.5)',
+      label: '2nd',
+      size: 'w-28 h-28'
+    },
+    3: { 
+      icon: Award, 
+      color: 'from-amber-600 to-amber-800', 
+      bgColor: 'rgba(180,83,9,0.1)',
+      borderColor: 'rgba(180,83,9,0.3)',
+      glowColor: 'rgba(180,83,9,0.5)',
+      label: '3rd',
+      size: 'w-28 h-28'
+    },
+  }[rank] || { 
+    icon: Star, 
+    color: 'from-[#2ECC71] to-[#27AE60]', 
+    bgColor: 'rgba(46,204,113,0.1)',
+    borderColor: 'rgba(46,204,113,0.3)',
+    glowColor: 'rgba(46,204,113,0.5)',
+    label: `${rank}th`,
+    size: 'w-24 h-24'
+  };
+
+  const RankIcon = rankConfig.icon;
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 50, scale: 0.8 }}
+      animate={isInView ? { opacity: 1, y: 0, scale: 1 } : {}}
+      transition={{ 
+        duration: 0.8, 
+        delay,
+        type: "spring",
+        stiffness: 100
+      }}
+      className={`relative ${rank === 1 ? 'md:-mt-8 z-10' : ''}`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {rank === 1 && (
+        <motion.div
+          className="absolute -inset-2 bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-400 rounded-3xl blur-xl opacity-30"
+          animate={{ 
+            opacity: [0.2, 0.4, 0.2],
+            scale: [1, 1.02, 1]
+          }}
+          transition={{ duration: 3, repeat: Infinity }}
+        />
+      )}
+      
+      <motion.div
+        className="relative bg-gradient-to-br from-[rgba(30,30,30,0.9)] to-[rgba(20,20,20,0.9)] border rounded-3xl p-6 backdrop-blur-xl overflow-hidden"
+        style={{ 
+          borderColor: rankConfig.borderColor,
+          boxShadow: isHovered ? `0 0 40px ${rankConfig.glowColor}` : 'none'
+        }}
+        whileHover={{ scale: 1.05, y: -10 }}
+        transition={{ duration: 0.3 }}
+      >
+        <motion.div
+          className={`absolute inset-0 bg-gradient-to-br ${rankConfig.color} opacity-5`}
+          animate={{ opacity: isHovered ? 0.15 : 0.05 }}
+        />
+        
+        <motion.div
+          className={`absolute -top-3 -right-3 w-12 h-12 bg-gradient-to-br ${rankConfig.color} rounded-full flex items-center justify-center shadow-lg z-20`}
+          initial={{ scale: 0, rotate: -180 }}
+          animate={isInView ? { scale: 1, rotate: 0 } : {}}
+          transition={{ duration: 0.6, delay: delay + 0.3, type: "spring" }}
+          whileHover={{ scale: 1.2, rotate: 10 }}
+        >
+          <RankIcon className="w-6 h-6 text-black" />
+        </motion.div>
+
+        <motion.div
+          className="absolute top-4 left-4 text-4xl font-black opacity-10"
+          style={{ 
+            background: `linear-gradient(135deg, ${rank === 1 ? '#fbbf24' : rank === 2 ? '#9ca3af' : '#b45309'}, transparent)`,
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent'
+          }}
+        >
+          #{rank}
+        </motion.div>
+
+        <div className="relative z-10 flex flex-col items-center pt-4">
+          <div className="relative mb-4">
+            <motion.div
+              className={`absolute -inset-2 rounded-full bg-gradient-to-r ${rankConfig.color}`}
+              style={{ padding: '2px' }}
+              animate={{ rotate: 360 }}
+              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+            >
+              <div className="w-full h-full rounded-full bg-black" />
+            </motion.div>
+            
+            <motion.div
+              className={`absolute -inset-3 rounded-full bg-gradient-to-r ${rankConfig.color} blur-md`}
+              animate={{ opacity: [0.3, 0.6, 0.3], scale: [1, 1.1, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
+            
+            <motion.div 
+              className={`relative ${rankConfig.size} rounded-full overflow-hidden border-2`}
+              style={{ borderColor: rank === 1 ? '#fbbf24' : rank === 2 ? '#9ca3af' : '#b45309' }}
+              whileHover={{ scale: 1.1 }}
+            >
+              <img
+                src={contributor.avatar_url}
+                alt={contributor.login}
+                className="w-full h-full object-cover"
+              />
+            </motion.div>
+
+            <motion.div
+              className={`absolute bottom-1 right-1 w-4 h-4 bg-gradient-to-r ${rankConfig.color} rounded-full border-2 border-black`}
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
+          </div>
+
+          <motion.div 
+            className="text-center space-y-2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: delay + 0.4 }}
+          >
+            <h4 className="text-xl font-bold text-white">{contributor.login}</h4>
+            
+            <motion.div
+              className="flex items-center justify-center gap-2"
+              whileHover={{ scale: 1.05 }}
+            >
+              <motion.div
+                animate={{ rotate: [0, 360] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+              >
+                <GitCommit className="w-4 h-4 text-[#2ECC71]" />
+              </motion.div>
+              <span className={`text-2xl font-bold bg-gradient-to-r ${rankConfig.color} bg-clip-text text-transparent`}>
+                {contributor.contributions}
+              </span>
+              <span className="text-gray-400 text-sm">commits</span>
+            </motion.div>
+
+            <motion.a
+              href={contributor.html_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 mt-3 px-4 py-2 bg-[rgba(46,204,113,0.1)] border border-[rgba(46,204,113,0.3)] rounded-full text-sm text-[#2ECC71] hover:bg-[#2ECC71] hover:text-black transition-all duration-300"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Github className="w-4 h-4" />
+              <span>View Profile</span>
+              <ExternalLink className="w-3 h-3" />
+            </motion.a>
+          </motion.div>
+        </div>
+
+        {isHovered && (
+          <>
+            {[...Array(5)].map((_, i) => (
+              <motion.div
+                key={i}
+                className={`absolute w-1 h-1 rounded-full bg-gradient-to-r ${rankConfig.color}`}
+                initial={{ 
+                  x: Math.random() * 200, 
+                  y: 200,
+                  opacity: 0 
+                }}
+                animate={{ 
+                  y: -50,
+                  opacity: [0, 1, 0]
+                }}
+                transition={{ 
+                  duration: 1.5,
+                  delay: i * 0.1,
+                  repeat: Infinity
+                }}
+              />
+            ))}
+          </>
+        )}
+      </motion.div>
+    </motion.div>
+  );
+};
+
+// Repo Stat Item with Real-time Update Animation
+const RepoStatItem = ({ 
+  icon: Icon, 
+  value, 
+  label, 
+  delay,
+  previousValue
+}: { 
+  icon: React.ElementType; 
+  value: number | string; 
+  label: string; 
+  delay: number;
+  previousValue?: number | string;
+}) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true });
+  const [displayValue, setDisplayValue] = useState(0);
+  const [hasChanged, setHasChanged] = useState(false);
+
+  useEffect(() => {
+    if (previousValue !== undefined && previousValue !== value) {
+      setHasChanged(true);
+      setTimeout(() => setHasChanged(false), 2000);
+    }
+  }, [value, previousValue]);
+
+  useEffect(() => {
+    if (isInView && typeof value === 'number') {
+      let start = 0;
+      const duration = 2000;
+      const increment = value / (duration / 16);
+      
+      const timer = setInterval(() => {
+        start += increment;
+        if (start >= value) {
+          setDisplayValue(value);
+          clearInterval(timer);
+        } else {
+          setDisplayValue(Math.floor(start));
+        }
+      }, 16);
+      
+      return () => clearInterval(timer);
+    }
+  }, [isInView, value]);
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 20, scale: 0.9 }}
+      animate={isInView ? { opacity: 1, y: 0, scale: 1 } : {}}
+      transition={{ duration: 0.5, delay }}
+      className="relative group"
+    >
+      <AnimatePresence>
+        {hasChanged && (
+          <motion.div
+            className="absolute -inset-1 bg-[#2ECC71] rounded-xl"
+            initial={{ opacity: 0.5 }}
+            animate={{ opacity: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1 }}
+          />
+        )}
+      </AnimatePresence>
+      
+      <motion.div
+        className="flex flex-col items-center gap-2 p-4 bg-[rgba(46,204,113,0.05)] border border-[rgba(46,204,113,0.2)] rounded-xl backdrop-blur-sm relative overflow-hidden"
+        whileHover={{ 
+          scale: 1.05, 
+          borderColor: 'rgba(46,204,113,0.5)',
+          boxShadow: '0 0 30px rgba(46,204,113,0.2)'
+        }}
+        animate={hasChanged ? { borderColor: ['rgba(46,204,113,0.2)', 'rgba(46,204,113,0.8)', 'rgba(46,204,113,0.2)'] } : {}}
+        transition={{ duration: 1 }}
+      >
+        <motion.div
+          className="p-2 bg-[rgba(46,204,113,0.1)] rounded-lg"
+          whileHover={{ rotate: 10 }}
+        >
+          <Icon className="w-5 h-5 text-[#2ECC71]" />
+        </motion.div>
+        <motion.span 
+          className="text-2xl font-bold text-white"
+          animate={hasChanged ? { scale: [1, 1.2, 1] } : {}}
+          transition={{ duration: 0.5 }}
+        >
+          {typeof value === 'number' ? displayValue : value}
+        </motion.span>
+        <span className="text-xs text-gray-400 text-center">{label}</span>
+        
+        {hasChanged && (
+          <motion.div
+            className="absolute top-1 right-1"
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0 }}
+          >
+            <Sparkles className="w-3 h-3 text-[#2ECC71]" />
+          </motion.div>
+        )}
+      </motion.div>
+    </motion.div>
+  );
+};
+
+// GitHub Stats Section Component with Real-time Updates
+const GitHubStatsSection = () => {
+  const { 
+    contributors, 
+    repoData, 
+    totalCommits, 
+    lastFetched, 
+    loading, 
+    refreshing, 
+    error, 
+    rateLimitRemaining,
+    rateLimitReset,
+    refetch 
+  } = useGitHubData();
+  
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const topContributors = contributors.slice(0, 3);
+  const [previousData, setPreviousData] = useState<{totalCommits: number; stars: number} | null>(null);
+
+  // Track previous values for change detection
+  useEffect(() => {
+    if (repoData && totalCommits) {
+      setPreviousData({
+        totalCommits,
+        stars: repoData.stargazers_count
+      });
+    }
+  }, [repoData, totalCommits]);
+
+  const isLive = lastFetched ? (Date.now() - lastFetched.getTime()) < REFRESH_INTERVAL : false;
+
+  return (
+    <motion.div
+      ref={ref}
+      className="mt-16"
+      initial={{ opacity: 0 }}
+      animate={isInView ? { opacity: 1 } : {}}
+      transition={{ duration: 0.8 }}
+    >
+      {/* Section Header */}
+      <motion.div
+        className="text-center mb-12"
+        initial={{ opacity: 0, y: 20 }}
+        animate={isInView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.6 }}
+      >
+        <motion.div
+          className="inline-flex items-center gap-2 bg-[rgba(46,204,113,0.1)] border border-[rgba(46,204,113,0.3)] rounded-full px-4 py-2 mb-4"
+          whileHover={{ scale: 1.05 }}
+        >
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+          >
+            <Github className="w-4 h-4 text-[#2ECC71]" />
+          </motion.div>
+          <span className="text-[#2ECC71] text-sm font-medium">Live from GitHub</span>
+          <LiveIndicator isLive={isLive} isRefreshing={refreshing} />
+        </motion.div>
+        
+        <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">
+          Repository <span className="text-[#2ECC71]">Statistics</span>
+        </h3>
+        
+        {/* Last Updated & Refresh Button */}
+        <div className="flex items-center justify-center gap-4 mt-4">
+          {lastFetched && (
+            <motion.div 
+              className="flex items-center gap-2 text-gray-400 text-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              <Clock className="w-4 h-4" />
+              <span>Updated <TimeAgo date={lastFetched} /></span>
+            </motion.div>
+          )}
+          
+          <motion.button
+            onClick={() => refetch()}
+            disabled={refreshing}
+            className="flex items-center gap-2 px-3 py-1.5 bg-[rgba(46,204,113,0.1)] border border-[rgba(46,204,113,0.3)] rounded-full text-sm text-[#2ECC71] hover:bg-[rgba(46,204,113,0.2)] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <motion.div
+              animate={refreshing ? { rotate: 360 } : {}}
+              transition={{ duration: 1, repeat: refreshing ? Infinity : 0, ease: "linear" }}
+            >
+              <RefreshCw className="w-4 h-4" />
+            </motion.div>
+            <span>{refreshing ? 'Refreshing...' : 'Refresh'}</span>
+          </motion.button>
+        </div>
+
+        {/* Rate Limit Info */}
+        {rateLimitRemaining !== null && rateLimitRemaining < 20 && (
+          <motion.div
+            className="flex items-center justify-center gap-2 mt-3 text-yellow-500 text-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <AlertCircle className="w-4 h-4" />
+            <span>
+              API Rate Limit: {rateLimitRemaining} requests remaining
+              {rateLimitReset && ` (resets ${rateLimitReset.toLocaleTimeString()})`}
+            </span>
+          </motion.div>
+        )}
+
+        {/* Auto-refresh indicator */}
+        <motion.div
+          className="flex items-center justify-center gap-2 mt-2 text-gray-500 text-xs"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+        >
+          <Wifi className="w-3 h-3" />
+          <span>Auto-refreshes every 5 minutes</span>
+        </motion.div>
+      </motion.div>
+
+      {/* Error State */}
+      <AnimatePresence>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="flex items-center justify-center gap-3 mb-8 p-4 bg-red-500/10 border border-red-500/30 rounded-xl"
+          >
+            <AlertCircle className="w-5 h-5 text-red-500" />
+            <span className="text-red-400">{error}</span>
+            <motion.button
+              onClick={() => refetch()}
+              className="ml-4 px-3 py-1 bg-red-500/20 rounded-lg text-red-400 text-sm hover:bg-red-500/30 transition-colors"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Try Again
+            </motion.button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Top 3 Contributors Podium */}
+      <motion.div
+        className="mb-12"
+        initial={{ opacity: 0 }}
+        animate={isInView ? { opacity: 1 } : {}}
+        transition={{ duration: 0.8, delay: 0.2 }}
+      >
+        <motion.h4
+          className="text-center text-xl font-semibold text-white mb-8 flex items-center justify-center gap-3"
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, delay: 0.3 }}
+        >
+          <span className="h-px w-12 bg-gradient-to-r from-transparent to-yellow-500" />
+          <Trophy className="w-5 h-5 text-yellow-500" />
+          <span>Top Contributors</span>
+          <Trophy className="w-5 h-5 text-yellow-500" />
+          <span className="h-px w-12 bg-gradient-to-l from-transparent to-yellow-500" />
+        </motion.h4>
+
+        {loading ? (
+          <div className="flex justify-center items-center gap-8 flex-wrap">
+            {[1, 2, 3].map((i) => (
+              <motion.div
+                key={i}
+                className="w-48 h-64 bg-[rgba(46,204,113,0.1)] rounded-3xl"
+                animate={{ opacity: [0.3, 0.6, 0.3] }}
+                transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="flex justify-center items-end gap-4 md:gap-8 flex-wrap">
+            {topContributors[1] && (
+              <TopContributorCard
+                contributor={topContributors[1]}
+                rank={2}
+                delay={0.4}
+              />
+            )}
+            
+            {topContributors[0] && (
+              <TopContributorCard
+                contributor={topContributors[0]}
+                rank={1}
+                delay={0.2}
+              />
+            )}
+            
+            {topContributors[2] && (
+              <TopContributorCard
+                contributor={topContributors[2]}
+                rank={3}
+                delay={0.6}
+              />
+            )}
+          </div>
+        )}
+      </motion.div>
+
+      {/* Repository Stats Grid */}
+      <motion.div
+        className="relative"
+        initial={{ opacity: 0, y: 30 }}
+        animate={isInView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.8, delay: 0.5 }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[rgba(46,204,113,0.05)] to-transparent rounded-3xl" />
+        
+        <div className="relative bg-[rgba(20,20,20,0.5)] border border-[rgba(46,204,113,0.2)] rounded-3xl p-8 backdrop-blur-sm">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+            <div className="flex items-center gap-3">
+              <motion.div
+                className="p-2 bg-[rgba(46,204,113,0.1)] rounded-lg"
+                animate={{ rotate: [0, 5, -5, 0] }}
+                transition={{ duration: 4, repeat: Infinity }}
+              >
+                <GitBranch className="w-5 h-5 text-[#2ECC71]" />
+              </motion.div>
+              <div>
+                <h4 className="text-lg font-semibold text-white">AustRC-Website</h4>
+                <p className="text-xs text-gray-400">webdevaustrc-2025</p>
+              </div>
+              
+              {/* Connection Status */}
+              <div className="ml-4 hidden sm:block">
+                <LiveIndicator isLive={isLive} isRefreshing={refreshing} />
+              </div>
+            </div>
+            
+            <motion.a
+              href={`https://github.com/${GITHUB_REPO}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2 bg-[rgba(46,204,113,0.1)] border border-[rgba(46,204,113,0.3)] rounded-full text-sm text-[#2ECC71] hover:bg-[#2ECC71] hover:text-black transition-all duration-300"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Github className="w-4 h-4" />
+              <span className="hidden sm:inline">View Repository</span>
+              <ExternalLink className="w-3 h-3" />
+            </motion.a>
+          </div>
+
+          {/* Stats Grid */}
+          {loading ? (
+            <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
+              {[...Array(6)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  className="h-24 bg-[rgba(46,204,113,0.1)] rounded-xl"
+                  animate={{ opacity: [0.3, 0.6, 0.3] }}
+                  transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.1 }}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
+              <RepoStatItem
+                icon={Star}
+                value={repoData?.stargazers_count || 0}
+                label="Stars"
+                delay={0.1}
+                previousValue={previousData?.stars}
+              />
+              <RepoStatItem
+                icon={GitFork}
+                value={repoData?.forks_count || 0}
+                label="Forks"
+                delay={0.2}
+              />
+              <RepoStatItem
+                icon={Eye}
+                value={repoData?.watchers_count || 0}
+                label="Watchers"
+                delay={0.3}
+              />
+              <RepoStatItem
+                icon={GitCommit}
+                value={totalCommits}
+                label="Total Commits"
+                delay={0.4}
+                previousValue={previousData?.totalCommits}
+              />
+              <RepoStatItem
+                icon={Users}
+                value={contributors.length}
+                label="Contributors"
+                delay={0.5}
+              />
+              <RepoStatItem
+                icon={Code2}
+                value={repoData?.language || 'TypeScript'}
+                label="Language"
+                delay={0.6}
+              />
+            </div>
+          )}
+
+          {/* Last pushed info */}
+          {repoData && (
+            <motion.div
+              className="mt-6 pt-4 border-t border-[rgba(46,204,113,0.1)] flex flex-wrap items-center justify-center gap-4 text-xs text-gray-500"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1 }}
+            >
+              <div className="flex items-center gap-2">
+                <GitCommit className="w-3 h-3" />
+                <span>
+                  Last push: {new Date(repoData.pushed_at).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </span>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <motion.div
+                  className="w-2 h-2 rounded-full bg-[#2ECC71]"
+                  animate={{ opacity: [1, 0.3, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                />
+                <span>
+                  Next refresh in {lastFetched ? Math.max(0, Math.ceil((REFRESH_INTERVAL - (Date.now() - lastFetched.getTime())) / 60000)) : 5} min
+                </span>
+              </div>
+            </motion.div>
+          )}
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
+// Enhanced Social Link with Ripple Effect
 const SocialLink = ({ href, icon, label }: { href?: string; icon: string; label: string }) => {
+  const [ripple, setRipple] = useState(false);
+
   if (!href) return null;
+  
   return (
     <motion.a
       href={href}
       target="_blank"
       rel="noopener noreferrer"
       aria-label={label}
-      className="w-11 h-11 bg-[rgba(46,204,113,0.1)] border border-[rgba(46,204,113,0.3)] rounded-full flex items-center justify-center hover:bg-[#2ECC71] hover:border-[#2ECC71] hover:shadow-[0_0_20px_rgba(46,204,113,0.5)] transition-all duration-300"
-      whileHover={{ scale: 1.1, y: -2 }}
-      whileTap={{ scale: 0.95 }}
+      className="relative w-11 h-11 bg-[rgba(46,204,113,0.1)] border border-[rgba(46,204,113,0.3)] rounded-full flex items-center justify-center overflow-hidden group"
+      whileHover={{ scale: 1.2, rotate: 5 }}
+      whileTap={{ scale: 0.9 }}
+      onHoverStart={() => setRipple(true)}
+      onHoverEnd={() => setRipple(false)}
     >
-      <img src={icon} alt={label} className="w-5 h-5 object-contain" />
+      {ripple && (
+        <motion.div
+          className="absolute inset-0 bg-[#2ECC71]"
+          initial={{ scale: 0, opacity: 0.5 }}
+          animate={{ scale: 2, opacity: 0 }}
+          transition={{ duration: 0.6 }}
+        />
+      )}
+      
+      <motion.div
+        className="absolute inset-0 rounded-full border-2 border-transparent"
+        style={{
+          background: 'linear-gradient(90deg, transparent, #2ECC71, transparent)',
+          WebkitMask: 'linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0)',
+          WebkitMaskComposite: 'xor',
+          maskComposite: 'exclude',
+        }}
+        animate={{ rotate: 360 }}
+        transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+      />
+      
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-r from-[#2ECC71] to-[#27AE60] opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+      />
+      
+      <img 
+        src={icon} 
+        alt={label} 
+        className="w-5 h-5 object-contain relative z-10 group-hover:brightness-0 group-hover:invert transition-all duration-300" 
+      />
     </motion.a>
   );
 };
 
+// Enhanced Developer Card with 3D Effect
 const DeveloperCard = ({ developer, index }: { developer: Developer; index: number }) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    setMousePosition({ x, y });
+  };
+
+  const springConfig = { stiffness: 150, damping: 15 };
+  const rotateX = useSpring(mousePosition.y * -20, springConfig);
+  const rotateY = useSpring(mousePosition.x * 20, springConfig);
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 50 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: index * 0.1 }}
-      className="group relative"
+      ref={ref}
+      initial={{ opacity: 0, y: 80, rotateX: -15 }}
+      animate={isInView ? { opacity: 1, y: 0, rotateX: 0 } : {}}
+      transition={{ 
+        duration: 0.8, 
+        delay: index * 0.1,
+        type: "spring",
+        stiffness: 100
+      }}
+      className="group relative perspective-1000"
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => {
+        setIsHovered(false);
+        setMousePosition({ x: 0, y: 0 });
+      }}
+      style={{
+        transformStyle: "preserve-3d",
+      }}
     >
-      <div className="relative bg-gradient-to-br from-[rgba(46,204,113,0.05)] to-transparent border border-[rgba(46,204,113,0.2)] rounded-2xl p-6 backdrop-blur-sm hover:border-[rgba(46,204,113,0.5)] transition-all duration-500 hover:shadow-[0_0_40px_rgba(46,204,113,0.15)] overflow-hidden">
-        {/* Animated gradient overlay on hover */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[rgba(46,204,113,0.1)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-        
-        {/* Glowing orb effect */}
+      <motion.div
+        className="relative bg-gradient-to-br from-[rgba(46,204,113,0.08)] to-transparent border border-[rgba(46,204,113,0.2)] rounded-2xl p-6 backdrop-blur-sm overflow-hidden"
+        style={{
+          rotateX: isHovered ? rotateX : 0,
+          rotateY: isHovered ? rotateY : 0,
+          transformStyle: "preserve-3d",
+        }}
+        whileHover={{ 
+          borderColor: "rgba(46,204,113,0.6)",
+          boxShadow: "0 25px 50px -12px rgba(46,204,113,0.25)",
+        }}
+        transition={{ duration: 0.3 }}
+      >
         <motion.div
-          className="absolute -top-20 -right-20 w-40 h-40 bg-[#2ECC71] rounded-full blur-[80px] opacity-0 group-hover:opacity-20 transition-opacity duration-500"
+          className="absolute top-0 left-0 w-16 h-16 border-t-2 border-l-2 border-[#2ECC71] rounded-tl-2xl opacity-0 group-hover:opacity-100"
+          initial={{ scale: 0 }}
+          whileHover={{ scale: 1 }}
+          transition={{ duration: 0.3 }}
+        />
+        <motion.div
+          className="absolute bottom-0 right-0 w-16 h-16 border-b-2 border-r-2 border-[#2ECC71] rounded-br-2xl opacity-0 group-hover:opacity-100"
+          initial={{ scale: 0 }}
+          whileHover={{ scale: 1 }}
+          transition={{ duration: 0.3 }}
         />
         
-        <div className="relative z-10">
-          {/* Profile Image */}
+        <motion.div
+          className="absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-[#2ECC71] to-transparent opacity-0 group-hover:opacity-100"
+          animate={isHovered ? { top: ["0%", "100%"] } : {}}
+          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+        />
+        
+        {isHovered && (
+          <>
+            {[...Array(5)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute w-1 h-1 bg-[#2ECC71] rounded-full"
+                initial={{ 
+                  x: Math.random() * 200, 
+                  y: Math.random() * 200,
+                  opacity: 0 
+                }}
+                animate={{ 
+                  y: [null, -50],
+                  opacity: [0, 1, 0]
+                }}
+                transition={{ 
+                  duration: 2,
+                  delay: i * 0.2,
+                  repeat: Infinity
+                }}
+              />
+            ))}
+          </>
+        )}
+        
+        <motion.div
+          className="absolute -top-20 -right-20 w-40 h-40 bg-[#2ECC71] rounded-full blur-[80px]"
+          animate={{ 
+            opacity: isHovered ? 0.3 : 0,
+            scale: isHovered ? 1.2 : 1
+          }}
+          transition={{ duration: 0.5 }}
+        />
+        
+        <div className="relative z-10" style={{ transform: "translateZ(50px)" }}>
           <div className="relative mx-auto w-28 aspect-square mb-4">
             <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-[#2ECC71] to-[#27AE60] rounded-full blur-md opacity-50 group-hover:opacity-80 transition-opacity duration-500"
+              className="absolute inset-[-4px] rounded-full border border-[rgba(46,204,113,0.3)]"
               animate={{ rotate: 360 }}
-              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
             />
-            <div className="relative w-full h-full aspect-square rounded-full overflow-hidden border-2 border-[rgba(46,204,113,0.5)] group-hover:border-[#2ECC71] transition-colors duration-500">
+            <motion.div
+              className="absolute inset-[-8px] rounded-full border border-[rgba(46,204,113,0.2)]"
+              animate={{ rotate: -360 }}
+              transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+            />
+            
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-r from-[#2ECC71] to-[#27AE60] rounded-full blur-md"
+              animate={{ 
+                opacity: [0.3, 0.6, 0.3],
+                scale: [1, 1.1, 1]
+              }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
+            
+            <div className="relative w-full h-full rounded-full overflow-hidden border-2 border-[rgba(46,204,113,0.5)] group-hover:border-[#2ECC71] transition-all duration-500">
               {developer.image ? (
-                <img
+                <motion.img
                   src={developer.image}
                   alt={developer.name}
-                  className="w-full h-full object-cover aspect-square group-hover:scale-110 transition-transform duration-500"
+                  className="w-full h-full object-cover"
+                  whileHover={{ scale: 1.15 }}
+                  transition={{ duration: 0.5 }}
                 />
               ) : (
-                <div className="w-full h-full aspect-square bg-gradient-to-br from-[rgba(46,204,113,0.3)] to-[rgba(39,174,96,0.3)] flex items-center justify-center">
+                <div className="w-full h-full bg-gradient-to-br from-[rgba(46,204,113,0.3)] to-[rgba(39,174,96,0.3)] flex items-center justify-center">
                   <span className="text-3xl font-bold text-[#2ECC71]">
                     {developer.name.split(' ').map(n => n[0]).join('')}
                   </span>
                 </div>
               )}
             </div>
+
+            <motion.div
+              className="absolute bottom-1 right-1 w-4 h-4 bg-[#2ECC71] rounded-full border-2 border-black"
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
           </div>
 
-          {/* Name and Role */}
-          <div className="text-center mb-4">
-            <h3 className="text-lg font-semibold text-white mb-1 group-hover:text-[#2ECC71] transition-colors duration-300">
+          <motion.div 
+            className="text-center mb-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            <motion.h3 
+              className="text-lg font-semibold text-white mb-1 group-hover:text-[#2ECC71] transition-colors duration-300"
+              whileHover={{ scale: 1.05 }}
+            >
               {developer.name}
-            </h3>
-            <p className="text-[#2ECC71] text-sm font-medium mb-1">{developer.role}</p>
-            <p className="text-gray-500 text-xs">{developer.designation}</p>
-          </div>
+            </motion.h3>
+            <motion.div
+              className="flex items-center justify-center gap-2 mb-1"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4 }}
+            >
+              <Star className="w-3 h-3 text-[#2ECC71]" />
+              <p className="text-[#2ECC71] text-sm font-medium">{developer.role}</p>
+            </motion.div>
+            <motion.p 
+              className="text-gray-500 text-xs"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+            >
+              {developer.designation}
+            </motion.p>
+          </motion.div>
 
-          {/* Social Links */}
-          <div className="flex justify-center gap-2">
+          <motion.div 
+            className="flex justify-center gap-2"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+          >
             <SocialLink href={developer.facebook} icon={FacebookIcon} label="Facebook" />
             <SocialLink href={developer.linkedin} icon={LinkedinIcon} label="LinkedIn" />
             <SocialLink href={developer.github} icon={GithubIcon} label="GitHub" />
             {developer.email && (
               <SocialLink href={`mailto:${developer.email}`} icon={EmailIcon} label="Email" />
             )}
+          </motion.div>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
+// Enhanced Moderator Card
+const ModeratorCard = ({ developer }: { developer: Developer }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, scale: 0.8, rotateY: -30 }}
+      animate={isInView ? { opacity: 1, scale: 1, rotateY: 0 } : {}}
+      transition={{ duration: 1, type: "spring", stiffness: 80 }}
+      className="group relative max-w-xl mx-auto"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <motion.div 
+        className="absolute -inset-1 bg-gradient-to-r from-[#2ECC71] via-[#27AE60] to-[#2ECC71] rounded-3xl blur-lg"
+        animate={{ 
+          opacity: isHovered ? 0.6 : 0.3,
+          scale: isHovered ? 1.02 : 1
+        }}
+        transition={{ duration: 0.5 }}
+      />
+      
+      <motion.div
+        className="absolute -inset-[2px] rounded-3xl overflow-hidden"
+        style={{
+          background: "linear-gradient(90deg, #2ECC71, transparent, #2ECC71)",
+        }}
+        animate={{ rotate: 360 }}
+        transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+      />
+      
+      <div className="relative bg-gradient-to-br from-[rgba(46,204,113,0.15)] via-[rgba(46,204,113,0.05)] to-[rgba(0,0,0,0.8)] border border-[rgba(46,204,113,0.4)] rounded-3xl p-8 backdrop-blur-md overflow-hidden">
+        <motion.div
+          className="absolute inset-0 opacity-30"
+          style={{
+            background: "radial-gradient(circle at 30% 30%, rgba(46,204,113,0.3), transparent 50%), radial-gradient(circle at 70% 70%, rgba(39,174,96,0.3), transparent 50%)"
+          }}
+          animate={{
+            background: [
+              "radial-gradient(circle at 30% 30%, rgba(46,204,113,0.3), transparent 50%), radial-gradient(circle at 70% 70%, rgba(39,174,96,0.3), transparent 50%)",
+              "radial-gradient(circle at 70% 30%, rgba(46,204,113,0.3), transparent 50%), radial-gradient(circle at 30% 70%, rgba(39,174,96,0.3), transparent 50%)",
+              "radial-gradient(circle at 30% 30%, rgba(46,204,113,0.3), transparent 50%), radial-gradient(circle at 70% 70%, rgba(39,174,96,0.3), transparent 50%)"
+            ]
+          }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+        />
+        
+        <motion.div
+          className="absolute top-8 left-8"
+          animate={{ y: [0, -10, 0], rotate: [0, 10, 0] }}
+          transition={{ duration: 4, repeat: Infinity }}
+        >
+          <Terminal className="w-6 h-6 text-[rgba(46,204,113,0.3)]" />
+        </motion.div>
+        <motion.div
+          className="absolute bottom-8 right-8"
+          animate={{ y: [0, 10, 0], rotate: [0, -10, 0] }}
+          transition={{ duration: 5, repeat: Infinity }}
+        >
+          <Coffee className="w-6 h-6 text-[rgba(46,204,113,0.3)]" />
+        </motion.div>
+        <motion.div
+          className="absolute top-1/2 left-8"
+          animate={{ x: [0, 10, 0] }}
+          transition={{ duration: 3, repeat: Infinity }}
+        >
+          <Rocket className="w-5 h-5 text-[rgba(46,204,113,0.2)]" />
+        </motion.div>
+        
+        <motion.div
+          className="absolute top-4 right-4 z-20"
+          initial={{ x: 50, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ delay: 0.5, type: "spring" }}
+        >
+          <motion.div
+            className="flex items-center gap-1.5 bg-gradient-to-r from-[#2ECC71] to-[#27AE60] px-4 py-2 rounded-full relative overflow-hidden"
+            whileHover={{ scale: 1.1 }}
+          >
+            <motion.div
+              className="absolute inset-0 bg-white opacity-0"
+              animate={{ x: ["-100%", "100%"], opacity: [0, 0.3, 0] }}
+              transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
+            />
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+            >
+              <Sparkles className="w-4 h-4 text-black" />
+            </motion.div>
+            <span className="text-xs font-bold text-black tracking-wider">TEAM LEAD</span>
+          </motion.div>
+        </motion.div>
+
+        <div className="relative z-10 flex flex-col items-center text-center pt-4">
+          <div className="relative mb-6">
+            <motion.div
+              className="absolute -inset-4 rounded-full"
+              style={{
+                background: 'conic-gradient(from 0deg, #2ECC71, transparent, #2ECC71)',
+              }}
+              animate={{ rotate: 360 }}
+              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+            />
+            <motion.div
+              className="absolute -inset-6 rounded-full border-2 border-dashed border-[rgba(46,204,113,0.3)]"
+              animate={{ rotate: -360 }}
+              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            />
+            <motion.div
+              className="absolute -inset-8 rounded-full border border-[rgba(46,204,113,0.15)]"
+              animate={{ scale: [1, 1.1, 1], opacity: [0.5, 0.2, 0.5] }}
+              transition={{ duration: 3, repeat: Infinity }}
+            />
+            
+            {[...Array(4)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute w-2 h-2 bg-[#2ECC71] rounded-full"
+                style={{
+                  top: '50%',
+                  left: '50%',
+                }}
+                animate={{
+                  rotate: 360,
+                }}
+                transition={{
+                  duration: 6 + i * 2,
+                  repeat: Infinity,
+                  ease: "linear",
+                }}
+              >
+                <motion.div
+                  className="absolute w-2 h-2 bg-[#2ECC71] rounded-full"
+                  style={{
+                    transform: `translateX(${130 + i * 15}px) translateY(-50%)`,
+                  }}
+                  animate={{ scale: [1, 1.5, 1] }}
+                  transition={{ duration: 2, repeat: Infinity, delay: i * 0.3 }}
+                />
+              </motion.div>
+            ))}
+            
+            <motion.div
+              className="absolute -inset-3 rounded-full opacity-60"
+              style={{
+                background: 'linear-gradient(90deg, #2ECC71, #27AE60, #2ECC71)',
+                filter: 'blur(15px)',
+              }}
+              animate={{ 
+                opacity: [0.4, 0.7, 0.4],
+                scale: [1, 1.05, 1]
+              }}
+              transition={{ duration: 3, repeat: Infinity }}
+            />
+            
+            <motion.div 
+              className="relative rounded-full overflow-hidden border-[3px] border-[#2ECC71] shadow-[0_0_40px_rgba(46,204,113,0.5)]"
+              style={{ width: '240px', height: '240px' }}
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.5 }}
+            >
+              <motion.img
+                src={developer.image}
+                alt={developer.name}
+                className="w-full h-full object-cover"
+                style={{ width: '240px', height: '240px' }}
+                animate={isHovered ? { scale: 1.1 } : { scale: 1 }}
+                transition={{ duration: 0.7 }}
+              />
+              
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-t from-[rgba(46,204,113,0.3)] to-transparent"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: isHovered ? 1 : 0 }}
+                transition={{ duration: 0.3 }}
+              />
+            </motion.div>
           </div>
+
+          <motion.div 
+            className="space-y-3"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <motion.h3 
+              className="text-3xl font-bold text-white group-hover:text-[#2ECC71] transition-colors duration-300"
+              whileHover={{ scale: 1.05, textShadow: "0 0 20px rgba(46,204,113,0.5)" }}
+            >
+              {developer.name}
+            </motion.h3>
+            <motion.div 
+              className="flex items-center justify-center gap-2"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+            >
+              <motion.div
+                animate={{ rotate: [0, 360] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+              >
+                <Code2 className="w-5 h-5 text-[#2ECC71]" />
+              </motion.div>
+              <p className="text-[#2ECC71] font-semibold text-lg">{developer.role}</p>
+            </motion.div>
+            <motion.p 
+              className="text-gray-400"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+            >
+              {developer.designation}
+            </motion.p>
+          </motion.div>
+
+          <motion.div 
+            className="flex justify-center gap-4 mt-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+          >
+            <SocialLink href={developer.facebook} icon={FacebookIcon} label="Facebook" />
+            <SocialLink href={developer.linkedin} icon={LinkedinIcon} label="LinkedIn" />
+            <SocialLink href={developer.github} icon={GithubIcon} label="GitHub" />
+            {developer.email && (
+              <SocialLink href={`mailto:${developer.email}`} icon={EmailIcon} label="Email" />
+            )}
+          </motion.div>
         </div>
       </div>
     </motion.div>
   );
 };
 
-const ModeratorCard = ({ developer }: { developer: Developer }) => {
+// Section Divider Component
+const SectionDivider = ({ title, icon: Icon }: { title: string; icon: React.ElementType }) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true });
+
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.8, type: "spring" }}
-      className="group relative max-w-xl mx-auto"
+      ref={ref}
+      className="flex items-center justify-center gap-4 my-12"
+      initial={{ opacity: 0 }}
+      animate={isInView ? { opacity: 1 } : {}}
+      transition={{ duration: 0.8 }}
     >
-      {/* Premium glow effect */}
-      <div className="absolute -inset-1 bg-gradient-to-r from-[#2ECC71] via-[#27AE60] to-[#2ECC71] rounded-3xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-500" />
-      
-      <div className="relative bg-gradient-to-br from-[rgba(46,204,113,0.15)] via-[rgba(46,204,113,0.05)] to-[rgba(0,0,0,0.5)] border border-[rgba(46,204,113,0.4)] rounded-3xl p-8 backdrop-blur-md hover:border-[#2ECC71] transition-all duration-500">
-        {/* Moderator badge */}
+      <motion.div
+        className="h-px bg-gradient-to-r from-transparent to-[#2ECC71] flex-1 max-w-[100px]"
+        initial={{ scaleX: 0 }}
+        animate={isInView ? { scaleX: 1 } : {}}
+        transition={{ duration: 0.8, delay: 0.2 }}
+        style={{ transformOrigin: "right" }}
+      />
+      <motion.div
+        className="flex items-center gap-3 px-6 py-3 bg-[rgba(46,204,113,0.1)] border border-[rgba(46,204,113,0.3)] rounded-full"
+        initial={{ scale: 0 }}
+        animate={isInView ? { scale: 1 } : {}}
+        transition={{ duration: 0.5, delay: 0.4, type: "spring" }}
+        whileHover={{ scale: 1.05 }}
+      >
         <motion.div
-          className="absolute top-4 right-4 flex items-center gap-1.5 bg-gradient-to-r from-[#2ECC71] to-[#27AE60] px-3 py-1.5 rounded-full z-20"
-          animate={{ scale: [1, 1.05, 1] }}
-          transition={{ duration: 2, repeat: Infinity }}
+          animate={{ rotate: [0, 360] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
         >
-          <Sparkles className="w-3.5 h-3.5 text-black" />
-          <span className="text-xs font-bold text-black tracking-wide">MODERATOR</span>
+          <Icon className="w-5 h-5 text-[#2ECC71]" />
         </motion.div>
-
-        <div className="relative z-10 flex flex-col items-center text-center pt-4">
-          {/* Profile Image Container */}
-          <div className="relative mb-6">
-            {/* Rotating glow ring */}
-            <motion.div
-              className="absolute -inset-3 rounded-full opacity-60"
-              style={{
-                background: 'linear-gradient(90deg, #2ECC71, #27AE60, #2ECC71)',
-                filter: 'blur(12px)',
-              }}
-              animate={{ rotate: 360 }}
-              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-            />
-            
-            {/* Image wrapper with fixed dimensions */}
-            <div 
-              className="relative rounded-full overflow-hidden border-[3px] border-[#2ECC71] shadow-[0_0_30px_rgba(46,204,113,0.4)]"
-              style={{ width: '240px', height: '240px' }}
-            >
-              <img
-                src={developer.image}
-                alt={developer.name}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                style={{ width: '240px', height: '240px' }}
-              />
-            </div>
-          </div>
-
-          {/* Info */}
-          <div className="space-y-2">
-            <h3 className="text-2xl font-bold text-white group-hover:text-[#2ECC71] transition-colors duration-300">
-              {developer.name}
-            </h3>
-            <div className="flex items-center justify-center gap-2">
-              <Code2 className="w-4 h-4 text-[#2ECC71]" />
-              <p className="text-[#2ECC71] font-semibold">{developer.role}</p>
-            </div>
-            <p className="text-gray-400 text-sm">{developer.designation}</p>
-          </div>
-
-          {/* Social Links */}
-          <div className="flex justify-center gap-4 mt-6">
-            <SocialLink href={developer.facebook} icon={FacebookIcon} label="Facebook" />
-            <SocialLink href={developer.linkedin} icon={LinkedinIcon} label="LinkedIn" />
-            <SocialLink href={developer.github} icon={GithubIcon} label="GitHub" />
-            {developer.email && (
-              <SocialLink href={`mailto:${developer.email}`} icon={EmailIcon} label="Email" />
-            )}
-          </div>
-        </div>
-      </div>
+        <span className="text-white font-semibold text-lg">{title}</span>
+      </motion.div>
+      <motion.div
+        className="h-px bg-gradient-to-l from-transparent to-[#2ECC71] flex-1 max-w-[100px]"
+        initial={{ scaleX: 0 }}
+        animate={isInView ? { scaleX: 1 } : {}}
+        transition={{ duration: 0.8, delay: 0.2 }}
+        style={{ transformOrigin: "left" }}
+      />
     </motion.div>
   );
 };
 
 export function DevelopersPage() {
+  const containerRef = useRef(null);
+  const { scrollYProgress } = useScroll({ target: containerRef });
+  const smoothProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
+  
+  const headerY = useTransform(smoothProgress, [0, 0.3], [0, -50]);
+  const headerOpacity = useTransform(smoothProgress, [0, 0.2], [1, 0.8]);
+
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden">
-      {/* Animated Background */}
+    <div ref={containerRef} className="min-h-screen bg-black relative overflow-hidden">
+      {/* Scroll Progress Bar */}
+      <motion.div
+        className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#2ECC71] to-[#27AE60] z-50 origin-left"
+        style={{ scaleX: smoothProgress }}
+      />
+      
+      {/* Animated Background - PRESERVED */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black" />
         <motion.div
@@ -327,7 +1739,7 @@ export function DevelopersPage() {
           transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
         />
         
-        {/* Large gradient orbs */}
+        {/* Large gradient orbs - PRESERVED */}
         <motion.div
           className="absolute top-20 -left-40 w-[500px] h-[500px] bg-[#2ECC71] rounded-full blur-[150px] opacity-20"
           animate={{ scale: [1, 1.2, 1], opacity: [0.15, 0.25, 0.15] }}
@@ -345,83 +1757,131 @@ export function DevelopersPage() {
         />
       </div>
 
+      {/* Additional Animated Elements */}
+      <FloatingParticles />
+      <GridLines />
+      <CodeLines />
+
       <div className="relative z-10 container mx-auto px-4 py-24">
-        {/* Back Button */}
+        {/* Animated Back Button */}
         <motion.div
-          initial={{ opacity: 0, x: -20 }}
+          initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.6, type: "spring" }}
           className="mb-8"
         >
           <Link
             to="/"
-            className="inline-flex items-center gap-2 text-gray-400 hover:text-[#2ECC71] transition-colors duration-300 group"
+            className="group inline-flex items-center gap-2 text-gray-400 hover:text-[#2ECC71] transition-colors duration-300 relative"
           >
-            <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-300" />
-            <span>Back to Home</span>
+            <motion.div
+              className="absolute -inset-2 bg-[rgba(46,204,113,0.1)] rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+            />
+            <motion.div
+              whileHover={{ x: -5 }}
+              transition={{ type: "spring", stiffness: 400 }}
+            >
+              <ChevronLeft className="w-5 h-5 relative z-10" />
+            </motion.div>
+            <span className="relative z-10">Back to Home</span>
           </Link>
         </motion.div>
 
-        {/* Header */}
+        {/* Enhanced Header */}
         <motion.div
-          initial={{ opacity: 0, y: -30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-16"
+          style={{ y: headerY, opacity: headerOpacity }}
+          className="text-center mb-12"
         >
           <motion.div
-            className="inline-flex items-center gap-2 bg-[rgba(46,204,113,0.1)] border border-[rgba(46,204,113,0.3)] rounded-full px-4 py-2 mb-6"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            className="inline-flex items-center gap-2 bg-[rgba(46,204,113,0.1)] border border-[rgba(46,204,113,0.3)] rounded-full px-5 py-2.5 mb-8"
+            initial={{ opacity: 0, scale: 0.8, y: -20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2, type: "spring" }}
+            whileHover={{ scale: 1.05, borderColor: "rgba(46,204,113,0.6)" }}
           >
-            <Users className="w-4 h-4 text-[#2ECC71]" />
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+            >
+              <Zap className="w-4 h-4 text-[#2ECC71]" />
+            </motion.div>
             <span className="text-[#2ECC71] text-sm font-medium">The Team Behind The Magic</span>
+            <motion.div
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <Sparkles className="w-4 h-4 text-[#2ECC71]" />
+            </motion.div>
           </motion.div>
           
-          <h1 className="text-4xl md:text-6xl font-bold mb-4">
-            <span className="text-white">Meet Our </span>
-            <span className="bg-gradient-to-r from-[#2ECC71] to-[#27AE60] bg-clip-text text-transparent">
+          <motion.h1 
+            className="text-5xl md:text-7xl font-bold mb-6"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+          >
+            <motion.span 
+              className="text-white inline-block"
+              whileHover={{ scale: 1.02 }}
+            >
+              Meet Our{" "}
+            </motion.span>
+            <motion.span 
+              className="bg-gradient-to-r from-[#2ECC71] via-[#27AE60] to-[#2ECC71] bg-clip-text text-transparent inline-block"
+              animate={{ 
+                backgroundPosition: ["0%", "100%", "0%"],
+              }}
+              transition={{ duration: 5, repeat: Infinity }}
+              style={{ backgroundSize: "200% 100%" }}
+            >
               Developers
-            </span>
-          </h1>
+            </motion.span>
+          </motion.h1>
           
           <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-gray-400 max-w-2xl mx-auto text-lg"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+            className="text-gray-400 max-w-2xl mx-auto text-lg leading-relaxed"
           >
             The talented individuals who brought this website to life with passion, creativity, and countless lines of code.
           </motion.p>
 
-          {/* Decorative line */}
-          <motion.div
-            className="mt-8 mx-auto h-1 bg-gradient-to-r from-transparent via-[#2ECC71] to-transparent rounded-full"
-            initial={{ width: 0 }}
-            animate={{ width: "200px" }}
-            transition={{ duration: 1, delay: 0.6 }}
-          />
+          {/* Animated decorative lines */}
+          <div className="flex items-center justify-center gap-2 mt-8">
+            <motion.div
+              className="h-1 bg-gradient-to-r from-transparent via-[#2ECC71] to-transparent rounded-full"
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: 80, opacity: 1 }}
+              transition={{ duration: 1, delay: 0.8 }}
+            />
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.5, delay: 1 }}
+            >
+              <Heart className="w-6 h-6 text-[#2ECC71]" />
+            </motion.div>
+            <motion.div
+              className="h-1 bg-gradient-to-r from-transparent via-[#2ECC71] to-transparent rounded-full"
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: 80, opacity: 1 }}
+              transition={{ duration: 1, delay: 0.8 }}
+            />
+          </div>
         </motion.div>
+
+        {/* GitHub Stats Section - REAL-TIME */}
+        <GitHubStatsSection />
 
         {/* Moderator Section */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.3 }}
-          className="mb-16"
+          className="mt-20 mb-20"
         >
-          <motion.h2
-            className="text-center text-2xl font-semibold text-white mb-8 flex items-center justify-center gap-3"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-          >
-            <span className="h-px w-12 bg-gradient-to-r from-transparent to-[#2ECC71]" />
-            <Code2 className="w-5 h-5 text-[#2ECC71]" />
-            Team Lead
-            <span className="h-px w-12 bg-gradient-to-l from-transparent to-[#2ECC71]" />
-          </motion.h2>
+          <SectionDivider title="Team Lead" icon={Code2} />
           <ModeratorCard developer={moderator} />
         </motion.div>
 
@@ -431,38 +1891,89 @@ export function DevelopersPage() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.5 }}
         >
-          <motion.h2
-            className="text-center text-2xl font-semibold text-white mb-8 flex items-center justify-center gap-3"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-          >
-            <span className="h-px w-12 bg-gradient-to-r from-transparent to-[#2ECC71]" />
-            <Users className="w-5 h-5 text-[#2ECC71]" />
-            Development Team
-            <span className="h-px w-12 bg-gradient-to-l from-transparent to-[#2ECC71]" />
-          </motion.h2>
+          <SectionDivider title="Development Team" icon={Users} />
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {developers.map((developer, index) => (
               <DeveloperCard key={developer.name} developer={developer} index={index} />
             ))}
           </div>
         </motion.div>
 
-        {/* Footer Section */}
+        {/* Enhanced Footer Section */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
-          className="mt-20 text-center"
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="mt-24 text-center"
         >
-          <div className="inline-flex items-center gap-2 bg-[rgba(46,204,113,0.05)] border border-[rgba(46,204,113,0.2)] rounded-2xl px-6 py-4">
-            <Sparkles className="w-5 h-5 text-[#2ECC71]" />
-            <p className="text-gray-400">
-              Built with <span className="text-[#2ECC71]">♥</span> by AUSTRC Web Development Team
+          <motion.div
+            className="relative inline-flex items-center gap-3 bg-[rgba(46,204,113,0.05)] border border-[rgba(46,204,113,0.2)] rounded-2xl px-8 py-5 overflow-hidden"
+            whileHover={{ scale: 1.02, borderColor: "rgba(46,204,113,0.4)" }}
+          >
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-[rgba(46,204,113,0.1)] to-transparent"
+              animate={{ x: ["-100%", "100%"] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+            />
+            
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+            >
+              <Sparkles className="w-6 h-6 text-[#2ECC71]" />
+            </motion.div>
+            <p className="text-gray-400 relative z-10">
+              Built with{" "}
+              <motion.span 
+                className="text-[#2ECC71] inline-block"
+                animate={{ scale: [1, 1.3, 1] }}
+                transition={{ duration: 1, repeat: Infinity }}
+              >
+                ♥
+              </motion.span>
+              {" "}by AUSTRC Web Development Team
             </p>
-          </div>
+            <motion.div
+              animate={{ y: [0, -5, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <Rocket className="w-5 h-5 text-[#2ECC71]" />
+            </motion.div>
+          </motion.div>
+          
+          <motion.div
+            className="mt-8 flex items-center justify-center gap-2 text-gray-500 text-sm"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+          >
+            <span>Crafted with</span>
+            <motion.span
+              className="text-[#2ECC71]"
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              React
+            </motion.span>
+            <span>+</span>
+            <motion.span
+              className="text-[#2ECC71]"
+              animate={{ opacity: [1, 0.5, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              TypeScript
+            </motion.span>
+            <span>+</span>
+            <motion.span
+              className="text-[#2ECC71]"
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+            >
+              Framer Motion
+            </motion.span>
+          </motion.div>
         </motion.div>
       </div>
     </div>
