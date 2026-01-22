@@ -238,8 +238,9 @@ export function AppDownloadPage() {
             clearInterval(interval);
             setTimeout(() => {
               setIsDownloading(false);
+              // Google Drive direct download link
               const link = document.createElement('a');
-              link.href = '/src/assets/APK/app-release.apk';
+              link.href = 'https://drive.google.com/uc?export=download&id=1EYbPcPy--fzPNJwF__y3Ay1_3f1qaD72';
               link.download = 'AUSTRC-App.apk';
               document.body.appendChild(link);
               link.click();
