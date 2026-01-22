@@ -1,7 +1,19 @@
 import { motion, useScroll, useTransform, useSpring, useInView } from 'motion/react';
 import { Code2, Users, Sparkles, ChevronLeft, Zap, Heart, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
+
+// Mobile detection hook
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 1024);
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  return isMobile;
+};
 
 // Import social icons from assets
 import FacebookIcon from '@/assets/icons/facebook.png';
@@ -9,19 +21,19 @@ import LinkedinIcon from '@/assets/icons/linkedin.png';
 import GithubIcon from '@/assets/icons/github.png';
 import EmailIcon from '@/assets/icons/email.png';
 
-// Import developer images
-import AhnafAmer from '@/assets/Contributors/Ahnaf Amer.jpg';
-import SaobiaIslam from '@/assets/Contributors/Saobia Islam - Saobia Islam (Tinni).png';
-import SamantaIslam from '@/assets/Contributors/Samanta Islam - Samanta Islam.jpg';
-import AranyHasan from '@/assets/Contributors/Arany - Arany Hasan.jpeg';
-import RehnumaTarannum from '@/assets/Contributors/10000697971 - Rehnuma Tarannum Ramisha.jpg';
-import ShakhawatHossain from '@/assets/Contributors/out.-01 - Shakhawat Hossain (Shoaib).jpeg';
-import AsifLimon from '@/assets/Contributors/Screenshot_20250330-204933.Photos - Asif Limon.png';
-import SaidulIslam from '@/assets/Contributors/04= - SAIDUL ISLAM SHEHAB.jpg';
-import FahmidSiddique from '@/assets/Contributors/Fahmid_Siddique_CSE_1.1 - Fahmid Siddique Ahmed.jpg';
-import FarhanaRahman from '@/assets/Contributors/IMG-20251231-WA0058 - Farhana Rahman.jpg';
-import ShajedulKabir from '@/assets/Contributors/Shajedul Kabir Rafi.jpg';
-import ObaidulEkram from '@/assets/Contributors/WhatsApp Image 2025-01-17 at 15.48.50 - Mohammad Obaidul Ekram Riad.jpeg';
+// Developer images from ImageKit
+const AhnafAmer = "https://ik.imagekit.io/mekt2pafz/Web%20site%20team/Ahnaf%20Amer.jpg";
+const SaobiaIslam = "https://ik.imagekit.io/mekt2pafz/Web%20site%20team/Saobia%20Islam%20-%20Saobia%20Islam%20(Tinni).png";
+const ShajedulKabir = "https://ik.imagekit.io/mekt2pafz/Web%20site%20team/Shajedul%20Kabir%20Rafi.jpg";
+const SamantaIslam = "https://ik.imagekit.io/mekt2pafz/Web%20site%20team/Samanta%20Islam%20-%20Samanta%20Islam.jpg";
+const AranyHasan = "https://ik.imagekit.io/mekt2pafz/Web%20site%20team/Arany%20-%20Arany%20Hasan.jpeg";
+const RehnumaTarannum = "https://ik.imagekit.io/mekt2pafz/Web%20site%20team/10000697971%20-%20Rehnuma%20Tarannum%20Ramisha.jpg";
+const ShakhawatHossain = "https://ik.imagekit.io/mekt2pafz/Web%20site%20team/out.-01%20-%20Shakhawat%20Hossain%20(Shoaib).jpeg";
+const AsifLimon = "https://ik.imagekit.io/mekt2pafz/Web%20site%20team/Screenshot_20250330-204933.Photos%20-%20Asif%20Limon.png";
+const SaidulIslam = "https://ik.imagekit.io/mekt2pafz/Web%20site%20team/04=%20-%20SAIDUL%20ISLAM%20SHEHAB.jpg";
+const FahmidSiddique = "https://ik.imagekit.io/mekt2pafz/Web%20site%20team/Fahmid_Siddique_CSE_1.1%20-%20Fahmid%20Siddique%20Ahmed.jpg";
+const FarhanaRahman = "https://ik.imagekit.io/mekt2pafz/Web%20site%20team/IMG-20251231-WA0058%20-%20Farhana%20Rahman.jpg";
+const ObaidulEkram = "https://ik.imagekit.io/mekt2pafz/Web%20site%20team/WhatsApp%20Image%202025-01-17%20at%2015.48.50%20-%20Mohammad%20Obaidul%20Ekram%20Riad.jpeg";
 
 interface Developer {
   name: string;
@@ -156,19 +168,23 @@ const developers: Developer[] = [
   }
 ];
 
-// Floating Particles Component
-const FloatingParticles = () => {
-  const particles = Array.from({ length: 50 }, (_, i) => ({
+// Floating Particles Component - Optimized for mobile
+const FloatingParticles = ({ isMobile }: { isMobile: boolean }) => {
+  // Reduce particles significantly on mobile
+  const particleCount = isMobile ? 0 : 15;
+  const particles = Array.from({ length: particleCount }, (_, i) => ({
     id: i,
-    size: Math.random() * 4 + 1,
+    size: Math.random() * 3 + 1,
     x: Math.random() * 100,
     y: Math.random() * 100,
-    duration: Math.random() * 20 + 10,
+    duration: Math.random() * 15 + 12,
     delay: Math.random() * 5,
   }));
 
+  if (isMobile) return null;
+
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ transform: 'translateZ(0)' }}>
       {particles.map((particle) => (
         <motion.div
           key={particle.id}
@@ -178,12 +194,11 @@ const FloatingParticles = () => {
             height: particle.size,
             left: `${particle.x}%`,
             top: `${particle.y}%`,
+            transform: 'translateZ(0)',
           }}
           animate={{
-            y: [0, -100, 0],
-            x: [0, Math.random() * 50 - 25, 0],
-            opacity: [0, 0.6, 0],
-            scale: [0, 1, 0],
+            y: [0, -80, 0],
+            opacity: [0, 0.4, 0],
           }}
           transition={{
             duration: particle.duration,
@@ -197,8 +212,10 @@ const FloatingParticles = () => {
   );
 };
 
-// Animated Grid Lines
-const GridLines = () => {
+// Animated Grid Lines - Desktop only
+const GridLines = ({ isMobile }: { isMobile: boolean }) => {
+  if (isMobile) return null;
+  
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-10">
       <svg className="w-full h-full">
@@ -213,7 +230,7 @@ const GridLines = () => {
         className="absolute inset-0 bg-gradient-to-b from-transparent via-[#2ECC71] to-transparent opacity-20"
         style={{ height: '2px' }}
         animate={{ y: ['-100%', '100vh'] }}
-        transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+        transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
       />
     </div>
   );
@@ -252,10 +269,8 @@ const CodeLines = () => {
   );
 };
 
-// Enhanced Social Link with Ripple Effect
-const SocialLink = ({ href, icon, label }: { href?: string; icon: string; label: string }) => {
-  const [ripple, setRipple] = useState(false);
-
+// Enhanced Social Link - Simplified for better performance
+const SocialLink = ({ href, icon, label, isMobile = false }: { href?: string; icon: string; label: string; isMobile?: boolean }) => {
   if (!href) return null;
   
   return (
@@ -265,35 +280,14 @@ const SocialLink = ({ href, icon, label }: { href?: string; icon: string; label:
       rel="noopener noreferrer"
       aria-label={label}
       className="relative w-11 h-11 bg-[rgba(46,204,113,0.1)] border border-[rgba(46,204,113,0.3)] rounded-full flex items-center justify-center overflow-hidden group"
-      whileHover={{ scale: 1.2, rotate: 5 }}
-      whileTap={{ scale: 0.9 }}
-      onHoverStart={() => setRipple(true)}
-      onHoverEnd={() => setRipple(false)}
+      whileHover={isMobile ? {} : { scale: 1.15 }}
+      whileTap={{ scale: 0.95 }}
     >
-      {ripple && (
+      {!isMobile && (
         <motion.div
-          className="absolute inset-0 bg-[#2ECC71]"
-          initial={{ scale: 0, opacity: 0.5 }}
-          animate={{ scale: 2, opacity: 0 }}
-          transition={{ duration: 0.6 }}
+          className="absolute inset-0 bg-gradient-to-r from-[#2ECC71] to-[#27AE60] opacity-0 group-hover:opacity-100 transition-opacity duration-300"
         />
       )}
-      
-      <motion.div
-        className="absolute inset-0 rounded-full border-2 border-transparent"
-        style={{
-          background: 'linear-gradient(90deg, transparent, #2ECC71, transparent)',
-          WebkitMask: 'linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0)',
-          WebkitMaskComposite: 'xor',
-          maskComposite: 'exclude',
-        }}
-        animate={{ rotate: 360 }}
-        transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-      />
-      
-      <motion.div
-        className="absolute inset-0 bg-gradient-to-r from-[#2ECC71] to-[#27AE60] opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-      />
       
       <img 
         src={icon} 
@@ -304,14 +298,15 @@ const SocialLink = ({ href, icon, label }: { href?: string; icon: string; label:
   );
 };
 
-// Enhanced Developer Card with 3D Effect
-const DeveloperCard = ({ developer, index }: { developer: Developer; index: number }) => {
+// Enhanced Developer Card - Optimized for mobile
+const DeveloperCard = ({ developer, index, isMobile }: { developer: Developer; index: number; isMobile: boolean }) => {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const isInView = useInView(ref, { once: true, margin: "-50px" });
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isMobile) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width - 0.5;
     const y = (e.clientY - rect.top) / rect.height - 0.5;
@@ -325,121 +320,72 @@ const DeveloperCard = ({ developer, index }: { developer: Developer; index: numb
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 80, rotateX: -15 }}
-      animate={isInView ? { opacity: 1, y: 0, rotateX: 0 } : {}}
+      initial={{ opacity: 0, y: 40 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{ 
-        duration: 0.8, 
-        delay: index * 0.1,
-        type: "spring",
-        stiffness: 100
+        duration: 0.5, 
+        delay: isMobile ? 0 : index * 0.08,
       }}
-      className="group relative perspective-1000"
+      className="group relative"
       onMouseMove={handleMouseMove}
-      onMouseEnter={() => setIsHovered(true)}
+      onMouseEnter={() => !isMobile && setIsHovered(true)}
       onMouseLeave={() => {
         setIsHovered(false);
         setMousePosition({ x: 0, y: 0 });
       }}
-      style={{
-        transformStyle: "preserve-3d",
-      }}
+      style={{ transform: 'translateZ(0)' }}
     >
       <motion.div
-        className="relative bg-gradient-to-br from-[rgba(46,204,113,0.08)] to-transparent border border-[rgba(46,204,113,0.2)] rounded-2xl p-6 backdrop-blur-sm overflow-hidden"
-        style={{
+        className="relative bg-gradient-to-br from-[rgba(46,204,113,0.08)] to-transparent border border-[rgba(46,204,113,0.2)] rounded-2xl p-6 overflow-hidden"
+        style={isMobile ? {} : {
           rotateX: isHovered ? rotateX : 0,
           rotateY: isHovered ? rotateY : 0,
-          transformStyle: "preserve-3d",
         }}
-        whileHover={{ 
+        whileHover={isMobile ? {} : { 
           borderColor: "rgba(46,204,113,0.6)",
-          boxShadow: "0 25px 50px -12px rgba(46,204,113,0.25)",
+          boxShadow: "0 15px 30px -10px rgba(46,204,113,0.2)",
         }}
         transition={{ duration: 0.3 }}
       >
-        <motion.div
-          className="absolute top-0 left-0 w-16 h-16 border-t-2 border-l-2 border-[#2ECC71] rounded-tl-2xl opacity-0 group-hover:opacity-100"
-          initial={{ scale: 0 }}
-          whileHover={{ scale: 1 }}
-          transition={{ duration: 0.3 }}
-        />
-        <motion.div
-          className="absolute bottom-0 right-0 w-16 h-16 border-b-2 border-r-2 border-[#2ECC71] rounded-br-2xl opacity-0 group-hover:opacity-100"
-          initial={{ scale: 0 }}
-          whileHover={{ scale: 1 }}
-          transition={{ duration: 0.3 }}
-        />
-        
-        <motion.div
-          className="absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-[#2ECC71] to-transparent opacity-0 group-hover:opacity-100"
-          animate={isHovered ? { top: ["0%", "100%"] } : {}}
-          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-        />
-        
-        {isHovered && (
+        {/* Decorative corners - Desktop only */}
+        {!isMobile && (
           <>
-            {[...Array(5)].map((_, i) => (
-              <motion.div
-                key={i}
-                className="absolute w-1 h-1 bg-[#2ECC71] rounded-full"
-                initial={{ 
-                  x: Math.random() * 200, 
-                  y: Math.random() * 200,
-                  opacity: 0 
-                }}
-                animate={{ 
-                  y: [null, -50],
-                  opacity: [0, 1, 0]
-                }}
-                transition={{ 
-                  duration: 2,
-                  delay: i * 0.2,
-                  repeat: Infinity
-                }}
-              />
-            ))}
+            <div className="absolute top-0 left-0 w-16 h-16 border-t-2 border-l-2 border-[#2ECC71] rounded-tl-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute bottom-0 right-0 w-16 h-16 border-b-2 border-r-2 border-[#2ECC71] rounded-br-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
           </>
         )}
         
-        <motion.div
-          className="absolute -top-20 -right-20 w-40 h-40 bg-[#2ECC71] rounded-full blur-[80px]"
-          animate={{ 
-            opacity: isHovered ? 0.3 : 0,
-            scale: isHovered ? 1.2 : 1
-          }}
-          transition={{ duration: 0.5 }}
-        />
+        {/* Hover glow - Desktop only */}
+        {!isMobile && isHovered && (
+          <div className="absolute -top-20 -right-20 w-40 h-40 bg-[#2ECC71] rounded-full opacity-20" style={{ filter: 'blur(60px)' }} />
+        )}
         
-        <div className="relative z-10" style={{ transform: "translateZ(50px)" }}>
+        <div className="relative z-10">
           <div className="relative mx-auto w-28 aspect-square mb-4">
-            <motion.div
-              className="absolute inset-[-4px] rounded-full border border-[rgba(46,204,113,0.3)]"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-            />
-            <motion.div
-              className="absolute inset-[-8px] rounded-full border border-[rgba(46,204,113,0.2)]"
-              animate={{ rotate: -360 }}
-              transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+            {/* Rotating borders - Desktop only */}
+            {!isMobile && (
+              <>
+                <motion.div
+                  className="absolute inset-[-4px] rounded-full border border-[rgba(46,204,113,0.3)]"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+                />
+              </>
+            )}
+            
+            {/* Static glow on mobile, animated on desktop */}
+            <div 
+              className="absolute inset-0 bg-gradient-to-r from-[#2ECC71] to-[#27AE60] rounded-full opacity-40"
+              style={{ filter: 'blur(8px)' }}
             />
             
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-[#2ECC71] to-[#27AE60] rounded-full blur-md"
-              animate={{ 
-                opacity: [0.3, 0.6, 0.3],
-                scale: [1, 1.1, 1]
-              }}
-              transition={{ duration: 2, repeat: Infinity }}
-            />
-            
-            <div className="relative w-full h-full rounded-full overflow-hidden border-2 border-[rgba(46,204,113,0.5)] group-hover:border-[#2ECC71] transition-all duration-500">
+            <div className="relative w-full h-full rounded-full overflow-hidden border-2 border-[rgba(46,204,113,0.5)] group-hover:border-[#2ECC71] transition-all duration-300">
               {developer.image ? (
-                <motion.img
+                <img
                   src={developer.image}
                   alt={developer.name}
                   className="w-full h-full object-cover"
-                  whileHover={{ scale: 1.15 }}
-                  transition={{ duration: 0.5 }}
+                  loading="lazy"
                 />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-[rgba(46,204,113,0.3)] to-[rgba(39,174,96,0.3)] flex items-center justify-center">
@@ -494,11 +440,11 @@ const DeveloperCard = ({ developer, index }: { developer: Developer; index: numb
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
           >
-            <SocialLink href={developer.facebook} icon={FacebookIcon} label="Facebook" />
-            <SocialLink href={developer.linkedin} icon={LinkedinIcon} label="LinkedIn" />
-            <SocialLink href={developer.github} icon={GithubIcon} label="GitHub" />
+            <SocialLink href={developer.facebook} icon={FacebookIcon} label="Facebook" isMobile={isMobile} />
+            <SocialLink href={developer.linkedin} icon={LinkedinIcon} label="LinkedIn" isMobile={isMobile} />
+            <SocialLink href={developer.github} icon={GithubIcon} label="GitHub" isMobile={isMobile} />
             {developer.email && (
-              <SocialLink href={`mailto:${developer.email}`} icon={EmailIcon} label="Email" />
+              <SocialLink href={`mailto:${developer.email}`} icon={EmailIcon} label="Email" isMobile={isMobile} />
             )}
           </motion.div>
         </div>
@@ -507,216 +453,111 @@ const DeveloperCard = ({ developer, index }: { developer: Developer; index: numb
   );
 };
 
-// Enhanced Moderator Card
-const ModeratorCard = ({ developer }: { developer: Developer }) => {
-  const [isHovered, setIsHovered] = useState(false);
+// Enhanced Moderator Card - Optimized for mobile
+const ModeratorCard = ({ developer, isMobile }: { developer: Developer; isMobile: boolean }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
 
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, scale: 0.8, rotateY: -30 }}
-      animate={isInView ? { opacity: 1, scale: 1, rotateY: 0 } : {}}
-      transition={{ duration: 1, type: "spring", stiffness: 80 }}
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={isInView ? { opacity: 1, scale: 1 } : {}}
+      transition={{ duration: 0.6 }}
       className="group relative max-w-xl mx-auto"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      style={{ transform: 'translateZ(0)' }}
     >
-      <motion.div 
-        className="absolute -inset-1 bg-gradient-to-r from-[#2ECC71] via-[#27AE60] to-[#2ECC71] rounded-3xl blur-lg"
-        animate={{ 
-          opacity: isHovered ? 0.6 : 0.3,
-          scale: isHovered ? 1.02 : 1
-        }}
-        transition={{ duration: 0.5 }}
+      {/* Background glow - Simplified on mobile */}
+      <div 
+        className="absolute -inset-1 bg-gradient-to-r from-[#2ECC71] via-[#27AE60] to-[#2ECC71] rounded-3xl opacity-30"
+        style={{ filter: isMobile ? 'blur(10px)' : 'blur(16px)' }}
       />
       
-      <motion.div
-        className="absolute -inset-[2px] rounded-3xl overflow-hidden"
-        style={{
-          background: "linear-gradient(90deg, #2ECC71, transparent, #2ECC71)",
-        }}
-        animate={{ rotate: 360 }}
-        transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-      />
-      
-      <div className="relative bg-gradient-to-br from-[rgba(46,204,113,0.15)] via-[rgba(46,204,113,0.05)] to-[rgba(0,0,0,0.8)] border border-[rgba(46,204,113,0.4)] rounded-3xl p-8 backdrop-blur-md overflow-hidden">
+      {/* Rotating border - Desktop only */}
+      {!isMobile && (
         <motion.div
-          className="absolute inset-0 opacity-30"
+          className="absolute -inset-[2px] rounded-3xl overflow-hidden"
+          style={{
+            background: "linear-gradient(90deg, #2ECC71, transparent, #2ECC71)",
+          }}
+          animate={{ rotate: 360 }}
+          transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+        />
+      )}
+      
+      <div className="relative bg-gradient-to-br from-[rgba(46,204,113,0.15)] via-[rgba(46,204,113,0.05)] to-[rgba(0,0,0,0.8)] border border-[rgba(46,204,113,0.4)] rounded-3xl p-8 overflow-hidden">
+        {/* Static background gradient */}
+        <div
+          className="absolute inset-0 opacity-20"
           style={{
             background: "radial-gradient(circle at 30% 30%, rgba(46,204,113,0.3), transparent 50%), radial-gradient(circle at 70% 70%, rgba(39,174,96,0.3), transparent 50%)"
           }}
-          animate={{
-            background: [
-              "radial-gradient(circle at 30% 30%, rgba(46,204,113,0.3), transparent 50%), radial-gradient(circle at 70% 70%, rgba(39,174,96,0.3), transparent 50%)",
-              "radial-gradient(circle at 70% 30%, rgba(46,204,113,0.3), transparent 50%), radial-gradient(circle at 30% 70%, rgba(39,174,96,0.3), transparent 50%)",
-              "radial-gradient(circle at 30% 30%, rgba(46,204,113,0.3), transparent 50%), radial-gradient(circle at 70% 70%, rgba(39,174,96,0.3), transparent 50%)"
-            ]
-          }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         />
         
-        <motion.div
-          className="absolute top-4 right-4 z-20"
-          initial={{ x: 50, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ delay: 0.5, type: "spring" }}
-        >
-          <motion.div
-            className="flex items-center gap-1.5 bg-gradient-to-r from-[#2ECC71] to-[#27AE60] px-4 py-2 rounded-full relative overflow-hidden"
-            whileHover={{ scale: 1.1 }}
-          >
-            <motion.div
-              className="absolute inset-0 bg-white opacity-0"
-              animate={{ x: ["-100%", "100%"], opacity: [0, 0.3, 0] }}
-              transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
-            />
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-            >
-              <Sparkles className="w-4 h-4 text-black" />
-            </motion.div>
+        {/* Team Lead Badge */}
+        <div className="absolute top-4 right-4 z-20">
+          <div className="flex items-center gap-1.5 bg-gradient-to-r from-[#2ECC71] to-[#27AE60] px-4 py-2 rounded-full">
+            <Sparkles className="w-4 h-4 text-black" />
             <span className="text-xs font-bold text-black tracking-wider">TEAM LEAD</span>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
 
         <div className="relative z-10 flex flex-col items-center text-center pt-4">
           <div className="relative mb-6">
-            <motion.div
-              className="absolute -inset-4 rounded-full"
-              style={{
-                background: 'conic-gradient(from 0deg, #2ECC71, transparent, #2ECC71)',
-              }}
-              animate={{ rotate: 360 }}
-              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-            />
-            <motion.div
-              className="absolute -inset-6 rounded-full border-2 border-dashed border-[rgba(46,204,113,0.3)]"
-              animate={{ rotate: -360 }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            />
-            <motion.div
-              className="absolute -inset-8 rounded-full border border-[rgba(46,204,113,0.15)]"
-              animate={{ scale: [1, 1.1, 1], opacity: [0.5, 0.2, 0.5] }}
-              transition={{ duration: 3, repeat: Infinity }}
-            />
-            
-            {[...Array(4)].map((_, i) => (
+            {/* Rotating border - Desktop only */}
+            {!isMobile && (
               <motion.div
-                key={i}
-                className="absolute w-2 h-2 bg-[#2ECC71] rounded-full"
+                className="absolute -inset-4 rounded-full"
                 style={{
-                  top: '50%',
-                  left: '50%',
+                  background: 'conic-gradient(from 0deg, #2ECC71, transparent, #2ECC71)',
                 }}
-                animate={{
-                  rotate: 360,
-                }}
-                transition={{
-                  duration: 6 + i * 2,
-                  repeat: Infinity,
-                  ease: "linear",
-                }}
-              >
-                <motion.div
-                  className="absolute w-2 h-2 bg-[#2ECC71] rounded-full"
-                  style={{
-                    transform: `translateX(${130 + i * 15}px) translateY(-50%)`,
-                  }}
-                  animate={{ scale: [1, 1.5, 1] }}
-                  transition={{ duration: 2, repeat: Infinity, delay: i * 0.3 }}
-                />
-              </motion.div>
-            ))}
+                animate={{ rotate: 360 }}
+                transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+              />
+            )}
             
-            <motion.div
-              className="absolute -inset-3 rounded-full opacity-60"
+            {/* Static glow */}
+            <div
+              className="absolute -inset-3 rounded-full opacity-50"
               style={{
                 background: 'linear-gradient(90deg, #2ECC71, #27AE60, #2ECC71)',
-                filter: 'blur(15px)',
+                filter: 'blur(12px)',
               }}
-              animate={{ 
-                opacity: [0.4, 0.7, 0.4],
-                scale: [1, 1.05, 1]
-              }}
-              transition={{ duration: 3, repeat: Infinity }}
             />
             
-            <motion.div 
-              className="relative rounded-full overflow-hidden border-[3px] border-[#2ECC71] shadow-[0_0_40px_rgba(46,204,113,0.5)]"
-              style={{ width: '240px', height: '240px' }}
-              whileHover={{ scale: 1.05 }}
-              transition={{ duration: 0.5 }}
+            <div 
+              className="relative rounded-full overflow-hidden border-[3px] border-[#2ECC71] shadow-[0_0_30px_rgba(46,204,113,0.4)]"
+              style={{ width: '200px', height: '200px' }}
             >
-              <motion.img
+              <img
                 src={developer.image}
                 alt={developer.name}
                 className="w-full h-full object-cover"
-                style={{ width: '240px', height: '240px' }}
-                animate={isHovered ? { scale: 1.1 } : { scale: 1 }}
-                transition={{ duration: 0.7 }}
+                style={{ width: '200px', height: '200px' }}
+                loading="lazy"
               />
-              
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-t from-[rgba(46,204,113,0.3)] to-transparent"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: isHovered ? 1 : 0 }}
-                transition={{ duration: 0.3 }}
-              />
-            </motion.div>
+            </div>
           </div>
 
-          <motion.div 
-            className="space-y-3"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <motion.h3 
-              className="text-3xl font-bold text-white group-hover:text-[#2ECC71] transition-colors duration-300"
-              whileHover={{ scale: 1.05, textShadow: "0 0 20px rgba(46,204,113,0.5)" }}
-            >
+          <div className="space-y-3">
+            <h3 className="text-2xl md:text-3xl font-bold text-white group-hover:text-[#2ECC71] transition-colors duration-300">
               {developer.name}
-            </motion.h3>
-            <motion.div 
-              className="flex items-center justify-center gap-2"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-            >
-              <motion.div
-                animate={{ rotate: [0, 360] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-              >
-                <Code2 className="w-5 h-5 text-[#2ECC71]" />
-              </motion.div>
+            </h3>
+            <div className="flex items-center justify-center gap-2">
+              <Code2 className="w-5 h-5 text-[#2ECC71]" />
               <p className="text-[#2ECC71] font-semibold text-lg">{developer.role}</p>
-            </motion.div>
-            <motion.p 
-              className="text-gray-400"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-            >
-              {developer.designation}
-            </motion.p>
-          </motion.div>
+            </div>
+            <p className="text-gray-400">{developer.designation}</p>
+          </div>
 
-          <motion.div 
-            className="flex justify-center gap-4 mt-8"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-          >
-            <SocialLink href={developer.facebook} icon={FacebookIcon} label="Facebook" />
-            <SocialLink href={developer.linkedin} icon={LinkedinIcon} label="LinkedIn" />
-            <SocialLink href={developer.github} icon={GithubIcon} label="GitHub" />
+          <div className="flex justify-center gap-3 mt-6">
+            <SocialLink href={developer.facebook} icon={FacebookIcon} label="Facebook" isMobile={isMobile} />
+            <SocialLink href={developer.linkedin} icon={LinkedinIcon} label="LinkedIn" isMobile={isMobile} />
+            <SocialLink href={developer.github} icon={GithubIcon} label="GitHub" isMobile={isMobile} />
             {developer.email && (
-              <SocialLink href={`mailto:${developer.email}`} icon={EmailIcon} label="Email" />
+              <SocialLink href={`mailto:${developer.email}`} icon={EmailIcon} label="Email" isMobile={isMobile} />
             )}
-          </motion.div>
+          </div>
         </div>
       </div>
     </motion.div>
@@ -773,6 +614,7 @@ export function DevelopersPage() {
   const containerRef = useRef(null);
   const { scrollYProgress } = useScroll({ target: containerRef });
   const smoothProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
+  const isMobile = useIsMobile();
   
   const headerY = useTransform(smoothProgress, [0, 0.3], [0, -50]);
   const headerOpacity = useTransform(smoothProgress, [0, 0.2], [1, 0.8]);
@@ -785,37 +627,44 @@ export function DevelopersPage() {
         style={{ scaleX: smoothProgress }}
       />
       
-      {/* Animated Background - PRESERVED */}
-      <div className="absolute inset-0">
+      {/* Animated Background - Optimized for mobile */}
+      <div className="absolute inset-0" style={{ transform: 'translateZ(0)' }}>
         <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black" />
-        <motion.div
-          className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-[rgba(46,204,113,0.1)] via-transparent to-[rgba(46,204,113,0.1)] blur-3xl"
-          animate={{ opacity: [0.3, 0.5, 0.3] }}
-          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-        />
         
-        {/* Large gradient orbs - PRESERVED */}
-        <motion.div
-          className="absolute top-20 -left-40 w-[500px] h-[500px] bg-[#2ECC71] rounded-full blur-[150px] opacity-20"
-          animate={{ scale: [1, 1.2, 1], opacity: [0.15, 0.25, 0.15] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          className="absolute bottom-20 -right-40 w-[600px] h-[600px] bg-[#27AE60] rounded-full blur-[150px] opacity-20"
-          animate={{ scale: [1.2, 1, 1.2], opacity: [0.2, 0.15, 0.2] }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-gradient-to-r from-[#2ECC71] to-[#27AE60] rounded-full blur-[120px] opacity-10"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-        />
+        {/* Large gradient orbs - Static on mobile, animated on desktop */}
+        {isMobile ? (
+          <>
+            <div className="absolute top-20 -left-40 w-[400px] h-[400px] bg-[#2ECC71] rounded-full opacity-15" style={{ filter: 'blur(100px)' }} />
+            <div className="absolute bottom-20 -right-40 w-[400px] h-[400px] bg-[#27AE60] rounded-full opacity-15" style={{ filter: 'blur(100px)' }} />
+          </>
+        ) : (
+          <>
+            <motion.div
+              className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-[rgba(46,204,113,0.1)] via-transparent to-[rgba(46,204,113,0.1)]"
+              style={{ filter: 'blur(64px)' }}
+              animate={{ opacity: [0.3, 0.5, 0.3] }}
+              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <motion.div
+              className="absolute top-20 -left-40 w-[500px] h-[500px] bg-[#2ECC71] rounded-full opacity-20"
+              style={{ filter: 'blur(120px)' }}
+              animate={{ scale: [1, 1.1, 1], opacity: [0.15, 0.2, 0.15] }}
+              transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <motion.div
+              className="absolute bottom-20 -right-40 w-[600px] h-[600px] bg-[#27AE60] rounded-full opacity-20"
+              style={{ filter: 'blur(120px)' }}
+              animate={{ scale: [1.1, 1, 1.1], opacity: [0.2, 0.15, 0.2] }}
+              transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+            />
+          </>
+        )}
       </div>
 
-      {/* Additional Animated Elements */}
-      <FloatingParticles />
-      <GridLines />
-      <CodeLines />
+      {/* Additional Animated Elements - Desktop only */}
+      <FloatingParticles isMobile={isMobile} />
+      <GridLines isMobile={isMobile} />
+      {!isMobile && <CodeLines />}
 
       <div className="relative z-10 container mx-auto px-4 py-24">
         {/* Animated Back Button */}
@@ -936,7 +785,7 @@ export function DevelopersPage() {
           <div className="mb-10 mt-8">
             <SectionDivider title="Team Lead" icon={Code2} />
           </div>
-          <ModeratorCard developer={moderator} />
+          <ModeratorCard developer={moderator} isMobile={isMobile} />
         </motion.div>
 
         {/* Developers Section */}
@@ -951,7 +800,7 @@ export function DevelopersPage() {
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {developers.map((developer, index) => (
-              <DeveloperCard key={developer.name} developer={developer} index={index} />
+              <DeveloperCard key={developer.name} developer={developer} index={index} isMobile={isMobile} />
             ))}
           </div>
         </motion.div>
