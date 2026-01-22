@@ -765,7 +765,7 @@ export function AppDownloadPage() {
                   className="relative z-20"
                 >
                   <img
-                    src="/src/assets/mockup.png"
+                    src="https://ik.imagekit.io/mekt2pafz/Web%20site%20team/mockup.png"
                     alt="AUSTRC App"
                     className="w-[240px] sm:w-[280px] relative z-10"
                     style={{
