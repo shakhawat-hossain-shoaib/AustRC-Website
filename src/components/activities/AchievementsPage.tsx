@@ -4,6 +4,116 @@ import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from '@/config/firebase';
 import { Trophy, ChevronLeft, ChevronRight, X } from 'lucide-react';
 
+// Hero Section Background - exact copy from landing page
+function HeroBackground() {
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 1024);
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return (
+    <div className="fixed inset-0 -z-10 overflow-hidden">
+      {/* Animated Gradient Background */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black" />
+        {/* Only animate on desktop */}
+        {!isMobile ? (
+          <motion.div
+            className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-[rgba(46,204,113,0.15)] via-transparent to-[rgba(46,204,113,0.15)]"
+            style={{ filter: 'blur(64px)' }}
+            animate={{
+              opacity: [0.3, 0.5, 0.3],
+            }}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+        ) : (
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-[rgba(46,204,113,0.1)] via-transparent to-[rgba(46,204,113,0.1)] opacity-30" style={{ filter: 'blur(40px)' }} />
+        )}
+      </div>
+
+      {/* Neon Gradient Orbs - Hidden on mobile for performance */}
+      <div className="hidden lg:block absolute inset-0 opacity-30 overflow-hidden">
+        <motion.div
+          className="absolute top-20 -left-20 w-96 h-96 bg-[#2ECC71] rounded-full"
+          style={{ filter: 'blur(100px)', transform: 'translateZ(0)' }}
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{
+            duration: 5,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+        <motion.div
+          className="absolute bottom-20 -right-20 w-[500px] h-[500px] bg-[#27AE60] rounded-full"
+          style={{ filter: 'blur(100px)', transform: 'translateZ(0)' }}
+          animate={{
+            scale: [1.2, 1, 1.2],
+            opacity: [0.5, 0.3, 0.5],
+          }}
+          transition={{
+            duration: 6,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+        <motion.div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-[#2ECC71] to-[#27AE60] rounded-full"
+          style={{ filter: 'blur(80px)', transform: 'translateZ(0)' }}
+          animate={{
+            rotate: [0, 360],
+            opacity: [0.2, 0.4, 0.2],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+        />
+      </div>
+      
+      {/* Static gradient for mobile */}
+      <div className="lg:hidden absolute inset-0 opacity-20 overflow-hidden">
+        <div className="absolute top-20 -left-20 w-64 h-64 bg-[#2ECC71] rounded-full" style={{ filter: 'blur(60px)' }} />
+        <div className="absolute bottom-20 -right-20 w-72 h-72 bg-[#27AE60] rounded-full" style={{ filter: 'blur(60px)' }} />
+      </div>
+    </div>
+  );
+}
+
+// Scroll progress indicator
+function ScrollProgress() {
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const scrolled = window.scrollY;
+      setScrollProgress((scrolled / scrollHeight) * 100);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  return (
+    <motion.div
+      className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#2ECC71] to-[#27AE60] origin-left z-50"
+      style={{ scaleX: scrollProgress / 100 }}
+    />
+  );
+}
+
 interface Achievement {
   id: string;
   Name?: string;          // Title of the achievement (mandatory)
@@ -197,67 +307,72 @@ export function AchievementsPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-black text-white pt-24 pb-12 px-6">
-      <div className="container mx-auto">
-        {/* Header Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
-        >
-          <span className="text-[#2ECC71] text-sm font-medium tracking-wider uppercase mb-2 block">
-            Hall of Excellence
-          </span>
-          <h1 className="text-5xl font-bold mb-6">Our Achievements</h1>
-          <p className="text-gray-400 max-w-2xl mx-auto">
-            Celebrating the milestones, awards, and recognition our members have brought to the club.
-          </p>
-        </motion.div>
-
-        {/* Loading State */}
-        {loading && (
-          <div className="flex justify-center items-center py-20">
-            <div className="relative">
-              <div className="w-16 h-16 border-4 border-[#2ECC71]/20 border-t-[#2ECC71] rounded-full animate-spin"></div>
-              <Trophy className="w-6 h-6 text-[#2ECC71] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
-            </div>
-          </div>
-        )}
-
-        {/* Error State */}
-        {error && (
-          <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-8 text-center">
-            <p className="text-red-400">{error}</p>
-          </div>
-        )}
-
-        {/* Empty State */}
-        {!loading && !error && achievements.length === 0 && (
+    <main className="relative min-h-screen bg-black overflow-x-hidden w-full max-w-[100vw]">
+      <HeroBackground />
+      <ScrollProgress />
+      
+      <div className="text-white pt-24 pb-12 px-6">
+        <div className="container mx-auto relative z-10">
+          {/* Header Section */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-[#0a1810] border border-[#2ECC71]/20 rounded-2xl p-12 text-center"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
           >
-            <Trophy className="w-16 h-16 text-[#2ECC71]/50 mx-auto mb-4" />
-            <h3 className="text-2xl font-bold text-white mb-2">No Achievements Yet</h3>
-            <p className="text-gray-400">Check back soon for our latest accomplishments!</p>
+            <span className="text-[#2ECC71] text-sm font-medium tracking-wider uppercase mb-2 block">
+              Hall of Excellence
+            </span>
+            <h1 className="text-5xl font-bold mb-6">Our Achievements</h1>
+            <p className="text-gray-400 max-w-2xl mx-auto">
+              Celebrating the milestones, awards, and recognition our members have brought to the club.
+            </p>
           </motion.div>
-        )}
 
-        {/* Achievements Grid */}
-        {!loading && !error && achievements.length > 0 && (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {achievements.map((achievement, index) => (
-              <AchievementCard
-                key={achievement.id}
-                achievement={achievement}
-                index={index}
-                onClick={() => setSelectedAchievement(achievement)}
-              />
-            ))}
-          </div>
-        )}
+          {/* Loading State */}
+          {loading && (
+            <div className="flex justify-center items-center py-20">
+              <div className="relative">
+                <div className="w-16 h-16 border-4 border-[#2ECC71]/20 border-t-[#2ECC71] rounded-full animate-spin"></div>
+                <Trophy className="w-6 h-6 text-[#2ECC71] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+              </div>
+            </div>
+          )}
+
+          {/* Error State */}
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-8 text-center">
+              <p className="text-red-400">{error}</p>
+            </div>
+          )}
+
+          {/* Empty State */}
+          {!loading && !error && achievements.length === 0 && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-[#0a1810] border border-[#2ECC71]/20 rounded-2xl p-12 text-center"
+            >
+              <Trophy className="w-16 h-16 text-[#2ECC71]/50 mx-auto mb-4" />
+              <h3 className="text-2xl font-bold text-white mb-2">No Achievements Yet</h3>
+              <p className="text-gray-400">Check back soon for our latest accomplishments!</p>
+            </motion.div>
+          )}
+
+          {/* Achievements Grid */}
+          {!loading && !error && achievements.length > 0 && (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {achievements.map((achievement, index) => (
+                <AchievementCard
+                  key={achievement.id}
+                  achievement={achievement}
+                  index={index}
+                  onClick={() => setSelectedAchievement(achievement)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Achievement Detail Modal */}
@@ -307,7 +422,10 @@ export function AchievementsPage() {
           </>
         )}
       </AnimatePresence>
-    </div>
+      
+      {/* Glow effect - hidden on mobile for performance */}
+      <div className="hidden lg:block fixed bottom-10 right-10 w-32 h-32 bg-[#2ECC71]/20 rounded-full blur-3xl pointer-events-none z-0" />
+    </main>
   );
 }
 
