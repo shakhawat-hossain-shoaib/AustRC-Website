@@ -344,14 +344,13 @@ export function Navbar() {
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl overflow-hidden">
                     <img
-                      src="/src/assets/logo.png"
+                      src="https://ik.imagekit.io/mekt2pafz/Web%20site%20team/logo.png?updatedAt=1769056096931"
                       alt="AUSTRC Logo"
                       className="w-full h-full object-cover"
                     />
                   </div>
                   <div>
-                    <span className="text-white font-semibold text-sm">AUST</span>
-                    <span className="text-[#2ECC71] font-semibold text-sm">RC</span>
+                    <span className="text-white font-semibold text-sm">AUST Robotics Club</span>
                   </div>
                 </div>
                 <motion.button
