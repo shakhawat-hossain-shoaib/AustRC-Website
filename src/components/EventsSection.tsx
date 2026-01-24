@@ -257,7 +257,11 @@ const EventCard = ({
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         onClick={onClick}
-        whileTap={{ scale: 0.98 }}
+        whileTap={{ scale: 0.995 }}
+        style={{
+          WebkitTapHighlightColor: 'transparent',
+          touchAction: 'manipulation',
+        }}
       >
         {/* Neon Glow Effect on Hover */}
         <motion.div
@@ -462,6 +466,16 @@ const EventModal = ({
   onClose: () => void;
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  // Trigger animation after mount for smoother entrance
+  useEffect(() => {
+    // Small delay to ensure DOM is ready
+    const timer = requestAnimationFrame(() => {
+      setIsVisible(true);
+    });
+    return () => cancelAnimationFrame(timer);
+  }, []);
 
   // Handle escape key
   useEffect(() => {
@@ -484,18 +498,23 @@ const EventModal = ({
       {/* Backdrop */}
       <motion.div
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+        animate={{ opacity: isVisible ? 1 : 0 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.3 }}
+        transition={{ duration: 0.25, ease: 'easeOut' }}
         className="fixed inset-0 bg-black/90 backdrop-blur-xl"
-        style={{ zIndex: 99999 }}
+        style={{ 
+          zIndex: 99999,
+          willChange: 'opacity',
+          WebkitBackfaceVisibility: 'hidden',
+          backfaceVisibility: 'hidden',
+        }}
         onClick={handleBackdropClick}
       />
 
       {/* Modal Container */}
       <motion.div
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+        animate={{ opacity: isVisible ? 1 : 0 }}
         exit={{ opacity: 0 }}
         className="fixed inset-0 flex items-start justify-center p-4 sm:p-6 lg:p-8 overflow-y-auto py-8 sm:py-16"
         style={{ zIndex: 100000 }}
@@ -504,14 +523,16 @@ const EventModal = ({
         {/* Modal Content */}
         <motion.div
           ref={modalRef}
-          initial={{ opacity: 0, y: 100, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 100, scale: 0.95 }}
+          initial={{ opacity: 0, y: 50, scale: 0.97 }}
+          animate={{ 
+            opacity: isVisible ? 1 : 0, 
+            y: isVisible ? 0 : 50, 
+            scale: isVisible ? 1 : 0.97 
+          }}
+          exit={{ opacity: 0, y: 30, scale: 0.98 }}
           transition={{ 
-            duration: 0.5, 
-            type: 'spring', 
-            stiffness: 300, 
-            damping: 30 
+            duration: 0.3,
+            ease: [0.25, 0.46, 0.45, 0.94],
           }}
           className="relative w-full max-w-4xl overflow-hidden"
           onClick={(e) => e.stopPropagation()}
@@ -870,15 +891,43 @@ export function EventsSection() {
     fetchEvents();
   }, []);
 
-  // Lock body scroll when modal is open
+  // Lock body scroll when modal is open - prevents jitter on mobile
   useEffect(() => {
     if (selectedEvent) {
+      // Store current scroll position
+      const scrollY = window.scrollY;
+      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+      
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
       document.body.style.overflow = 'hidden';
     } else {
+      // Restore scroll position
+      const scrollY = document.body.style.top;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.paddingRight = '';
       document.body.style.overflow = '';
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY || '0', 10) * -1);
+      }
     }
     return () => {
+      const scrollY = document.body.style.top;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.paddingRight = '';
       document.body.style.overflow = '';
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY || '0', 10) * -1);
+      }
     };
   }, [selectedEvent]);
 
@@ -990,9 +1039,10 @@ export function EventsSection() {
       </section>
 
       {/* Modal */}
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="sync">
         {selectedEvent && (
           <EventModal
+            key={selectedEvent.id}
             event={selectedEvent}
             cachedImage={cachedImages[selectedEvent.id]}
             onClose={handleCloseModal}

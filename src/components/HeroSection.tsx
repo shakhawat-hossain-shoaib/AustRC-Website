@@ -43,29 +43,44 @@ const RotatingWords = ({
 
 export function HeroSection() {
   const rotatingWords = ["Safer Future", "Innovation", "Tomorrow", "Excellence"];
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 1024);
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black w-full max-w-full">
-      {/* Animated Gradient Background */}
+      {/* Animated Gradient Background - Simplified for mobile */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black" />
-        <motion.div
-          className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-[rgba(46,204,113,0.15)] via-transparent to-[rgba(46,204,113,0.15)] blur-3xl"
-          animate={{
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{
-            duration: 4,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
+        {/* Only animate on desktop */}
+        {!isMobile ? (
+          <motion.div
+            className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-[rgba(46,204,113,0.15)] via-transparent to-[rgba(46,204,113,0.15)]"
+            style={{ filter: 'blur(64px)' }}
+            animate={{
+              opacity: [0.3, 0.5, 0.3],
+            }}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+        ) : (
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-[rgba(46,204,113,0.1)] via-transparent to-[rgba(46,204,113,0.1)] opacity-30" style={{ filter: 'blur(40px)' }} />
+        )}
       </div>
 
-      {/* Neon Gradient Orbs */}
-      <div className="absolute inset-0 opacity-30 overflow-hidden">
+      {/* Neon Gradient Orbs - Hidden on mobile for performance */}
+      <div className="hidden lg:block absolute inset-0 opacity-30 overflow-hidden">
         <motion.div
-          className="absolute top-20 -left-20 w-96 h-96 bg-[#2ECC71] rounded-full blur-[120px]"
+          className="absolute top-20 -left-20 w-96 h-96 bg-[#2ECC71] rounded-full"
+          style={{ filter: 'blur(100px)', transform: 'translateZ(0)' }}
           animate={{
             scale: [1, 1.2, 1],
             opacity: [0.3, 0.5, 0.3],
@@ -77,7 +92,8 @@ export function HeroSection() {
           }}
         />
         <motion.div
-          className="absolute bottom-20 -right-20 w-[500px] h-[500px] bg-[#27AE60] rounded-full blur-[120px]"
+          className="absolute bottom-20 -right-20 w-[500px] h-[500px] bg-[#27AE60] rounded-full"
+          style={{ filter: 'blur(100px)', transform: 'translateZ(0)' }}
           animate={{
             scale: [1.2, 1, 1.2],
             opacity: [0.5, 0.3, 0.5],
@@ -89,7 +105,8 @@ export function HeroSection() {
           }}
         />
         <motion.div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-[#2ECC71] to-[#27AE60] rounded-full blur-[100px]"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-[#2ECC71] to-[#27AE60] rounded-full"
+          style={{ filter: 'blur(80px)', transform: 'translateZ(0)' }}
           animate={{
             rotate: [0, 360],
             opacity: [0.2, 0.4, 0.2],
@@ -100,6 +117,12 @@ export function HeroSection() {
             ease: "linear",
           }}
         />
+      </div>
+      
+      {/* Static gradient for mobile */}
+      <div className="lg:hidden absolute inset-0 opacity-20 overflow-hidden">
+        <div className="absolute top-20 -left-20 w-64 h-64 bg-[#2ECC71] rounded-full" style={{ filter: 'blur(60px)' }} />
+        <div className="absolute bottom-20 -right-20 w-72 h-72 bg-[#27AE60] rounded-full" style={{ filter: 'blur(60px)' }} />
       </div>
 
       <div className="container mx-auto px-4 py-20 relative z-10">
