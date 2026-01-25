@@ -2,8 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'r
 import { Navbar } from './components/Navbar';
 import { HomePage } from './components/HomePage';
 import { ActivitiesPage } from './components/ActivitiesPage';
-import { GoverningPanelHallOfFame } from './components/GoverningPanelHallOfFame';
-import { GoverningPanelSemester } from './components/GoverningPanelSemester';
+import { GoverningPanelPage } from './components/GoverningPanelPage';
 import { ResearchProjectsPage } from './components/ResearchProjectsPage';
 import { ProjectDetailPage } from './components/ProjectDetailPage';
 import { AboutPage } from './components/AboutPage';
@@ -33,7 +32,7 @@ function AppContent() {
       <Navbar />
       <Routes>
         <Route path="/" element={<HomePage />} />
-        
+
         <Route path="/activities" element={<ActivitiesPage />} />
         <Route path="/activities/events" element={<EventsPage />} />
         <Route path="/activities/achievements" element={<AchievementsPage />} />
@@ -48,14 +47,9 @@ function AppContent() {
         <Route path="/enthusiast-acquisition" element={<EnthusiastAcquisitionPage />} />
         <Route path="/research-projects" element={<ResearchProjectsPage />} />
         <Route path="/research-projects/:projectId" element={<ProjectDetailPage />} />
-        <Route path="/governing-panel/hall-of-fame" element={<GoverningPanelHallOfFame />} />
-        <Route path="/governing-panel/fall-2024" element={<GoverningPanelSemester semester="Fall" year="2024" />} />
-        <Route path="/governing-panel/spring-2024" element={<GoverningPanelSemester semester="Spring" year="2024" />} />
-        <Route path="/governing-panel/fall-2023" element={<GoverningPanelSemester semester="Fall" year="2023" />} />
-        <Route path="/governing-panel/spring-2023" element={<GoverningPanelSemester semester="Spring" year="2023" />} />
-        <Route path="/governing-panel/fall-2022" element={<GoverningPanelSemester semester="Fall" year="2022" />} />
-        <Route path="/governing-panel/spring-2022" element={<GoverningPanelSemester semester="Spring" year="2022" />} />
-        <Route path="/governing-panel/fall-2021" element={<GoverningPanelSemester semester="Fall" year="2021" />} />
+        {/* Dynamic Route for Governing Panel (Hall of Fame, Semesters) */}
+        <Route path="/governing-panel/:panelId" element={<GoverningPanelPage />} />
+
         <Route path="/developers" element={<DevelopersPage />} />
         <Route path="/get-app" element={<AppDownloadPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />

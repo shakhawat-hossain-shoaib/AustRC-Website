@@ -2,13 +2,13 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
-import { 
-  ChevronDown, 
-  Smartphone, 
-  Menu, 
-  X, 
+import {
+  ChevronDown,
+  Smartphone,
+  Menu,
+  X,
   ExternalLink,
-  ChevronRight 
+  ChevronRight
 } from 'lucide-react';
 
 export function Navbar() {
@@ -19,7 +19,7 @@ export function Navbar() {
   const [mobileActivitiesOpen, setMobileActivitiesOpen] = useState(false);
   const [mobileGoverningOpen, setMobileGoverningOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  
+
   const location = useLocation();
 
   // Check if mobile on mount and resize
@@ -27,10 +27,10 @@ export function Navbar() {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 1024);
     };
-    
+
     // Check on mount
     checkMobile();
-    
+
     // Check on resize
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
@@ -81,6 +81,8 @@ export function Navbar() {
 
   const governingPanelDropdownItems = [
     { name: 'Hall of Fame', path: '/governing-panel/hall-of-fame' },
+    { name: 'Spring 2025', path: '/governing-panel/spring-2025' },
+    { name: 'Fall 2025', path: '/governing-panel/fall-2025' },
     { name: 'Fall 2024', path: '/governing-panel/fall-2024' },
     { name: 'Spring 2024', path: '/governing-panel/spring-2024' },
     { name: 'Fall 2023', path: '/governing-panel/fall-2023' },
@@ -128,17 +130,16 @@ export function Navbar() {
   return (
     <>
       <motion.nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          scrolled
-            ? 'bg-transparent backdrop-blur-none'
-            : 'bg-gradient-to-b from-black/80 via-black/40 to-transparent backdrop-blur-md'
-        }`}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled
+          ? 'bg-transparent backdrop-blur-none'
+          : 'bg-gradient-to-b from-black/80 via-black/40 to-transparent backdrop-blur-md'
+          }`}
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.5 }}
       >
         <div className="w-full px-6 py-5 flex items-center justify-between">
-          
+
           {/* LOGO */}
           <div className="fixed left-6 top-5 z-50">
             <Link to="/">
@@ -344,13 +345,14 @@ export function Navbar() {
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl overflow-hidden">
                     <img
-                      src="https://ik.imagekit.io/mekt2pafz/Web%20site%20team/logo.png?updatedAt=1769056096931"
+                      src="/src/assets/logo.png"
                       alt="AUSTRC Logo"
                       className="w-full h-full object-cover"
                     />
                   </div>
                   <div>
-                    <span className="text-white font-semibold text-sm">AUST Robotics Club</span>
+                    <span className="text-white font-semibold text-sm">AUST</span>
+                    <span className="text-[#2ECC71] font-semibold text-sm">RC</span>
                   </div>
                 </div>
                 <motion.button
