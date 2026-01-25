@@ -188,4 +188,76 @@
 html {
   font-size: var(--font-size);
   overflow-x: hidden;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+body {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Mobile performance optimizations */
+@media (max-width: 1024px) {
+  html {
+    scroll-behavior: auto; /* Disable smooth scroll on mobile for better performance */
+  }
+  
+  body {
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  * {
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  
+  /* Reduce blur intensity on mobile for better performance */
+  .blur-3xl {
+    filter: blur(32px) !important;
+  }
+  
+  .blur-\[120px\],
+  .blur-\[100px\],
+  .blur-\[80px\] {
+    filter: blur(40px) !important;
+  }
+  
+  /* Disable backdrop blur on mobile - too expensive */
+  .backdrop-blur-xl,
+  .backdrop-blur-lg,
+  .backdrop-blur-md,
+  .backdrop-blur-sm,
+  .backdrop-blur {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background-color: rgba(0, 0, 0, 0.95) !important;
+  }
+  
+  /* Reduce animation complexity on mobile */
+  .animate-pulse,
+  .animate-bounce {
+    animation: none !important;
+  }
+  
+  /* Reduce motion for mobile */
+  .motion-safe\:animate-pulse,
+  .motion-safe\:animate-bounce {
+    animation: none !important;
+  }
+  
+  /* Hide heavy decorative elements on mobile */
+  .mobile-hidden-decoration {
+    display: none !important;
+  }
+}
+
+/* Force GPU acceleration for animated elements */
+.gpu-accelerated {
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }

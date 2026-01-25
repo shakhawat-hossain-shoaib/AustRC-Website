@@ -29,7 +29,19 @@ import {
 } from 'lucide-react';
 import { Button } from './ui/button';
 
-// Floating Particle Component
+// Check if mobile device
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 1024);
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  return isMobile;
+};
+
+// Floating Particle Component - optimized
 const FloatingParticle = ({ delay, duration, size, left, top }: { 
   delay: number; 
   duration: number; 
@@ -39,12 +51,10 @@ const FloatingParticle = ({ delay, duration, size, left, top }: {
 }) => (
   <motion.div
     className="absolute rounded-full bg-[#2ECC71]"
-    style={{ width: size, height: size, left, top }}
+    style={{ width: size, height: size, left, top, transform: 'translateZ(0)' }}
     animate={{
-      y: [-20, 20, -20],
-      x: [-10, 10, -10],
-      opacity: [0.2, 0.5, 0.2],
-      scale: [1, 1.3, 1],
+      y: [-10, 10, -10],
+      opacity: [0.2, 0.4, 0.2],
     }}
     transition={{
       duration,
@@ -55,22 +65,30 @@ const FloatingParticle = ({ delay, duration, size, left, top }: {
   />
 );
 
-// Glowing Orb Component
-const GlowingOrb = ({ className, delay = 0 }: { className: string; delay?: number }) => (
-  <motion.div
-    className={`absolute rounded-full blur-3xl ${className}`}
-    animate={{
-      scale: [1, 1.2, 1],
-      opacity: [0.3, 0.5, 0.3],
-    }}
-    transition={{
-      duration: 4,
-      delay,
-      repeat: Infinity,
-      ease: "easeInOut",
-    }}
-  />
-);
+// Glowing Orb Component - simplified
+const GlowingOrb = ({ className, delay = 0, isMobile = false }: { className: string; delay?: number; isMobile?: boolean }) => {
+  if (isMobile) {
+    // Static orb for mobile
+    return <div className={`absolute rounded-full ${className}`} style={{ filter: 'blur(40px)', opacity: 0.3 }} />;
+  }
+  
+  return (
+    <motion.div
+      className={`absolute rounded-full ${className}`}
+      style={{ filter: 'blur(60px)', transform: 'translateZ(0)' }}
+      animate={{
+        scale: [1, 1.1, 1],
+        opacity: [0.2, 0.3, 0.2],
+      }}
+      transition={{
+        duration: 6,
+        delay,
+        repeat: Infinity,
+        ease: "easeInOut",
+      }}
+    />
+  );
+};
 
 // Animated Counter Component
 const AnimatedCounter = ({ value, suffix = '' }: { value: number; suffix?: string }) => {
@@ -309,26 +327,29 @@ export function AppDownloadPage() {
     { icon: Clock, title: "Reminders", description: "Set custom reminders for activities" }
   ];
 
+  const isMobile = useIsMobile();
+  
   return (
     <main className="relative min-h-screen bg-black overflow-x-hidden">
       {/* Animated Background - Fixed */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <GlowingOrb className="w-[800px] h-[800px] bg-[#2ECC71]/20 top-[-200px] left-[-200px]" />
-        <GlowingOrb className="w-[600px] h-[600px] bg-[#27AE60]/15 bottom-[-100px] right-[-100px]" delay={1} />
-        <GlowingOrb className="w-[400px] h-[400px] bg-[#2ECC71]/10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" delay={2} />
+      <div className="fixed inset-0 overflow-hidden pointer-events-none" style={{ transform: 'translateZ(0)' }}>
+        <GlowingOrb className="w-[800px] h-[800px] bg-[#2ECC71]/20 top-[-200px] left-[-200px]" isMobile={isMobile} />
+        <GlowingOrb className="w-[600px] h-[600px] bg-[#27AE60]/15 bottom-[-100px] right-[-100px]" delay={1} isMobile={isMobile} />
+        {!isMobile && <GlowingOrb className="w-[400px] h-[400px] bg-[#2ECC71]/10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" delay={2} isMobile={isMobile} />}
         
-        {[...Array(20)].map((_, i) => (
+        {/* Reduced particles on mobile */}
+        {!isMobile && [...Array(8)].map((_, i) => (
           <FloatingParticle
             key={i}
-            delay={i * 0.2}
-            duration={4 + Math.random() * 4}
-            size={3 + Math.random() * 6}
+            delay={i * 0.3}
+            duration={5 + Math.random() * 3}
+            size={3 + Math.random() * 4}
             left={`${Math.random() * 100}%`}
             top={`${Math.random() * 100}%`}
           />
         ))}
         
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(46,204,113,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(46,204,113,0.03)_1px,transparent_1px)] bg-[size:60px_60px]" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(46,204,113,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(46,204,113,0.02)_1px,transparent_1px)] bg-[size:60px_60px]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,black_70%)]" />
       </div>
 
@@ -507,69 +528,83 @@ export function AppDownloadPage() {
                   className="absolute inset-0 bg-gradient-to-br from-[#2ECC71]/40 to-[#27AE60]/30 blur-[100px] rounded-full scale-75"
                 />
                 
-                {/* Rotating Rings */}
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                  className="absolute inset-[-50px] border border-[#2ECC71]/20 rounded-full"
-                />
-                <motion.div
-                  animate={{ rotate: -360 }}
-                  transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-                  className="absolute inset-[-100px] border border-dashed border-[#2ECC71]/10 rounded-full"
-                />
+                {/* Rotating Rings - Desktop only */}
+                {!isMobile && (
+                  <>
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                      className="absolute inset-[-50px] border border-[#2ECC71]/20 rounded-full"
+                    />
+                    <motion.div
+                      animate={{ rotate: -360 }}
+                      transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+                      className="absolute inset-[-100px] border border-dashed border-[#2ECC71]/10 rounded-full"
+                    />
+                  </>
+                )}
                 
-                {/* Notification Popups */}
-                <NotificationPopup
-                  icon={Calendar}
-                  title="New Event!"
-                  message="Robotics Workshop starts in 2 hours"
-                  delay={1.5}
-                  position={{ top: '5%', right: '-60%' }}
-                />
-                <NotificationPopup
-                  icon={Trophy}
-                  title="Achievement Unlocked!"
-                  message="You've earned the Early Bird badge"
-                  delay={2}
-                  position={{ bottom: '15%', left: '-65%' }}
-                />
+                {/* Notification Popups - Desktop only */}
+                {!isMobile && (
+                  <>
+                    <NotificationPopup
+                      icon={Calendar}
+                      title="New Event!"
+                      message="Robotics Workshop starts in 2 hours"
+                      delay={1.5}
+                      position={{ top: '5%', right: '-60%' }}
+                    />
+                    <NotificationPopup
+                      icon={Trophy}
+                      title="Achievement Unlocked!"
+                      message="You've earned the Early Bird badge"
+                      delay={2}
+                      position={{ bottom: '15%', left: '-65%' }}
+                    />
+                  </>
+                )}
                 
-                {/* Feature Pills */}
-                <FeaturePill
-                  icon={Zap}
-                  text="Fast & Smooth"
-                  delay={2.5}
-                  position={{ top: '25%', left: '-50%' }}
-                />
-                <FeaturePill
-                  icon={Shield}
-                  text="100% Secure"
-                  delay={2.8}
-                  position={{ bottom: '30%', right: '-45%' }}
-                />
+                {/* Feature Pills - Desktop only */}
+                {!isMobile && (
+                  <>
+                    <FeaturePill
+                      icon={Zap}
+                      text="Fast & Smooth"
+                      delay={2.5}
+                      position={{ top: '25%', left: '-50%' }}
+                    />
+                    <FeaturePill
+                      icon={Shield}
+                      text="100% Secure"
+                      delay={2.8}
+                      position={{ bottom: '30%', right: '-45%' }}
+                    />
+                  </>
+                )}
                 
-                {/* Main Mockup with 3D Mouse Effect */}
+                {/* Main Mockup with 3D Mouse Effect - Simplified on mobile */}
                 <motion.div
-                  style={{ rotateX, rotateY }}
+                  style={isMobile ? {} : { rotateX, rotateY }}
                   className="relative z-10"
                 >
-                  {/* Floating Animation */}
+                  {/* Floating Animation - Reduced on mobile */}
                   <motion.div
-                    animate={{ y: [-15, 15, -15] }}
+                    animate={isMobile ? {} : { y: [-15, 15, -15] }}
                     transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
                   >
-                    {/* Reflection */}
-                    <div className="absolute -bottom-24 left-1/2 -translate-x-1/2 w-[80%] h-40 bg-gradient-to-t from-[#2ECC71]/20 to-transparent blur-3xl rounded-full" />
+                    {/* Reflection - Hidden on mobile */}
+                    {!isMobile && <div className="absolute -bottom-24 left-1/2 -translate-x-1/2 w-[80%] h-40 bg-gradient-to-t from-[#2ECC71]/20 to-transparent blur-3xl rounded-full" />}
                     
                     {/* Mockup Container */}
                     <div className="relative">
-                      {/* Shine Overlay */}
-                      <motion.div
-                        className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent rounded-[3rem] z-20 pointer-events-none"
-                        animate={{ opacity: [0, 0.5, 0] }}
-                        transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
-                      />
+                      {/* Shine Overlay - Desktop only */}
+                      {!isMobile && (
+                        <motion.div
+                          className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent rounded-[3rem] z-20 pointer-events-none"
+                          animate={{ opacity: [0, 0.5, 0] }}
+                          transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
+                        />
+                      )}
                       
                       {/* The Mockup Image */}
                       <motion.img

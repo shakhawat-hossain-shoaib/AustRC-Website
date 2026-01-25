@@ -5,6 +5,116 @@ import { db } from '@/config/firebase';
 import { ArrowRight, Sparkles, Layers, Microscope } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+// Hero Section Background - exact copy from landing page
+function HeroBackground() {
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 1024);
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return (
+    <div className="fixed inset-0 -z-10 overflow-hidden">
+      {/* Animated Gradient Background */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black" />
+        {/* Only animate on desktop */}
+        {!isMobile ? (
+          <motion.div
+            className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-[rgba(46,204,113,0.15)] via-transparent to-[rgba(46,204,113,0.15)]"
+            style={{ filter: 'blur(64px)' }}
+            animate={{
+              opacity: [0.3, 0.5, 0.3],
+            }}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+        ) : (
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-[rgba(46,204,113,0.1)] via-transparent to-[rgba(46,204,113,0.1)] opacity-30" style={{ filter: 'blur(40px)' }} />
+        )}
+      </div>
+
+      {/* Neon Gradient Orbs - Hidden on mobile for performance */}
+      <div className="hidden lg:block absolute inset-0 opacity-30 overflow-hidden">
+        <motion.div
+          className="absolute top-20 -left-20 w-96 h-96 bg-[#2ECC71] rounded-full"
+          style={{ filter: 'blur(100px)', transform: 'translateZ(0)' }}
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{
+            duration: 5,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+        <motion.div
+          className="absolute bottom-20 -right-20 w-[500px] h-[500px] bg-[#27AE60] rounded-full"
+          style={{ filter: 'blur(100px)', transform: 'translateZ(0)' }}
+          animate={{
+            scale: [1.2, 1, 1.2],
+            opacity: [0.5, 0.3, 0.5],
+          }}
+          transition={{
+            duration: 6,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+        <motion.div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-[#2ECC71] to-[#27AE60] rounded-full"
+          style={{ filter: 'blur(80px)', transform: 'translateZ(0)' }}
+          animate={{
+            rotate: [0, 360],
+            opacity: [0.2, 0.4, 0.2],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+        />
+      </div>
+      
+      {/* Static gradient for mobile */}
+      <div className="lg:hidden absolute inset-0 opacity-20 overflow-hidden">
+        <div className="absolute top-20 -left-20 w-64 h-64 bg-[#2ECC71] rounded-full" style={{ filter: 'blur(60px)' }} />
+        <div className="absolute bottom-20 -right-20 w-72 h-72 bg-[#27AE60] rounded-full" style={{ filter: 'blur(60px)' }} />
+      </div>
+    </div>
+  );
+}
+
+// Scroll progress indicator
+function ScrollProgress() {
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const scrolled = window.scrollY;
+      setScrollProgress((scrolled / scrollHeight) * 100);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  return (
+    <motion.div
+      className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#2ECC71] to-[#27AE60] origin-left z-50"
+      style={{ scaleX: scrollProgress / 100 }}
+    />
+  );
+}
+
 // --- Types ---
 interface ActivityItem {
   id: string;
@@ -337,35 +447,39 @@ const ResearchSlider = () => {
 // --- MAIN PAGE COMPONENT ---
 export function EducationalActivitiesPage() {
   return (
-    <div className="min-h-screen bg-black text-white pt-24 pb-20 relative overflow-hidden">
+    <main className="relative min-h-screen bg-black overflow-x-hidden w-full max-w-[100vw]">
+      <HeroBackground />
+      <ScrollProgress />
       
-      <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-[#2ECC71]/5 to-transparent pointer-events-none" />
+      <div className="text-white pt-24 pb-20 relative">
+        <div className="container mx-auto px-6 mb-24 text-center relative z-10">
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+            <div className="inline-block px-5 py-2 mb-6 border border-[#2ECC71]/30 rounded-full bg-[#0a1810]">
+              <span className="text-[#2ECC71] text-sm font-medium tracking-wide">Learn & Grow</span>
+            </div>
+            <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 tracking-tight">Educational Programs</h1>
+            <p className="text-gray-400 max-w-2xl mx-auto text-lg leading-relaxed">
+              Simple steps to mastery. No technical background required.
+            </p>
+          </motion.div>
+        </div>
 
-      <div className="container mx-auto px-6 mb-24 text-center relative z-10">
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-          <div className="inline-block px-5 py-2 mb-6 border border-[#2ECC71]/30 rounded-full bg-[#0a1810]">
-            <span className="text-[#2ECC71] text-sm font-medium tracking-wide">Learn & Grow</span>
-          </div>
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 tracking-tight">Educational Programs</h1>
-          <p className="text-gray-400 max-w-2xl mx-auto text-lg leading-relaxed">
-            Simple steps to mastery. No technical background required.
-          </p>
-        </motion.div>
+        {/* 1. MENTORSHIP */}
+        <ActivitySection 
+          title="Mentorship & Skill Development" 
+          categoryBadge="Mentorship"
+          categorySlug="mentorship" 
+          icon={Layers}
+          collectionPath={['All_Data', 'Educational, Mentorship & Training Programs', 'educational, mentorship & training programs']} 
+          delay={0.1}
+        />
+
+        {/* 2. RESEARCH SLIDESHOW */}
+        <ResearchSlider />
       </div>
-
-      {/* 1. MENTORSHIP */}
-      <ActivitySection 
-        title="Mentorship & Skill Development" 
-        categoryBadge="Mentorship"
-        categorySlug="mentorship" 
-        icon={Layers}
-        collectionPath={['All_Data', 'Educational, Mentorship & Training Programs', 'educational, mentorship & training programs']} 
-        delay={0.1}
-      />
-
-      {/* 2. RESEARCH SLIDESHOW */}
-      <ResearchSlider />
-
-    </div>
+      
+      {/* Glow effect - hidden on mobile for performance */}
+      <div className="hidden lg:block fixed bottom-10 right-10 w-32 h-32 bg-[#2ECC71]/20 rounded-full blur-3xl pointer-events-none z-0" />
+    </main>
   );
 }

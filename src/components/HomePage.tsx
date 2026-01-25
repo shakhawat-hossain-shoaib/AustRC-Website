@@ -8,27 +8,36 @@ import { TestimonialsSection } from './TestimonialsSection';
 import { CollaborationsSection } from './CollaborationsSection';
 import { SponsorsSection } from './SponsorsSection';
 
-// Animated background particles
+// Animated background particles - reduced for mobile performance
 function AnimatedBackground() {
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 1024);
+  }, []);
+  
+  // Reduce particles on mobile (3) vs desktop (8)
+  const particleCount = isMobile ? 3 : 8;
+  
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden">
-      {[...Array(15)].map((_, i) => (
+      {[...Array(particleCount)].map((_, i) => (
         <motion.div
           key={i}
           className="absolute w-2 h-2 bg-[#2ECC71] rounded-full opacity-10"
-          initial={{
-            x: `${Math.random() * 100}%`,
-            y: `${Math.random() * 100}%`,
+          style={{ 
+            left: `${(i * 100) / particleCount}%`,
+            top: `${(i * 50) % 100}%`,
+            transform: 'translateZ(0)' 
           }}
           animate={{
-            x: `${Math.random() * 100}%`,
-            y: `${Math.random() * 100}%`,
-            scale: [1, 1.5, 1],
+            y: [0, 30, 0],
+            opacity: [0.1, 0.2, 0.1],
           }}
           transition={{
-            duration: Math.random() * 20 + 20,
+            duration: 8 + i * 2,
             repeat: Infinity,
-            ease: 'linear',
+            ease: 'easeInOut',
           }}
         />
       ))}
@@ -159,19 +168,8 @@ export function HomePage() {
         <SponsorsSection />
       </motion.div>
 
-      {/* Glow effect on scroll */}
-      <motion.div
-        className="fixed bottom-10 right-10 w-32 h-32 bg-[#2ECC71]/20 rounded-full blur-3xl pointer-events-none z-0"
-        animate={{
-          scale: [1, 1.2, 1],
-          opacity: [0.3, 0.6, 0.3],
-        }}
-        transition={{
-          duration: 4,
-          repeat: Infinity,
-          ease: 'easeInOut',
-        }}
-      />
+      {/* Glow effect - hidden on mobile for performance */}
+      <div className="hidden lg:block fixed bottom-10 right-10 w-32 h-32 bg-[#2ECC71]/20 rounded-full blur-3xl pointer-events-none z-0" />
     </main>
   );
 }

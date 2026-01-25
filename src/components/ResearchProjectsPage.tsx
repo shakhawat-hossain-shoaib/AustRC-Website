@@ -7,6 +7,116 @@ import { db } from "@/config/firebase";
 import { MANUAL_PROJECTS, ProjectSection, ProjectData } from "./ProjectData";
 import { ProjectDetailPage } from "./ProjectDetailPage";
 
+// Hero Section Background - exact copy from landing page
+function HeroBackground() {
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 1024);
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return (
+    <div className="fixed inset-0 -z-10 overflow-hidden">
+      {/* Animated Gradient Background */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black" />
+        {/* Only animate on desktop */}
+        {!isMobile ? (
+          <motion.div
+            className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-[rgba(46,204,113,0.15)] via-transparent to-[rgba(46,204,113,0.15)]"
+            style={{ filter: 'blur(64px)' }}
+            animate={{
+              opacity: [0.3, 0.5, 0.3],
+            }}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+        ) : (
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-[rgba(46,204,113,0.1)] via-transparent to-[rgba(46,204,113,0.1)] opacity-30" style={{ filter: 'blur(40px)' }} />
+        )}
+      </div>
+
+      {/* Neon Gradient Orbs - Hidden on mobile for performance */}
+      <div className="hidden lg:block absolute inset-0 opacity-30 overflow-hidden">
+        <motion.div
+          className="absolute top-20 -left-20 w-96 h-96 bg-[#2ECC71] rounded-full"
+          style={{ filter: 'blur(100px)', transform: 'translateZ(0)' }}
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{
+            duration: 5,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+        <motion.div
+          className="absolute bottom-20 -right-20 w-[500px] h-[500px] bg-[#27AE60] rounded-full"
+          style={{ filter: 'blur(100px)', transform: 'translateZ(0)' }}
+          animate={{
+            scale: [1.2, 1, 1.2],
+            opacity: [0.5, 0.3, 0.5],
+          }}
+          transition={{
+            duration: 6,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+        <motion.div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-[#2ECC71] to-[#27AE60] rounded-full"
+          style={{ filter: 'blur(80px)', transform: 'translateZ(0)' }}
+          animate={{
+            rotate: [0, 360],
+            opacity: [0.2, 0.4, 0.2],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+        />
+      </div>
+      
+      {/* Static gradient for mobile */}
+      <div className="lg:hidden absolute inset-0 opacity-20 overflow-hidden">
+        <div className="absolute top-20 -left-20 w-64 h-64 bg-[#2ECC71] rounded-full" style={{ filter: 'blur(60px)' }} />
+        <div className="absolute bottom-20 -right-20 w-72 h-72 bg-[#27AE60] rounded-full" style={{ filter: 'blur(60px)' }} />
+      </div>
+    </div>
+  );
+}
+
+// Scroll progress indicator
+function ScrollProgress() {
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const scrolled = window.scrollY;
+      setScrollProgress((scrolled / scrollHeight) * 100);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  return (
+    <motion.div
+      className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#2ECC71] to-[#27AE60] origin-left z-50"
+      style={{ scaleX: scrollProgress / 100 }}
+    />
+  );
+}
+
 export default function ResearchProjectsPage() {
   const [projects, setProjects] = useState<ProjectData[]>([]);
   const [filteredProjects, setFilteredProjects] = useState<ProjectData[]>([]);
@@ -163,41 +273,15 @@ export default function ResearchProjectsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-black relative overflow-x-hidden">
-      {/* Animated background */}
-      <div className="fixed inset-0 -z-10 overflow-hidden">
-        {[...Array(20)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-2 h-2 bg-[#2ECC71] rounded-full opacity-10"
-            initial={{
-              x:
-                Math.random() *
-                (typeof window !== "undefined" ? window.innerWidth : 1000),
-              y:
-                Math.random() *
-                (typeof window !== "undefined" ? window.innerHeight : 1000),
-            }}
-            animate={{
-              x:
-                Math.random() *
-                (typeof window !== "undefined" ? window.innerWidth : 1000),
-              y:
-                Math.random() *
-                (typeof window !== "undefined" ? window.innerHeight : 1000),
-              scale: [1, 1.5, 1],
-            }}
-            transition={{
-              duration: Math.random() * 20 + 20,
-              repeat: Infinity,
-              ease: "linear",
-            }}
-          />
-        ))}
-      </div>
+    <main className="relative min-h-screen bg-black overflow-x-hidden w-full max-w-[100vw]">
+      <HeroBackground />
+      <ScrollProgress />
+      
+      {/* Glow effect - hidden on mobile for performance */}
+      <div className="hidden lg:block fixed bottom-10 right-10 w-32 h-32 bg-[#2ECC71]/20 rounded-full blur-3xl pointer-events-none z-0" />
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 px-4">
+      <section className="relative pt-32 pb-20 px-4 z-10">
         <div className="container mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
