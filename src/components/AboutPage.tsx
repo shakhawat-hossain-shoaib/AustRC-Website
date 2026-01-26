@@ -537,39 +537,19 @@ export function AboutPage() {
                 transition={{ duration: 0.5, delay: 0.2 }}
                 className="flex justify-center mb-8"
               >
-                <div className="relative group">
-                  {/* Rotating rings */}
-                  <motion.div
-                    className="absolute -inset-4 rounded-3xl"
-                    style={{
-                      background: 'conic-gradient(from 0deg, #2ECC71, transparent, #2ECC71)',
-                    }}
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                  />
-                  <motion.div
-                    className="absolute -inset-6 rounded-3xl border-2 border-dashed border-[rgba(46,204,113,0.3)]"
-                    animate={{ rotate: -360 }}
-                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                  />
-                  
-                  {/* Glow effect */}
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-br from-[#2ECC71] to-[#27AE60] rounded-3xl blur-2xl opacity-50"
-                    animate={{ opacity: [0.3, 0.6, 0.3], scale: [1, 1.1, 1] }}
-                    transition={{ duration: 3, repeat: Infinity }}
-                  />
-                  
-                  <div className="relative w-32 h-32 bg-gradient-to-br from-[#2ECC71] to-[#27AE60] rounded-3xl flex items-center justify-center shadow-[0_0_60px_0_rgba(46,204,113,0.5)] border border-[rgba(46,204,113,0.5)]">
-                    <motion.span 
-                      className="text-white text-6xl font-bold"
-                      animate={{ textShadow: ["0 0 20px rgba(255,255,255,0.5)", "0 0 40px rgba(255,255,255,0.8)", "0 0 20px rgba(255,255,255,0.5)"] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                    >
-                      A
-                    </motion.span>
-                  </div>
-                </div>
+                <motion.img 
+                  src={logo}
+                  alt="AUSTRC Logo"
+                  className="w-40 h-40 object-contain"
+                  animate={{ 
+                    y: [0, -10, 0],
+                    filter: ["drop-shadow(0 0 10px rgba(46,204,113,0.3))", "drop-shadow(0 0 25px rgba(46,204,113,0.6))", "drop-shadow(0 0 10px rgba(46,204,113,0.3))"] 
+                  }}
+                  transition={{ 
+                    y: { duration: 4, repeat: Infinity, ease: "easeInOut" },
+                    filter: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+                  }}
+                />
               </motion.div>
 
               {/* Typing Title */}
