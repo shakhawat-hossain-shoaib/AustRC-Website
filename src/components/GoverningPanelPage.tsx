@@ -7,6 +7,62 @@ import { collection, getDocs, query } from "firebase/firestore";
 import { db } from "@/config/firebase";
 import { createPortal } from "react-dom";
 
+// ✅ Typewriter component for creative text reveal
+const TypewriterText = ({ 
+  text, 
+  delay = 0, 
+  speed = 0.03,
+  className = "" 
+}: { 
+  text: string; 
+  delay?: number; 
+  speed?: number;
+  className?: string;
+}) => {
+  const letters = text.split("");
+  
+  return (
+    <span className={className}>
+      {letters.map((letter, index) => (
+        <motion.span
+          key={index}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            duration: 0.1,
+            delay: delay + index * speed,
+            ease: "easeOut"
+          }}
+          style={{ display: "inline-block", whiteSpace: letter === " " ? "pre" : "normal" }}
+        >
+          {letter}
+        </motion.span>
+      ))}
+      <motion.span
+        className="inline-block w-[3px] h-[1em] bg-[#2ECC71] ml-1 align-middle"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: [0, 1, 0] }}
+        transition={{
+          duration: 0.8,
+          repeat: 3,
+          delay: delay + letters.length * speed,
+          ease: "linear"
+        }}
+      />
+    </span>
+  );
+};
+
+// ✅ Glowing line reveal animation
+const GlowingDivider = ({ delay = 0 }: { delay?: number }) => (
+  <motion.div
+    className="h-[2px] bg-gradient-to-r from-transparent via-[#2ECC71] to-transparent my-4"
+    initial={{ scaleX: 0, opacity: 0 }}
+    animate={{ scaleX: 1, opacity: 1 }}
+    transition={{ duration: 0.8, delay, ease: "easeOut" }}
+  />
+);
+
 interface Person {
   id: string;
   name: string;
@@ -500,65 +556,141 @@ export function GoverningPanelPage() {
                   </button>
 
                   {/* Image */}
-                  <div className="w-full md:w-1/2 h-64 md:h-auto relative bg-black">
-                    <img
+                  <div className="w-full md:w-1/2 h-64 md:h-auto relative bg-black overflow-hidden">
+                    <motion.img
                       src={selectedPerson.image}
                       alt={selectedPerson.name}
                       className="w-full h-full object-contain object-center"
+                      initial={{ scale: 1.2, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ duration: 0.8, ease: "easeOut" }}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0a1810] via-transparent to-transparent md:bg-gradient-to-r" />
+                    <motion.div 
+                      className="absolute inset-0 bg-gradient-to-t from-[#0a1810] via-transparent to-transparent md:bg-gradient-to-r"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.5, delay: 0.3 }}
+                    />
+                    {/* Scan line effect */}
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-b from-[#2ECC71]/20 via-transparent to-transparent h-[50%]"
+                      initial={{ y: "-100%" }}
+                      animate={{ y: "300%" }}
+                      transition={{ duration: 1.5, delay: 0.2, ease: "easeInOut" }}
+                    />
                   </div>
 
                   {/* Details */}
-                  <div className="w-full md:w-1/2 p-8 flex flex-col justify-center bg-black/40">
+                  <div className="w-full md:w-1/2 p-8 flex flex-col justify-center bg-black/40 overflow-hidden">
+                    {/* Category Badge */}
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.5, delay: 0.2 }}
+                      className="mb-4"
+                    >
+                      <span className="px-3 py-1 text-xs font-medium rounded-full bg-[#2ECC71]/20 text-[#2ECC71] border border-[#2ECC71]/30">
+                        {selectedPerson.category || "Member"}
+                      </span>
+                    </motion.div>
+
+                    {/* Name with Typewriter */}
                     <h2 className="text-4xl text-white font-bold mb-2">
-                      {selectedPerson.name}
+                      <TypewriterText 
+                        text={selectedPerson.name} 
+                        delay={0.4} 
+                        speed={0.04}
+                      />
                     </h2>
-                    <h3 className="text-xl text-[#2ECC71] mb-6">
-                      {selectedPerson.title}
+                    
+                    {/* Title with Typewriter */}
+                    <h3 className="text-xl text-[#2ECC71] mb-2">
+                      <TypewriterText 
+                        text={selectedPerson.title} 
+                        delay={0.4 + selectedPerson.name.length * 0.04 + 0.3} 
+                        speed={0.03}
+                      />
                     </h3>
 
-                    <div className="space-y-4 text-gray-300 mb-8">
+                    <GlowingDivider delay={0.4 + (selectedPerson.name.length + selectedPerson.title.length) * 0.035 + 0.5} />
+
+                    {/* Additional Info with staggered reveal */}
+                    <motion.div 
+                      className="space-y-3 text-gray-300 mb-6"
+                      initial="hidden"
+                      animate="visible"
+                      variants={{
+                        hidden: { opacity: 0 },
+                        visible: {
+                          opacity: 1,
+                          transition: {
+                            delayChildren: 1.2,
+                            staggerChildren: 0.15
+                          }
+                        }
+                      }}
+                    >
                       {selectedPerson.Description && (
-                        <p>{selectedPerson.Description}</p>
+                        <motion.p
+                          variants={{
+                            hidden: { opacity: 0, x: -20 },
+                            visible: { opacity: 1, x: 0 }
+                          }}
+                          className="text-sm leading-relaxed"
+                        >
+                          {selectedPerson.Description}
+                        </motion.p>
                       )}
                       {selectedPerson.Department && (
-                        <p>
+                        <motion.p
+                          variants={{
+                            hidden: { opacity: 0, x: -20 },
+                            visible: { opacity: 1, x: 0 }
+                          }}
+                          className="flex items-center gap-2"
+                        >
+                          <span className="w-2 h-2 rounded-full bg-[#2ECC71]" />
                           <span className="text-[#2ECC71]/70">Department:</span>{" "}
                           {selectedPerson.Department}
-                        </p>
+                        </motion.p>
                       )}
                       {selectedPerson.Session && (
-                        <p>
+                        <motion.p
+                          variants={{
+                            hidden: { opacity: 0, x: -20 },
+                            visible: { opacity: 1, x: 0 }
+                          }}
+                          className="flex items-center gap-2"
+                        >
+                          <span className="w-2 h-2 rounded-full bg-[#2ECC71]" />
                           <span className="text-[#2ECC71]/70">Session:</span>{" "}
                           {selectedPerson.Session}
-                        </p>
+                        </motion.p>
                       )}
-                    </div>
+                    </motion.div>
 
-                    <div className="flex gap-4">
-                      <SocialIcon
-                        href={selectedPerson.facebook}
-                        icon={Facebook}
-                        label="Facebook"
-                      />
-                      <SocialIcon
-                        href={selectedPerson.linkedin}
-                        icon={Linkedin}
-                        label="LinkedIn"
-                      />
-                      <SocialIcon
-                        href={selectedPerson.github}
-                        icon={Github}
-                        label="GitHub"
-                      />
-                      <SocialIcon
-                        href={selectedPerson.email}
-                        icon={Mail}
-                        label="Email"
-                        forceMailto
-                      />
-                    </div>
+                    {/* Social Icons with pop animation */}
+                    <motion.div 
+                      className="flex gap-4"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 1.5, duration: 0.5 }}
+                    >
+                      {[
+                        { href: selectedPerson.facebook, icon: Facebook, label: "Facebook" },
+                        { href: selectedPerson.linkedin, icon: Linkedin, label: "LinkedIn" },
+                        { href: selectedPerson.github, icon: Github, label: "GitHub" },
+                        { href: selectedPerson.email, icon: Mail, label: "Email", forceMailto: true }
+                      ].filter(social => social.href).map((social, idx) => (
+                            <SocialIcon
+                              key={social.label}
+                              href={social.href}
+                              icon={social.icon}
+                              label={social.label}
+                              forceMailto={social.forceMailto}
+                            />
+                      ))}
+                    </motion.div>
                   </div>
                 </div>
               </motion.div>
