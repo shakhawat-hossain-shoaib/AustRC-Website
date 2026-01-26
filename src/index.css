@@ -4184,3 +4184,14 @@ html {
     opacity: .5;
   }
 }
+
+html, body {
+  width: 100%;
+  overflow-x: hidden;
+  background: #000;
+}
+
+#root {
+  width: 100%;
+  overflow-x: hidden;
+}
