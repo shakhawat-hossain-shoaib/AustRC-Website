@@ -16,7 +16,7 @@ export function Footer({ theme = 'dark' }: FooterProps) {
     resources: [
       { name: 'Research & Projects', href: '/research-projects' },
       { name: 'Educational Programs', href: '/activities/educational-activities' },
-      { name: 'Contact', href: '#contact' },
+      { name: 'Contact', href: '/contact' },
     ],
   };
 
