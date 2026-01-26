@@ -11,6 +11,7 @@ import { DevelopersPage } from './components/DevelopersPage';
 import { AppDownloadPage } from './components/AppDownloadPage';
 import { Footer } from './components/Footer';
 import { CursorGlow } from './components/CursorGlow';
+import { ContactPage } from './components/ContactPage';
 
 // Sub-Pages
 import { EventsPage } from './components/activities/EventsPage';
@@ -51,6 +52,7 @@ function AppContent() {
         <Route path="/governing-panel/:panelId" element={<GoverningPanelPage />} />
 
         <Route path="/developers" element={<DevelopersPage />} />
+        <Route path="/contact" element={<ContactPage />} />
         <Route path="/get-app" element={<AppDownloadPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
