@@ -189,31 +189,41 @@ export function Navbar() {
       >
         <div className="w-full px-6 py-5 flex items-center justify-between">
 
-          {/* LOGO */}
-          <div className="fixed left-6 top-5 z-50">
-            <Link to="/">
+          {/* LOGO - Hidden when scrolled */}
+          <AnimatePresence>
+            {!scrolled && (
               <motion.div
-                className="flex items-center gap-3"
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: 0.2 }}
+                className="fixed left-6 top-5 z-50"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
               >
-                <div className="relative group cursor-pointer">
-                  <div className="relative w-12 h-12 rounded-xl flex items-center justify-center overflow-hidden">
-                    <img
-                      src="https://ik.imagekit.io/mekt2pafz/Web%20site%20team/logo.png?updatedAt=1769056096931"
-                      alt="AUSTRC Logo"
-                      className="w-full h-full object-cover rounded-xl"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <span className="tracking-tight text-white block">
-                    Aust Robotics Club
-                  </span>
-                </div>
+                <Link to="/">
+                  <motion.div
+                    className="flex items-center gap-3"
+                    whileHover={{ scale: 1.02 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <div className="relative group cursor-pointer">
+                      <div className="relative w-12 h-12 rounded-xl flex items-center justify-center overflow-hidden">
+                        <img
+                          src="https://ik.imagekit.io/mekt2pafz/Web%20site%20team/logo.png?updatedAt=1769056096931"
+                          alt="AUSTRC Logo"
+                          className="w-full h-full object-cover rounded-xl"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <span className="tracking-tight text-white block">
+                        Aust Robotics Club
+                      </span>
+                    </div>
+                  </motion.div>
+                </Link>
               </motion.div>
-            </Link>
-          </div>
+            )}
+          </AnimatePresence>
 
           {/* ============================================ */}
           {/* DESKTOP NAVIGATION - Only shows when NOT mobile */}
