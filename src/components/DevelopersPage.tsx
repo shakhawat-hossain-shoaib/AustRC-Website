@@ -30,7 +30,8 @@ const AranyHasan = "https://ik.imagekit.io/mekt2pafz/Web%20site%20team/Arany%20-
 const RehnumaTarannum = "https://ik.imagekit.io/mekt2pafz/Web%20site%20team/10000697971%20-%20Rehnuma%20Tarannum%20Ramisha.jpg";
 const ShakhawatHossain = "https://ik.imagekit.io/mekt2pafz/Web%20site%20team/out.-01%20-%20Shakhawat%20Hossain%20(Shoaib).jpeg";
 const AsifLimon = "https://ik.imagekit.io/mekt2pafz/Web%20site%20team/Screenshot_20250330-204933.Photos%20-%20Asif%20Limon.png";
-const SaidulIslam = "https://ik.imagekit.io/mekt2pafz/Web%20site%20team/04=%20-%20SAIDUL%20ISLAM%20SHEHAB.jpg";
+const SaidulIslam = "https://ik.imagekit.io/mekt2pafz/Web%20site%20team/shehab.jpg";
+
 const FahmidSiddique = "https://ik.imagekit.io/mekt2pafz/Web%20site%20team/Fahmid_Siddique_CSE_1.1%20-%20Fahmid%20Siddique%20Ahmed.jpg";
 const FarhanaRahman = "https://ik.imagekit.io/mekt2pafz/Web%20site%20team/IMG-20251231-WA0058%20-%20Farhana%20Rahman.jpg";
 const ObaidulEkram = "https://ik.imagekit.io/mekt2pafz/Web%20site%20team/WhatsApp%20Image%202025-01-17%20at%2015.48.50%20-%20Mohammad%20Obaidul%20Ekram%20Riad.jpeg";
