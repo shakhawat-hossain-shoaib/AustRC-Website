@@ -44,6 +44,8 @@ interface AddressInfo {
   instagram: string;
 }
 
+
+
 const ContactPage = () => {
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [contactCards, setContactCards] = useState<ContactCard[]>([]);
@@ -135,6 +137,8 @@ const ContactPage = () => {
           });
         }
 
+
+
         // Fetch ALL Team Members dynamically from Contact Us collection
         const contactUsCollection = collection(db, 'Contact Us');
         const snapshot = await getDocs(contactUsCollection);
@@ -173,7 +177,7 @@ const ContactPage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden text-white pt-24 pb-20">
+    <div className="min-h-screen bg-black relative overflow-hidden text-white pt-32 md:pt-24 pb-12 md:pb-20">
       {/* Background Elements */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black" />
@@ -189,25 +193,25 @@ const ContactPage = () => {
         />
       </div>
 
-      <div className="relative z-10 container mx-auto px-4 max-w-6xl">
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 max-w-6xl">
         
         {/* Header Section */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center mb-20 relative"
+          className="text-center mb-12 md:mb-20 relative"
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#2ECC71]/30 bg-[#2ECC71]/10 text-[#2ECC71] text-sm font-medium mb-6">
             <Mail className="w-4 h-4" />
             <span>Get In Touch</span>
           </div>
           
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 md:mb-6 bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">
             <span className="text-[#2ECC71]">Contact</span> Us
           </h1>
           
-          <p className="text-gray-400 max-w-2xl mx-auto text-lg leading-relaxed">
+          <p className="text-gray-400 max-w-2xl mx-auto text-base sm:text-lg leading-relaxed px-2">
             We're here to listen to your feedback, answer your queries, and discuss potential collaborations regarding the <span className="text-white font-semibold">AUST Robotics Club Website</span> and our activities.
           </p>
 
@@ -218,7 +222,7 @@ const ContactPage = () => {
         </motion.div>
 
         {/* Contact Cards Grid */}
-        <div className="grid md:grid-cols-3 gap-6 mb-12">
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-12">
           {contactCards.map((card, index) => (
             <motion.div
               key={index}
@@ -227,7 +231,7 @@ const ContactPage = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               whileHover={{ y: -5 }}
-              className="group relative bg-[#111111] border border-white/20 rounded-2xl p-8 hover:border-[#2ECC71]/60 transition-all duration-300 shadow-lg hover:shadow-[0_0_20px_rgba(46,204,113,0.1)]"
+              className="group relative bg-[#1A1A1A] md:bg-[#111111] border border-white/20 rounded-2xl p-6 md:p-8 hover:border-[#2ECC71]/60 transition-all duration-300 shadow-lg hover:shadow-[0_0_20px_rgba(46,204,113,0.1)]"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-[#2ECC71]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
               
@@ -252,103 +256,37 @@ const ContactPage = () => {
         </div>
 
         {/* Address & Map Section */}
-        {/* Team Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="mb-48"
-        >
-          <div className="text-center mb-16">
-            <p className="text-gray-400 text-lg">
-              Connect directly with our organizing and management team
-            </p>
-          </div>
-
-          {loading ? (
-            <div className="text-center py-12">
-              <p className="text-gray-400">Loading team members...</p>
-            </div>
-          ) : (
-          <div className="grid md:grid-cols-2 gap-6">
-            {teamMembers.map((member, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="group relative bg-[#111111] border border-white/20 rounded-2xl p-6 hover:border-[#2ECC71]/50 transition-all duration-300 shadow-lg hover:shadow-[0_0_20px_rgba(46,204,113,0.1)]"
-              >
-                <div className="flex flex-col sm:flex-row gap-6 items-start">
-                   {/* Avatar/Image Placeholder */}
-                   <div className="w-40 h-40 sm:w-64 sm:h-64 rounded-xl bg-gradient-to-br from-gray-800 to-gray-900 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
-                      {member.image ? (
-                        <img src={member.image} alt={member.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <User className="w-28 h-28 text-gray-600" />
-                      )}
-                   </div>
-
-                   <div className="flex-1 space-y-3">
-                      
-                      <h3 className="text-2xl font-bold text-white">{member.name}</h3>
-                      <p className="text-gray-400 text-sm font-medium">{member.role}</p>
-                      {member.department && (
-                        <p className="text-[#2ECC71]/80 text-xs font-medium italic">{member.department}</p>
-                      )}
-
-                      <div className="pt-4 space-y-2">
-                        <a href={`tel:${member.phone.replace(/\s/g, '')}`} className="flex items-center gap-2 text-sm text-gray-400 hover:text-[#2ECC71] transition-colors">
-                           <Phone className="w-4 h-4 text-[#2ECC71]" />
-                           {member.phone}
-                        </a>
-                        <a href={`mailto:${member.email}`} className="flex items-center gap-2 text-sm text-gray-400 hover:text-[#2ECC71] transition-colors">
-                           <Mail className="w-4 h-4 text-[#2ECC71]" />
-                           {member.email}
-                        </a>
-                      </div>
-                   </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-          )}
-        </motion.div>
-
-        {/* Address & Map Section */}
         <motion.div
            initial={{ opacity: 0, y: 20 }}
            whileInView={{ opacity: 1, y: 0 }}
            viewport={{ once: true }}
            transition={{ duration: 0.8 }}
-           className="mt-96 bg-[#111111] border border-white/20 rounded-3xl p-8 md:p-12 mb-24 overflow-hidden relative shadow-2xl"
+           className="mt-12 md:mt-24 bg-[#1A1A1A] md:bg-[#111111] border border-white/20 rounded-2xl md:rounded-3xl p-6 md:p-8 lg:p-12 mb-12 md:mb-24 overflow-hidden relative shadow-2xl"
         >
           {/* Subtle gradient glow */}
           <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-[#2ECC71] rounded-full blur-[150px] opacity-5 pointer-events-none" />
 
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid lg:grid-cols-2 gap-6 md:gap-8 lg:gap-12 items-center">
              <div>
-               <div className="flex items-center gap-3 mb-6">
-                 <div className="p-3 rounded-xl bg-[#2ECC71]/10 text-[#2ECC71]">
-                   <Briefcase className="w-6 h-6" />
+               <div className="flex items-center gap-3 mb-4 md:mb-6">
+                 <div className="p-2 md:p-3 rounded-xl bg-[#2ECC71]/10 text-[#2ECC71]">
+                   <Briefcase className="w-5 h-5 md:w-6 md:h-6" />
                  </div>
-                 <h2 className="text-3xl font-bold text-[#2ECC71]">Official Address</h2>
+                 <h2 className="text-2xl md:text-3xl font-bold text-[#2ECC71]">Official Address</h2>
                </div>
 
-               <div className="space-y-6">
+               <div className="space-y-4 md:space-y-6">
                  <div>
-                   <h3 className="text-xl font-bold text-white mb-2">{addressInfo?.clubName || "AUST Robotics Club"}</h3>
-                   <p className="text-gray-400">{addressInfo?.universityName || "Ahsanullah University of Science and Technology"}</p>
+                   <h3 className="text-lg md:text-xl font-bold text-white mb-2">{addressInfo?.clubName || "AUST Robotics Club"}</h3>
+                   <p className="text-sm md:text-base text-gray-400">{addressInfo?.universityName || "Ahsanullah University of Science and Technology"}</p>
                  </div>
 
-                 <div className="flex items-start gap-4 text-gray-300">
-                    <MapPin className="w-5 h-5 text-[#2ECC71] shrink-0 mt-1" />
-                    <p>{addressInfo?.address || "141 & 142, Love Road, Tejgaon Industrial Area, Dhaka-1208, Bangladesh"}</p>
+                 <div className="flex items-start gap-3 md:gap-4 text-gray-300">
+                    <MapPin className="w-4 h-4 md:w-5 md:h-5 text-[#2ECC71] shrink-0 mt-1" />
+                    <p className="text-sm md:text-base">{addressInfo?.address || "141 & 142, Love Road, Tejgaon Industrial Area, Dhaka-1208, Bangladesh"}</p>
                  </div>
 
-                 <div className="flex gap-4 pt-4">
+                 <div className="flex gap-3 md:gap-4 pt-3 md:pt-4 justify-center lg:justify-start">
                     {addressInfo && [
                       { Icon: Facebook, link: addressInfo.facebook },
                       { Icon: Linkedin, link: addressInfo.linkedin },
@@ -359,16 +297,16 @@ const ContactPage = () => {
                         href={social.link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-gray-400 hover:bg-[#2ECC71] hover:text-white hover:border-[#2ECC71] transition-all duration-300 hover:-translate-y-1"
+                        className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-300 hover:bg-[#2ECC71] hover:text-white hover:border-[#2ECC71] hover:shadow-[0_0_15px_rgba(46,204,113,0.4)] transition-all duration-300 hover:-translate-y-1 backdrop-blur-sm"
                       >
-                        <social.Icon className="w-5 h-5" />
+                        <social.Icon className="w-4 h-4 md:w-5 md:h-5" />
                       </a>
                     ))}
                  </div>
                </div>
              </div>
 
-             <div className="relative h-[300px] w-full rounded-2xl overflow-hidden border border-white/10 group">
+             <div className="relative h-[300px] md:h-[400px] lg:h-[450px] w-full rounded-xl md:rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
                <iframe 
                  src={addressInfo?.mapUrl || "https://maps.google.com/maps?q=23.763639,90.406972&hl=en&z=18&output=embed"} 
                  width="100%" 
@@ -377,13 +315,82 @@ const ContactPage = () => {
                  allowFullScreen={true} 
                  loading="lazy" 
                  referrerPolicy="no-referrer-when-downgrade"
-                 className="grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
+                 className="w-full h-full"
                ></iframe>
              </div>
           </div>
         </motion.div>
+        {/* Team Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="mb-24 md:mb-48"
+        >
+          <div className="text-center mb-8 md:mb-16">
+            <p className="text-gray-400 text-base md:text-lg px-4">
+              Connect directly with our organizing and management team
+            </p>
+          </div>
+
+          {loading ? (
+            <div className="text-center py-12">
+              <p className="text-gray-400">Loading team members...</p>
+            </div>
+          ) : (
+          <div className="grid sm:grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
+            {teamMembers.map((member, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="group relative bg-[#1A1A1A] md:bg-[#111111] border border-white/20 rounded-2xl p-4 md:p-6 hover:border-[#2ECC71]/50 transition-all duration-300 shadow-lg hover:shadow-[0_0_20px_rgba(46,204,113,0.1)]"
+              >
+                <div className="flex flex-col sm:flex-row gap-4 md:gap-6 items-start">
+                   {/* Avatar/Image Placeholder */}
+                   <div className="w-32 h-32 sm:w-40 sm:h-40 md:w-64 md:h-64 rounded-xl bg-gradient-to-br from-gray-800 to-gray-900 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden mx-auto sm:mx-0">
+                      {member.image ? (
+                        <img src={member.image} alt={member.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <User className="w-16 h-16 sm:w-20 sm:h-20 md:w-28 md:h-28 text-gray-600" />
+                      )}
+                   </div>
+
+                   <div className="flex-1 space-y-2 md:space-y-3 text-center sm:text-left w-full">
+                      
+                      <h3 className="text-xl md:text-2xl font-bold text-white">{member.name}</h3>
+                      <p className="text-gray-400 text-xs md:text-sm font-medium">{member.role}</p>
+                      {member.department && (
+                        <p className="text-[#2ECC71]/80 text-xs font-medium italic">{member.department}</p>
+                      )}
+
+                      <div className="pt-3 md:pt-4 space-y-2">
+                        <a href={`tel:${member.phone.replace(/\s/g, '')}`} className="flex items-center justify-center sm:justify-start gap-2 text-xs md:text-sm text-gray-400 hover:text-[#2ECC71] transition-colors break-all">
+                           <Phone className="w-4 h-4 text-[#2ECC71] shrink-0" />
+                           <span className="break-all">{member.phone}</span>
+                        </a>
+                        <a href={`mailto:${member.email}`} className="flex items-center justify-center sm:justify-start gap-2 text-xs md:text-sm text-gray-400 hover:text-[#2ECC71] transition-colors break-all">
+                           <Mail className="w-4 h-4 text-[#2ECC71] shrink-0" />
+                           <span className="break-all">{member.email}</span>
+                        </a>
+                      </div>
+                   </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+          )}
+        </motion.div>
+
+
 
       </div>
+      
+      {/* Spacer div for extra bottom spacing */}
+      <div className="h-32 w-full" />
     </div>
   );
 };
