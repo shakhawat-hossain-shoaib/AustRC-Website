@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { Button } from "./ui/button";
 import { ArrowRight, Sparkles, Cpu } from "lucide-react";
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 // Continuous Rotating Words Component
 const RotatingWords = ({ 
@@ -202,24 +203,26 @@ export function HeroSection() {
             transition={{ delay: 0.6, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="flex flex-wrap gap-4 justify-center pt-4"
           >
-            <motion.div
-              whileHover={{ scale: 1.05, y: -4 }}
-              whileTap={{ scale: 0.98 }}
-              transition={{ type: "spring", stiffness: 400, damping: 17 }}
-            >
-              <Button className="relative bg-[#2ECC71] hover:bg-[#27AE60] text-white px-8 py-6 text-base shadow-[0_0_40px_0_rgba(46,204,113,0.8),0_0_80px_0_rgba(46,204,113,0.6),0_0_120px_0_rgba(46,204,113,0.4)] transition-all hover:shadow-[0_0_60px_0_rgba(46,204,113,1)] group overflow-hidden">
-                {/* Shimmer Effect */}
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12"
-                  initial={{ x: "-200%" }}
-                  animate={{ x: "200%" }}
-                  transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-                />
-                <Sparkles className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform duration-300 relative z-10" />
-                <span className="relative z-10">Join the Club</span>
-                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform relative z-10" />
-              </Button>
-            </motion.div>
+            <Link to="/enthusiast-acquisition">
+              <motion.div
+                whileHover={{ scale: 1.05, y: -4 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              >
+                <Button className="relative bg-[#2ECC71] hover:bg-[#27AE60] text-white px-8 py-6 text-base shadow-[0_0_40px_0_rgba(46,204,113,0.8),0_0_80px_0_rgba(46,204,113,0.6),0_0_120px_0_rgba(46,204,113,0.4)] transition-all hover:shadow-[0_0_60px_0_rgba(46,204,113,1)] group overflow-hidden">
+                  {/* Shimmer Effect */}
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12"
+                    initial={{ x: "-200%" }}
+                    animate={{ x: "200%" }}
+                    transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                  />
+                  <Sparkles className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform duration-300 relative z-10" />
+                  <span className="relative z-10">Join the Club</span>
+                  <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform relative z-10" />
+                </Button>
+              </motion.div>
+            </Link>
             <motion.div
               whileHover={{ scale: 1.05, y: -4 }}
               whileTap={{ scale: 0.98 }}

@@ -69,6 +69,7 @@ export function Navbar() {
   }, [mobileMenuOpen]);
 
   const navItems = [
+    { name: 'Home', path: '/', section: null },
     { name: 'Governing Panel', path: '/', section: 'governing-panel' },
     { name: 'Activities', path: '/activities', section: null },
     { name: 'Research and project', path: '/research-projects', section: null },
