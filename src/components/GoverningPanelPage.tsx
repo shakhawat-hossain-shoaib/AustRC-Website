@@ -502,7 +502,6 @@ export function GoverningPanelPage() {
                             loading="lazy"
                           />
                           {/* optional overlay for style */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent pointer-events-none" />
                         </div>
 
                         {/* Content */}

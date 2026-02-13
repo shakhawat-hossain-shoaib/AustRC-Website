@@ -212,7 +212,6 @@ export function GoverningPanelHallOfFame() {
                     whileHover={{ scale: 1.05 }}
                     transition={{ duration: 0.5 }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
                   
                   {/* Tenure Badge */}
                   <div className="absolute top-4 right-4 px-4 py-2 rounded-full bg-[#2ECC71]/20 backdrop-blur-md border border-[#2ECC71]/30 shadow-[0_0_20px_0_rgba(46,204,113,0.4)]">

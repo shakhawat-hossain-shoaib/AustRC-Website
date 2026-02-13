@@ -330,7 +330,6 @@ export function GoverningPanelSemester({ semester, year }: GoverningPanelSemeste
                           whileHover={{ scale: 1.05 }}
                           transition={{ duration: 0.5 }}
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
                       </div>
 
                       {/* Content */}

@@ -171,7 +171,6 @@ export function ResearchProjectsSection() {
                         alt={project.Title}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-6">
                         <div className="text-white flex items-center gap-2 bg-[#2ECC71] px-4 py-2 rounded-full shadow-[0_0_30px_0_rgba(46,204,113,0.8)]">
                           <span>View Details</span>

@@ -164,9 +164,6 @@ const ProjectCard = ({
                 </div>
               )}
 
-              {/* Overlay Gradient */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
-
               {/* Status Indicator */}
               <motion.div
                 className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1.5 bg-black/60 backdrop-blur-md rounded-full border border-[rgba(46,204,113,0.3)]"
