@@ -265,7 +265,6 @@ export function EducationalProgramsSection() {
                           whileHover={{ scale: 1.1 }}
                           transition={{ duration: 0.6 }}
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-70" />
                         <div className="absolute inset-0 bg-gradient-to-br from-[rgba(46,204,113,0.1)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                       </>
                     ) : (
