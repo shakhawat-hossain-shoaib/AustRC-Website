@@ -318,14 +318,40 @@ export function ResearchProjectsHomepageSection() {
     fetchProjects();
   }, []);
 
+  // Lock body scroll when modal is open - prevents jitter on mobile
   useEffect(() => {
     if (selectedProject) {
+      const scrollY = window.scrollY;
+      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
       document.body.style.overflow = 'hidden';
     } else {
-      document.body.style.overflow = 'unset';
+      const scrollY = document.body.style.top;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.paddingRight = '';
+      document.body.style.overflow = '';
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY || '0', 10) * -1);
+      }
     }
     return () => {
-      document.body.style.overflow = 'unset';
+      const scrollY = document.body.style.top;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.paddingRight = '';
+      document.body.style.overflow = '';
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY || '0', 10) * -1);
+      }
     };
   }, [selectedProject]);
 
@@ -542,92 +568,151 @@ export function ResearchProjectsHomepageSection() {
       </section>
 
       {/* Modal */}
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {selectedProject && (
           <>
-            {/* Overlay */}
+            {/* Backdrop */}
             <motion.div
               key="overlay"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="fixed inset-0 bg-black/80 backdrop-blur-md"
-              style={{ zIndex: 99999 }}
+              transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
+              className="fixed inset-0 bg-black/90 backdrop-blur-md sm:backdrop-blur-xl"
+              style={{
+                zIndex: 99999,
+                willChange: 'opacity',
+                WebkitBackfaceVisibility: 'hidden',
+                backfaceVisibility: 'hidden',
+                transform: 'translateZ(0)',
+              }}
               onClick={() => setSelectedProject(null)}
             />
 
-            {/* Modal Content */}
+            {/* Modal Scroll Container */}
             <motion.div
               key="modal"
-              initial={{ opacity: 0, scale: 0.9, y: 50 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 50 }}
-              transition={{ duration: 0.4, type: 'spring', stiffness: 200, damping: 25 }}
-              className="fixed inset-0 flex items-center justify-center overflow-y-auto p-4 sm:p-6 lg:p-8"
-              style={{ zIndex: 100000 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+              className="fixed inset-0 flex items-center justify-center overflow-y-auto py-6 sm:py-10 lg:py-16 px-4 sm:px-6 lg:px-8"
+              style={{
+                zIndex: 100000,
+                WebkitOverflowScrolling: 'touch',
+                scrollBehavior: 'smooth',
+                overscrollBehavior: 'contain',
+              }}
               onClick={() => setSelectedProject(null)}
             >
-              <div
-                className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-xl sm:rounded-2xl lg:rounded-3xl border border-[rgba(46,204,113,0.3)] shadow-2xl shadow-[#2ECC71]/10 pointer-events-auto"
+              {/* Modal Content Card */}
+              <motion.div
+                initial={{ opacity: 0, y: 60, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 40, scale: 0.97 }}
+                transition={{
+                  type: 'spring',
+                  damping: 30,
+                  stiffness: 300,
+                  mass: 0.8,
+                }}
+                className="relative w-full max-w-4xl my-auto"
+                style={{
+                  willChange: 'transform, opacity',
+                  WebkitBackfaceVisibility: 'hidden',
+                  backfaceVisibility: 'hidden',
+                  transform: 'translateZ(0)',
+                }}
                 onClick={(e) => e.stopPropagation()}
               >
+                <div className="relative bg-gradient-to-b from-gray-900 via-gray-950 to-black rounded-2xl lg:rounded-3xl border border-[#2ECC71]/20 shadow-2xl shadow-black/50 overflow-hidden">
+                  {/* Animated Top Accent */}
+                  <motion.div
+                    className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#2ECC71] to-transparent"
+                    initial={{ scaleX: 0 }}
+                    animate={{ scaleX: 1 }}
+                    transition={{ delay: 0.3, duration: 0.8 }}
+                  />
+
                   {/* Close Button */}
                   <motion.button
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.2, type: 'spring', stiffness: 300, damping: 20 }}
                     whileHover={{ scale: 1.1, rotate: 90 }}
                     whileTap={{ scale: 0.9 }}
                     onClick={() => setSelectedProject(null)}
-                    className="absolute top-2 right-2 sm:top-4 sm:right-4 z-20 w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-black/90 backdrop-blur-md border border-[rgba(46,204,113,0.3)] flex items-center justify-center text-[#2ECC71] hover:bg-[#2ECC71] hover:text-white transition-colors duration-300"
+                    className="absolute top-4 right-4 sm:top-6 sm:right-6 z-30 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/60 backdrop-blur-md border border-[#2ECC71]/40 flex items-center justify-center text-white hover:bg-[#2ECC71] hover:border-[#2ECC71] hover:text-black transition-all duration-300"
                   >
-                    <X className="w-4 h-4 sm:w-6 sm:h-6" />
+                    <X className="w-5 h-5 sm:w-6 sm:h-6" />
                   </motion.button>
 
                   {/* Hero Image */}
-                  <div className="relative h-32 sm:h-56 lg:h-72 overflow-hidden rounded-t-xl sm:rounded-t-2xl lg:rounded-t-3xl flex-shrink-0">
+                  <div className="relative h-48 sm:h-64 lg:h-80 overflow-hidden">
                     <motion.img
-                      initial={{ scale: 1.1 }}
-                      animate={{ scale: 1 }}
-                      transition={{ duration: 0.8 }}
-                      src={selectedProject.Cover_Picture}
+                      initial={{ scale: 1.1, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ duration: 0.6 }}
+                      src={cachedImages[selectedProject.id] || selectedProject.Cover_Picture}
                       alt={selectedProject.Title}
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
 
-                    {/* Title Overlay */}
-                    <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 lg:p-8">
+                    {/* Gradient Overlays */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/60 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#2ECC71]/10 to-transparent" />
+
+                    {/* Title Section */}
+                    <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-8 lg:p-10">
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                        className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-[#2ECC71] rounded-full mb-3 sm:mb-5"
+                      >
+                        <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-black" />
+                        <span className="text-black text-[11px] sm:text-xs font-bold tracking-wider uppercase">
+                          Research Project
+                        </span>
+                      </motion.div>
+
                       <motion.h2
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-2 line-clamp-2"
+                        transition={{ delay: 0.4 }}
+                        className="text-xl sm:text-3xl lg:text-4xl font-bold text-white leading-tight mb-3"
                       >
                         {selectedProject.Title}
                       </motion.h2>
+
                       <motion.div
                         initial={{ scaleX: 0 }}
                         animate={{ scaleX: 1 }}
-                        transition={{ delay: 0.4, duration: 0.6 }}
-                        className="w-16 sm:w-20 h-1 bg-gradient-to-r from-[#2ECC71] to-[#27AE60] rounded-full origin-left"
+                        transition={{ delay: 0.6, duration: 0.6 }}
+                        className="w-12 sm:w-20 h-1 sm:h-1.5 bg-gradient-to-r from-[#2ECC71] to-[#3DED97] rounded-full origin-left"
                       />
                     </div>
                   </div>
 
-                  {/* Content */}
-                  <div className="p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
+                  {/* Content Body */}
+                  <div className="p-6 sm:p-10 lg:p-12 space-y-7 sm:space-y-10">
                     {/* About Section */}
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.3 }}
+                      transition={{ delay: 0.5 }}
                     >
-                      <h3 className="text-base sm:text-lg lg:text-xl font-semibold text-[#2ECC71] mb-2 sm:mb-3 flex items-center gap-2">
-                        <span className="w-6 sm:w-8 h-[2px] bg-[#2ECC71] rounded-full" />
-                        About This Project
-                      </h3>
-                      <p className="text-gray-300 text-xs sm:text-sm lg:text-base leading-relaxed whitespace-pre-wrap">
-                        {selectedProject.Introduction}
-                      </p>
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-0.5 bg-gradient-to-r from-[#2ECC71] to-transparent rounded-full" />
+                        <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-white">
+                          About This Project
+                        </h3>
+                      </div>
+                      <div className="bg-white/[0.03] rounded-xl sm:rounded-2xl p-6 sm:p-7 lg:p-8 border border-[#2ECC71]/10 backdrop-blur-sm">
+                        <p className="text-gray-300 text-sm sm:text-base lg:text-lg leading-[1.8] whitespace-pre-wrap">
+                          {selectedProject.Introduction}
+                        </p>
+                      </div>
                     </motion.div>
 
                     {/* Team Section */}
@@ -635,30 +720,32 @@ export function ResearchProjectsHomepageSection() {
                       <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.4 }}
+                        transition={{ delay: 0.6 }}
                       >
-                        <h3 className="text-base sm:text-lg lg:text-xl font-semibold text-[#2ECC71] mb-3 sm:mb-4 flex items-center gap-2">
-                          <span className="w-6 sm:w-8 h-[2px] bg-[#2ECC71] rounded-full" />
-                          Project Team
-                        </h3>
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="w-10 h-0.5 bg-gradient-to-r from-[#2ECC71] to-transparent rounded-full" />
+                          <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-white">
+                            Project Team
+                          </h3>
+                        </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                           {getOwners(selectedProject).map((owner, index) => (
                             <motion.div
                               key={index}
                               initial={{ opacity: 0, x: -20 }}
                               animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: 0.5 + index * 0.1 }}
-                              className="group relative bg-gradient-to-br from-[rgba(46,204,113,0.1)] to-transparent rounded-xl p-3 sm:p-4 border border-[rgba(46,204,113,0.2)] hover:border-[rgba(46,204,113,0.4)] transition-colors"
+                              transition={{ delay: 0.7 + index * 0.1 }}
+                              className="group bg-white/[0.03] rounded-xl sm:rounded-2xl p-4 sm:p-5 border border-[#2ECC71]/10 hover:border-[#2ECC71]/30 transition-all duration-300"
                             >
-                              <div className="flex items-center gap-2 sm:gap-3">
-                                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-[#2ECC71]/30 to-[#27AE60]/10 flex items-center justify-center border border-[rgba(46,204,113,0.3)] flex-shrink-0">
-                                  <Users className="w-4 h-4 sm:w-5 sm:h-5 text-[#2ECC71]" />
+                              <div className="flex items-center gap-3 sm:gap-4">
+                                <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-[#2ECC71]/20 to-[#27AE60]/5 flex items-center justify-center border border-[#2ECC71]/20 flex-shrink-0 group-hover:border-[#2ECC71]/40 transition-colors duration-300">
+                                  <Users className="w-5 h-5 sm:w-6 sm:h-6 text-[#2ECC71]" />
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                  <h4 className="text-white font-semibold text-xs sm:text-sm lg:text-base truncate">
+                                  <h4 className="text-white font-semibold text-sm sm:text-base truncate">
                                     {owner.name}
                                   </h4>
-                                  <p className="text-gray-400 text-[10px] sm:text-xs lg:text-sm truncate">
+                                  <p className="text-gray-400 text-xs sm:text-sm truncate mt-0.5">
                                     {owner.designation}
                                   </p>
                                 </div>
@@ -669,29 +756,23 @@ export function ResearchProjectsHomepageSection() {
                       </motion.div>
                     )}
 
-                    {/* Action Buttons */}
+                    {/* Action Button */}
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.6 }}
-                      className="flex flex-col sm:flex-row gap-3 pt-2 sm:pt-4 pb-2"
+                      transition={{ delay: 0.8 }}
+                      className="flex gap-3 pt-6 sm:pt-8 mt-2 border-t border-[#2ECC71]/10"
                     >
                       <Button
                         onClick={() => setSelectedProject(null)}
-                        className="flex-1 bg-gradient-to-r from-[#2ECC71] to-[#27AE60] text-white hover:from-[#27AE60] hover:to-[#2ECC71] transition-all py-2.5 sm:py-3 rounded-xl font-semibold text-sm shadow-lg shadow-[#2ECC71]/20"
+                        className="flex-1 bg-gradient-to-r from-[#2ECC71] to-[#27AE60] hover:from-[#27AE60] hover:to-[#2ECC71] text-black font-bold h-12 sm:h-14 rounded-xl text-sm sm:text-base shadow-lg shadow-[#2ECC71]/20 transition-all"
                       >
-                        Close Project
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="flex-1 border-[rgba(46,204,113,0.3)] text-[#2ECC71] hover:bg-[rgba(46,204,113,0.1)] py-2.5 sm:py-3 rounded-xl font-semibold text-sm"
-                      >
-                        Learn More
-                        <ExternalLink className="w-4 h-4 ml-2" />
+                        <span>Close</span>
                       </Button>
                     </motion.div>
                   </div>
                 </div>
+              </motion.div>
             </motion.div>
           </>
         )}
