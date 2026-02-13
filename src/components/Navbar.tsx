@@ -604,7 +604,7 @@ export function Navbar() {
                   </motion.button>
                 </Link>
                 <p className="text-center text-gray-500 text-xs mt-4">
-                  © 2024 AUST Robotics Club
+                  © 2026 AUST Robotics Club
                 </p>
               </div>
             </motion.div>

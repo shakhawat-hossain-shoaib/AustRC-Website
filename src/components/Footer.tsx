@@ -157,7 +157,7 @@ export function Footer({ theme = 'dark' }: FooterProps) {
           >
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
               <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                © 2025 Aust Robotics Club. All rights reserved.
+                © 2026 Aust Robotics Club. All rights reserved.
               </p>
               <div className="flex flex-col sm:flex-row items-center gap-3">
                 <p className="text-[#2ECC71] text-sm">
