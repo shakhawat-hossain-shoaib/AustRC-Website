@@ -466,16 +466,6 @@ const EventModal = ({
   onClose: () => void;
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
-
-  // Trigger animation after mount for smoother entrance
-  useEffect(() => {
-    // Small delay to ensure DOM is ready
-    const timer = requestAnimationFrame(() => {
-      setIsVisible(true);
-    });
-    return () => cancelAnimationFrame(timer);
-  }, []);
 
   // Handle escape key
   useEffect(() => {
@@ -498,15 +488,16 @@ const EventModal = ({
       {/* Backdrop */}
       <motion.div
         initial={{ opacity: 0 }}
-        animate={{ opacity: isVisible ? 1 : 0 }}
+        animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.25, ease: 'easeOut' }}
-        className="fixed inset-0 bg-black/90 backdrop-blur-xl"
+        transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
+        className="fixed inset-0 bg-black/90 backdrop-blur-md sm:backdrop-blur-xl"
         style={{
           zIndex: 99999,
           willChange: 'opacity',
           WebkitBackfaceVisibility: 'hidden',
           backfaceVisibility: 'hidden',
+          transform: 'translateZ(0)',
         }}
         onClick={handleBackdropClick}
       />
@@ -514,27 +505,37 @@ const EventModal = ({
       {/* Modal Container */}
       <motion.div
         initial={{ opacity: 0 }}
-        animate={{ opacity: isVisible ? 1 : 0 }}
+        animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
+        transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
         className="fixed inset-0 flex items-start justify-center p-4 sm:p-6 lg:p-8 overflow-y-auto py-8 sm:py-16"
-        style={{ zIndex: 100000 }}
+        style={{
+          zIndex: 100000,
+          WebkitOverflowScrolling: 'touch',
+          scrollBehavior: 'smooth',
+          overscrollBehavior: 'contain',
+        }}
         onClick={handleBackdropClick}
       >
         {/* Modal Content */}
         <motion.div
           ref={modalRef}
-          initial={{ opacity: 0, y: 50, scale: 0.97 }}
-          animate={{
-            opacity: isVisible ? 1 : 0,
-            y: isVisible ? 0 : 50,
-            scale: isVisible ? 1 : 0.97
-          }}
-          exit={{ opacity: 0, y: 30, scale: 0.98 }}
+          initial={{ opacity: 0, y: 60, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 40, scale: 0.97 }}
           transition={{
-            duration: 0.3,
-            ease: [0.25, 0.46, 0.45, 0.94],
+            type: 'spring',
+            damping: 30,
+            stiffness: 300,
+            mass: 0.8,
           }}
           className="relative w-full max-w-4xl overflow-hidden"
+          style={{
+            willChange: 'transform, opacity',
+            WebkitBackfaceVisibility: 'hidden',
+            backfaceVisibility: 'hidden',
+            transform: 'translateZ(0)',
+          }}
           onClick={(e) => e.stopPropagation()}
         >
           <div className="relative bg-gradient-to-b from-gray-900 via-gray-950 to-black rounded-2xl lg:rounded-3xl border border-[#2ECC71]/20 shadow-2xl overflow-hidden">
@@ -1039,7 +1040,7 @@ export function EventsSection() {
       </section>
 
       {/* Modal */}
-      <AnimatePresence mode="sync">
+      <AnimatePresence mode="wait">
         {selectedEvent && (
           <EventModal
             key={selectedEvent.id}
