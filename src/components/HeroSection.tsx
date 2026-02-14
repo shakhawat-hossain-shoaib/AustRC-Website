@@ -237,7 +237,7 @@ export function HeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8, duration: 0.6 }}
-            className="grid grid-cols-3 gap-8 pt-12 max-w-2xl mx-auto"
+            className="grid grid-cols-3 gap-3 sm:gap-8 pt-12 max-w-2xl mx-auto"
           >
             {[
               { value: "1000+", label: "Active Members" },
@@ -254,9 +254,9 @@ export function HeroSection() {
                   y: -5,
                   boxShadow: "0 0 30px 0 rgba(46,204,113,0.3)"
                 }}
-                className="text-center p-4 rounded-xl bg-gradient-to-br from-[rgba(46,204,113,0.1)] to-transparent border border-[rgba(46,204,113,0.2)] backdrop-blur-sm transition-all duration-300 cursor-default"
+                className="text-center p-3 sm:p-4 rounded-xl bg-gradient-to-br from-[rgba(46,204,113,0.1)] to-transparent border border-[rgba(46,204,113,0.2)] backdrop-blur-sm transition-all duration-300 cursor-default"
               >
-                <div className="text-3xl md:text-4xl text-[#2ECC71] mb-2 font-bold">
+                <div className="text-2xl sm:text-3xl md:text-4xl text-[#2ECC71] mb-2 font-bold">
                   {stat.value}
                 </div>
                 <div className="text-sm text-gray-400">
