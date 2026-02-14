@@ -100,14 +100,14 @@ const ProjectCard = ({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 50, scale: 0.9 }}
+      initial={{ opacity: 0, y: 25, scale: 0.95 }}
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
       viewport={{ once: true, margin: '-50px' }}
       transition={{
-        duration: 0.6,
-        delay: index * 0.15,
+        duration: 0.35,
+        delay: index * 0.07,
         type: 'spring',
-        stiffness: 100,
+        stiffness: 200,
       }}
       className="h-full"
     >
@@ -413,10 +413,10 @@ export function ResearchProjectsHomepageSection() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           {/* Header Section */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.4 }}
             className="text-center mb-12 sm:mb-16 lg:mb-20"
           >
             {/* Badge */}
@@ -424,7 +424,7 @@ export function ResearchProjectsHomepageSection() {
               initial={{ opacity: 0, scale: 0.8 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.2 }}
+              transition={{ duration: 0.3, delay: 0.05 }}
               className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[rgba(46,204,113,0.15)] via-[rgba(46,204,113,0.1)] to-[rgba(46,204,113,0.15)] rounded-full border border-[rgba(46,204,113,0.3)] mb-6"
             >
               <Sparkles className="w-4 h-4 text-[#2ECC71]" />
@@ -437,10 +437,10 @@ export function ResearchProjectsHomepageSection() {
             {/* Title */}
             <motion.h2
               className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6"
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.3 }}
+              transition={{ duration: 0.35, delay: 0.1 }}
             >
               <span className="text-white">Research &</span>{' '}
               <span className="relative">
@@ -452,7 +452,7 @@ export function ResearchProjectsHomepageSection() {
                   initial={{ scaleX: 0 }}
                   whileInView={{ scaleX: 1 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.8, delay: 0.6 }}
+                  transition={{ duration: 0.4, delay: 0.2 }}
                 />
               </span>
             </motion.h2>
@@ -463,7 +463,7 @@ export function ResearchProjectsHomepageSection() {
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.4 }}
+              transition={{ duration: 0.35, delay: 0.12 }}
             >
               Explore our cutting-edge research initiatives and innovative projects that are
               shaping the future of robotics and automation technology.
@@ -472,10 +472,10 @@ export function ResearchProjectsHomepageSection() {
             {/* Stats Row */}
             <motion.div
               className="flex flex-wrap justify-center gap-6 sm:gap-10 mt-8 sm:mt-10"
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.5 }}
+              transition={{ duration: 0.35, delay: 0.15 }}
             >
               {[
                 { value: '15+', label: 'Active Projects' },
@@ -529,10 +529,10 @@ export function ResearchProjectsHomepageSection() {
 
           {/* CTA Button */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.6 }}
+            transition={{ duration: 0.35, delay: 0.15 }}
             className="flex justify-center mt-12 sm:mt-16"
           >
             <motion.button

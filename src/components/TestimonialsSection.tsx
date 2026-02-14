@@ -125,10 +125,10 @@ export function TestimonialsSection() {
       <div className="container mx-auto px-4 relative z-10">
         {/* Title */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.35 }}
           className="text-center mb-8 sm:mb-12 px-4"
         >
           <h2 className="tracking-tight text-white text-2xl sm:text-3xl md:text-4xl lg:text-5xl">
@@ -143,7 +143,7 @@ export function TestimonialsSection() {
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.35 }}
             style={{ perspective: "1000px" }}
             className="w-full max-w-[500px]"
           >

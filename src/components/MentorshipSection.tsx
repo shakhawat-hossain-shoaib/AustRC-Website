@@ -65,10 +65,10 @@ export function MentorshipSection() {
 
       <div className="container mx-auto px-4 relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.35 }}
           className="text-center mb-16"
         >
           <div className="inline-block px-4 py-2 bg-gradient-to-r from-[rgba(46,204,113,0.1)] to-[rgba(46,204,113,0.05)] rounded-full border border-[rgba(46,204,113,0.3)] mb-4">
@@ -91,10 +91,10 @@ export function MentorshipSection() {
           {features.map((feature, index) => (
             <motion.div
               key={feature.title}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+              transition={{ duration: 0.3, delay: index * 0.05 }}
             >
               <Card className="bg-gradient-to-br from-[rgba(46,204,113,0.08)] to-transparent border-[rgba(46,204,113,0.2)] hover:border-[rgba(46,204,113,0.5)] transition-all hover:shadow-[0_0_40px_0_rgba(46,204,113,0.3)] h-full backdrop-blur-sm">
                 <CardContent className="p-8 text-center space-y-4">
@@ -115,10 +115,10 @@ export function MentorshipSection() {
 
         {/* Mentors Grid */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.35 }}
         >
           <h3 className="text-center mb-8 tracking-tight text-white text-3xl">
             Meet Our Expert Mentors
@@ -131,8 +131,8 @@ export function MentorshipSection() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{
-                  duration: 0.5,
-                  delay: index * 0.1,
+                  duration: 0.3,
+                  delay: index * 0.05,
                 }}
                 className="text-center group"
               >
