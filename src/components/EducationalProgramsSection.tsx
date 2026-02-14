@@ -124,17 +124,17 @@ export function EducationalProgramsSection() {
       <div className="container mx-auto px-4 relative z-10">
         {/* Header Section */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.4 }}
           className="text-center mb-20"
         >
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             whileInView={{ scale: 1, opacity: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.3 }}
             className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[rgba(46,204,113,0.15)] to-[rgba(46,204,113,0.05)] rounded-full border border-[rgba(46,204,113,0.3)] mb-6 backdrop-blur-sm"
           >
             <GraduationCap className="w-4 h-4 text-[#2ECC71]" />
@@ -142,10 +142,10 @@ export function EducationalProgramsSection() {
           </motion.div>
 
           <motion.h2
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            transition={{ duration: 0.35, delay: 0.05 }}
             className="mb-6 tracking-tight text-white text-4xl md:text-5xl lg:text-6xl font-bold"
           >
             Educational{' '}
@@ -158,7 +158,7 @@ export function EducationalProgramsSection() {
                 initial={{ scaleX: 0 }}
                 whileInView={{ scaleX: 1 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.8, delay: 0.5 }}
+                transition={{ duration: 0.4, delay: 0.15 }}
               />
             </span>
           </motion.h2>
@@ -167,7 +167,7 @@ export function EducationalProgramsSection() {
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.3 }}
+            transition={{ duration: 0.35, delay: 0.1 }}
             className="text-gray-400 max-w-2xl mx-auto text-lg leading-relaxed"
           >
             Transform your career with our comprehensive programs. Simple steps to mastery,
@@ -177,10 +177,10 @@ export function EducationalProgramsSection() {
 
         {/* Stats Bar */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.2 }}
+          transition={{ duration: 0.35, delay: 0.05 }}
           className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16 max-w-4xl mx-auto"
         >
           {stats.map((stat, index) => (
@@ -189,7 +189,7 @@ export function EducationalProgramsSection() {
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0.1 * index }}
+              transition={{ duration: 0.3, delay: 0.05 * index }}
               whileHover={{ scale: 1.05, y: -5 }}
               className="relative p-4 rounded-xl bg-gradient-to-br from-[rgba(46,204,113,0.1)] to-transparent border border-[rgba(46,204,113,0.2)] backdrop-blur-sm group cursor-default"
             >
@@ -233,10 +233,10 @@ export function EducationalProgramsSection() {
             {programs.map((program, index) => (
               <motion.div
                 key={program.id}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.7, delay: index * 0.15 }}
+                transition={{ duration: 0.35, delay: index * 0.07 }}
                 className="h-full"
                 onMouseEnter={() => setHoveredCard(program.id)}
                 onMouseLeave={() => setHoveredCard(null)}
@@ -355,10 +355,10 @@ export function EducationalProgramsSection() {
 
         {/* Explore All Programs Button */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 10, y: 0 }}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.7, delay: 0.5 }}
+          transition={{ duration: 0.35, delay: 0.15 }}
           className="flex justify-center mt-6"
         >
           <motion.button
@@ -393,7 +393,7 @@ export function EducationalProgramsSection() {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 1, delay: 0.8 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
           className="flex justify-center mt-12"
         >
           <div className="flex items-center gap-2">
