@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { HomePage } from './components/HomePage';
 import { ActivitiesPage } from './components/ActivitiesPage';
@@ -24,12 +25,22 @@ import { EventWebsitePage } from './components/activities/EventWebsitePage';
 // ✅ THIS IMPORT IS VITAL
 import { ActivityDetailPage } from './components/activities/ActivityDetailPage';
 
+// Scroll to top on every route change
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
+
 function AppContent() {
   const location = useLocation();
   const isAboutPage = location.pathname === '/about';
 
   return (
     <div className="relative min-h-screen bg-black overflow-x-hidden">
+      <ScrollToTop />
       <CursorGlow />
       <Navbar />
       <Routes>
