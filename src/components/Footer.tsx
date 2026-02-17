@@ -12,6 +12,7 @@ export function Footer({ theme = 'dark' }: FooterProps) {
     quickLinks: [
       { name: 'About', href: '/about' },
       { name: 'Events', href: '/activities/events' },
+      { name: 'How to Find My AUSTRC ID', href: '/find-austrc-id' },
     ],
     resources: [
       { name: 'Research & Projects', href: '/research-projects' },
