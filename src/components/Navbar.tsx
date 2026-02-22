@@ -80,7 +80,8 @@ export function Navbar() {
   const activitiesDropdownItems = [
     { name: 'Events', path: '/activities/events' },
     { name: 'Achievements', path: '/activities/achievements' },
-    { name: 'Educational Activities', path: '/activities/educational-activities' },
+    { name: 'Educational Programs', path: '/activities/educational-activities' },
+    { name: 'Research and Projects', path: '/research-projects' },
     { name: 'Our Event Website', path: '/activities/event-website' },
   ];
 
