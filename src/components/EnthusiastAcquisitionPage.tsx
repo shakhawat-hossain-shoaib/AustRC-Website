@@ -10,10 +10,7 @@ import {
   PenTool,
   CheckCircle,
   ArrowRight,
-  Mail,
-  Facebook,
-  Linkedin,
-  Instagram
+  Mail
 } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
@@ -61,13 +58,7 @@ export function EnthusiastAcquisitionPage() {
     }
   ];
 
-  const benefits = [
-    'You are highly motivated with a results-driven mindset',
-    'You have passion for robotics and believe in its future potential',
-    'You are eager to learn, collaborate and grow in an inspiring environment',
-    'You want to develop leadership and organizational skills',
-    'You seek hands-on experience in your field of interest'
-  ];
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-[#1a1a2e] to-gray-900 text-white pt-20">
@@ -236,62 +227,135 @@ export function EnthusiastAcquisitionPage() {
         </div>
       </section>
 
-      {/* Why Apply Section */}
+      {/* Panel Member Reviews Section */}
       <section className="py-20 px-6 relative overflow-hidden">
+        <style>{`
+          @keyframes marquee-left {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+          }
+          @keyframes marquee-right {
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(0); }
+          }
+          .marquee-left {
+            animation: marquee-left 30s linear infinite;
+          }
+          .marquee-right {
+            animation: marquee-right 36s linear infinite;
+          }
+          .marquee-track:hover .marquee-left,
+          .marquee-track:hover .marquee-right {
+            animation-play-state: paused;
+          }
+        `}</style>
+
         {/* Background Effect */}
         <div className="absolute inset-0">
           <div className="absolute w-[600px] h-[600px] bg-[#27AE60]/20 rounded-full blur-[180px] top-0 right-0 animate-pulse" />
           <div className="absolute w-[500px] h-[500px] bg-[#2ECC71]/20 rounded-full blur-[160px] bottom-0 left-0 animate-pulse" style={{ animationDelay: '1.5s' }} />
         </div>
 
-        <div className="max-w-6xl mx-auto relative z-10">
+        <div className="max-w-7xl mx-auto relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="text-center mb-12"
+            className="text-center mb-14"
           >
-            <h2 className="text-4xl md:text-5xl mb-6 bg-gradient-to-r from-[#2ECC71] via-green-400 to-[#2ECC71] bg-clip-text text-transparent">
-              Why Should You Apply?
+            <div className="inline-block px-6 py-2 bg-gradient-to-r from-[#2ECC71]/20 to-transparent border border-[#2ECC71]/50 rounded-full backdrop-blur-sm mb-6">
+              <span className="text-[#2ECC71] text-sm font-medium tracking-widest uppercase">Voices of Experience</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl mb-4 bg-gradient-to-r from-[#2ECC71] via-green-400 to-[#2ECC71] bg-clip-text text-transparent">
+              Hear From Our Panel Members
             </h2>
-            <p className="text-xl text-gray-400">
-              Join a community of passionate individuals driving innovation in robotics
+            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+              Real experiences from those who have shaped and led AUST Robotics Club
             </p>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="relative"
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-[#2ECC71]/20 to-transparent rounded-3xl blur-2xl" />
-            <div className="relative bg-gray-800/50 backdrop-blur-xl border border-[#2ECC71]/40 rounded-3xl p-10 md:p-16 shadow-[0_0_80px_0_rgba(46,204,113,0.3)]">
-              <div className="grid md:grid-cols-2 gap-6">
-                {benefits.map((benefit, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className="flex items-start gap-4 group"
-                  >
-                    <div className="flex-shrink-0 mt-1">
-                      <div className="w-6 h-6 bg-gradient-to-br from-[#2ECC71] to-[#27AE60] rounded-full flex items-center justify-center shadow-[0_0_20px_0_rgba(46,204,113,0.6)] group-hover:shadow-[0_0_30px_0_rgba(46,204,113,0.9)] transition-all">
-                        <CheckCircle className="w-4 h-4 text-white" />
-                      </div>
+          {/* Row 1 — scrolls left */}
+          <div className="marquee-track overflow-hidden mb-6 select-none">
+            <div className="flex gap-6 w-max marquee-left">
+              {[
+                { name: 'Rafi Ahmed', role: 'Administration Lead', initials: 'RA', color: 'from-emerald-500 to-green-600', line1: 'Leading the panel taught me empathy', line2: 'and decisive thinking under real pressure.' },
+                { name: 'Nusrat Jahan', role: 'Event Management', initials: 'NJ', color: 'from-teal-500 to-emerald-600', line1: 'Organizing national robotics competitions', line2: 'sharpened skills no classroom could teach.' },
+                { name: 'Tanvir Hossain', role: 'R&D Member', initials: 'TH', color: 'from-green-500 to-teal-600', line1: 'The R&D team let me experiment freely.', line2: 'I built my first autonomous bot here.' },
+                { name: 'Sumaya Khatun', role: 'Graphics Design', initials: 'SK', color: 'from-lime-500 to-green-600', line1: 'My portfolio doubled in quality here.', line2: 'Designing for thousands was career-defining.' },
+                { name: 'Arif Billah', role: 'Public Relations', initials: 'AB', color: 'from-emerald-600 to-cyan-600', line1: 'PR work sharpened my communication skills.', line2: 'Connections I made here I still rely on.' },
+                // duplicates for seamless loop
+                { name: 'Rafi Ahmed', role: 'Administration Lead', initials: 'RA', color: 'from-emerald-500 to-green-600', line1: 'Leading the panel taught me empathy', line2: 'and decisive thinking under real pressure.' },
+                { name: 'Nusrat Jahan', role: 'Event Management', initials: 'NJ', color: 'from-teal-500 to-emerald-600', line1: 'Organizing national robotics competitions', line2: 'sharpened skills no classroom could teach.' },
+                { name: 'Tanvir Hossain', role: 'R&D Member', initials: 'TH', color: 'from-green-500 to-teal-600', line1: 'The R&D team let me experiment freely.', line2: 'I built my first autonomous bot here.' },
+                { name: 'Sumaya Khatun', role: 'Graphics Design', initials: 'SK', color: 'from-lime-500 to-green-600', line1: 'My portfolio doubled in quality here.', line2: 'Designing for thousands was career-defining.' },
+                { name: 'Arif Billah', role: 'Public Relations', initials: 'AB', color: 'from-emerald-600 to-cyan-600', line1: 'PR work sharpened my communication skills.', line2: 'Connections I made here I still rely on.' },
+              ].map((item, i) => (
+                <div
+                  key={i}
+                  className="w-80 flex-shrink-0 bg-gray-800/60 backdrop-blur-xl border border-[#2ECC71]/30 rounded-2xl p-6 hover:border-[#2ECC71]/70 hover:shadow-[0_0_40px_0_rgba(46,204,113,0.3)] transition-all duration-300"
+                >
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${item.color} flex items-center justify-center text-white font-bold text-lg shadow-[0_0_20px_0_rgba(46,204,113,0.4)] flex-shrink-0`}>
+                      {item.initials}
                     </div>
-                    <p className="text-gray-300 text-lg leading-relaxed group-hover:text-white transition-colors">
-                      {benefit}
-                    </p>
-                  </motion.div>
-                ))}
-              </div>
+                    <div>
+                      <p className="text-white font-semibold">{item.name}</p>
+                      <p className="text-[#2ECC71] text-xs">{item.role}</p>
+                    </div>
+                    <div className="ml-auto flex gap-0.5">
+                      {[...Array(5)].map((_, s) => (
+                        <svg key={s} className="w-4 h-4 text-[#2ECC71]" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.164c.969 0 1.371 1.24.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.286 3.967c.3.921-.755 1.688-1.54 1.118l-3.37-2.448a1 1 0 00-1.175 0l-3.37 2.448c-.784.57-1.838-.197-1.54-1.118l1.286-3.967a1 1 0 00-.364-1.118L2.05 9.394c-.783-.57-.38-1.81.588-1.81h4.164a1 1 0 00.95-.69l1.286-3.967z"/></svg>
+                      ))}
+                    </div>
+                  </div>
+                  <p className="text-gray-300 text-sm leading-relaxed">“{item.line1}</p>
+                  <p className="text-gray-400 text-sm leading-relaxed mt-1">{item.line2}”</p>
+                </div>
+              ))}
             </div>
-          </motion.div>
+          </div>
+
+          {/* Row 2 — scrolls right */}
+          <div className="marquee-track overflow-hidden select-none">
+            <div className="flex gap-6 w-max marquee-right">
+              {[
+                { name: 'Mehedi Hasan', role: 'Website Management', initials: 'MH', color: 'from-cyan-500 to-teal-600', line1: 'Club website work pushed me deep into', line2: 'React & SEO — I left a full-stack developer.' },
+                { name: 'Fariha Islam', role: 'Content Writing', initials: 'FI', color: 'from-green-400 to-emerald-600', line1: 'The club gave my writing a real audience.', line2: 'Inspiring engineers through words is priceless.' },
+                { name: 'Imran Khan', role: 'Video Editing', initials: 'IK', color: 'from-teal-400 to-green-500', line1: 'Producing competition documentaries was unreal.', line2: 'My reel landed me a freelance gig in year 2.' },
+                { name: 'Sadia Afrin', role: 'Administration', initials: 'SA', color: 'from-emerald-400 to-lime-600', line1: 'Club ops taught me real project planning.', line2: 'Keeping 50+ members aligned was top training.' },
+                { name: 'Karim Molla', role: 'Event Management', initials: 'KM', color: 'from-green-600 to-teal-500', line1: 'Every event here was a masterclass.', line2: 'No internship builds confidence this fast.' },
+                // duplicates
+                { name: 'Mehedi Hasan', role: 'Website Management', initials: 'MH', color: 'from-cyan-500 to-teal-600', line1: 'Club website work pushed me deep into', line2: 'React & SEO — I left a full-stack developer.' },
+                { name: 'Fariha Islam', role: 'Content Writing', initials: 'FI', color: 'from-green-400 to-emerald-600', line1: 'The club gave my writing a real audience.', line2: 'Inspiring engineers through words is priceless.' },
+                { name: 'Imran Khan', role: 'Video Editing', initials: 'IK', color: 'from-teal-400 to-green-500', line1: 'Producing competition documentaries was unreal.', line2: 'My reel landed me a freelance gig in year 2.' },
+                { name: 'Sadia Afrin', role: 'Administration', initials: 'SA', color: 'from-emerald-400 to-lime-600', line1: 'Club ops taught me real project planning.', line2: 'Keeping 50+ members aligned was top training.' },
+                { name: 'Karim Molla', role: 'Event Management', initials: 'KM', color: 'from-green-600 to-teal-500', line1: 'Every event here was a masterclass.', line2: 'No internship builds confidence this fast.' },
+              ].map((item, i) => (
+                <div
+                  key={i}
+                  className="w-80 flex-shrink-0 bg-gray-800/60 backdrop-blur-xl border border-[#2ECC71]/30 rounded-2xl p-6 hover:border-[#2ECC71]/70 hover:shadow-[0_0_40px_0_rgba(46,204,113,0.3)] transition-all duration-300"
+                >
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${item.color} flex items-center justify-center text-white font-bold text-lg shadow-[0_0_20px_0_rgba(46,204,113,0.4)] flex-shrink-0`}>
+                      {item.initials}
+                    </div>
+                    <div>
+                      <p className="text-white font-semibold">{item.name}</p>
+                      <p className="text-[#2ECC71] text-xs">{item.role}</p>
+                    </div>
+                    <div className="ml-auto flex gap-0.5">
+                      {[...Array(5)].map((_, s) => (
+                        <svg key={s} className="w-4 h-4 text-[#2ECC71]" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.164c.969 0 1.371 1.24.588 1.81l-3.37 2.448a1 1 0 00-.364 1.118l1.286 3.967c.3.921-.755 1.688-1.54 1.118l-3.37-2.448a1 1 0 00-1.175 0l-3.37 2.448c-.784.57-1.838-.197-1.54-1.118l1.286-3.967a1 1 0 00-.364-1.118L2.05 9.394c-.783-.57-.38-1.81.588-1.81h4.164a1 1 0 00.95-.69l1.286-3.967z"/></svg>
+                      ))}
+                    </div>
+                  </div>
+                  <p className="text-gray-300 text-sm leading-relaxed">“{item.line1}</p>
+                  <p className="text-gray-400 text-sm leading-relaxed mt-1">{item.line2}”</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
