@@ -2,10 +2,11 @@ import { motion } from "motion/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, Search } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { collection, getDocs, query } from "firebase/firestore";
 import { db } from "@/config/firebase";
 import { MANUAL_PROJECTS, ProjectSection, ProjectData } from "./ProjectData";
-import { ProjectDetailPage } from "./ProjectDetailPage";
+import { slugify } from "@/utils/slugify";
 
 // Hero Section Background - exact copy from landing page
 function HeroBackground() {
@@ -118,11 +119,11 @@ function ScrollProgress() {
 }
 
 export default function ResearchProjectsPage() {
+  const navigate = useNavigate();
   const [projects, setProjects] = useState<ProjectData[]>([]);
   const [filteredProjects, setFilteredProjects] = useState<ProjectData[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const [cachedImages, setCachedImages] = useState<{ [key: string]: string }>(
     {}
   );
@@ -256,21 +257,10 @@ export default function ResearchProjectsPage() {
     }
   }, [searchQuery, projects]);
 
-  const handleProjectClick = (projectId: string) => {
-    setSelectedProject(projectId);
+  const handleProjectClick = (project: ProjectData) => {
+    const projectSlug = slugify(project.title);
+    navigate(`/research-projects/${projectSlug}`);
   };
-
-  if (selectedProject) {
-    const project = projects.find((p) => p.id === selectedProject);
-    if (project) {
-      return (
-        <ProjectDetailPage
-          project={project}
-          onBack={() => setSelectedProject(null)}
-        />
-      );
-    }
-  }
 
   return (
     <main className="relative min-h-screen bg-black overflow-x-hidden w-full max-w-[100vw]">
@@ -354,7 +344,7 @@ export default function ResearchProjectsPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: index * 0.05 }}
-                  onClick={() => handleProjectClick(project.id)}
+                  onClick={() => handleProjectClick(project)}
                   className="cursor-pointer"
                 >
                   <Card className="group bg-gradient-to-br from-[rgba(46,204,113,0.05)] to-transparent border-[rgba(46,204,113,0.2)] hover:border-[rgba(46,204,113,0.5)] transition-all duration-300 hover:shadow-[0_0_40px_0_rgba(46,204,113,0.3)] overflow-hidden backdrop-blur-sm h-full flex flex-col">

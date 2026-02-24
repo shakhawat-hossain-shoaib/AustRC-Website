@@ -6,6 +6,7 @@ import { collection, getDocs, query } from 'firebase/firestore';
 import { db } from '@/config/firebase';
 import { Button } from './ui/button';
 import { useNavigate } from 'react-router-dom';
+import { slugify } from '@/utils/slugify';
 
 interface ResearchProject {
   id: string;
@@ -761,8 +762,14 @@ export function ResearchProjectsHomepageSection() {
                       className="flex gap-3 pt-6 sm:pt-8 mt-2 border-t border-[#2ECC71]/10"
                     >
                       <Button
-                        onClick={() => setSelectedProject(null)}
+                        onClick={() => navigate(`/research-projects/${slugify(selectedProject.Title)}`)}
                         className="flex-1 bg-gradient-to-r from-[#2ECC71] to-[#27AE60] hover:from-[#27AE60] hover:to-[#2ECC71] text-black font-bold h-12 sm:h-14 rounded-xl text-sm sm:text-base shadow-lg shadow-[#2ECC71]/20 transition-all"
+                      >
+                        <span>View Full Project</span>
+                      </Button>
+                      <Button
+                        onClick={() => setSelectedProject(null)}
+                        className="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-bold h-12 sm:h-14 rounded-xl text-sm sm:text-base transition-all"
                       >
                         <span>Close</span>
                       </Button>

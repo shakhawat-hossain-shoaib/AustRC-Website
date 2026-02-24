@@ -1,34 +1,206 @@
 import { motion } from 'motion/react';
 import { ArrowLeft, ChevronLeft, ChevronRight, Users, FileText } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-import { useState } from 'react';
-import { ProjectData, ProjectSection } from './ProjectData';
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { collection, getDocs, query } from 'firebase/firestore';
+import { db } from '@/config/firebase';
+import { ProjectData, ProjectSection, MANUAL_PROJECTS } from './ProjectData';
+import { slugify } from '@/utils/slugify';
 
 interface ProjectDetailPageProps {
-  project: ProjectData;
-  onBack: () => void;
+  project?: ProjectData;
+  onBack?: () => void;
 }
 
-export function ProjectDetailPage({ project, onBack }: ProjectDetailPageProps) {
+export function ProjectDetailPage({ project: propProject, onBack }: ProjectDetailPageProps) {
+  const { projectSlug } = useParams<{ projectSlug?: string }>();
+  const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showPdfViewer, setShowPdfViewer] = useState(false);
+  const [project, setProject] = useState<ProjectData | null>(propProject || null);
+  const [loading, setLoading] = useState(!propProject && !!projectSlug);
+  const [error, setError] = useState(false);
+
+  // Convert Firebase data to ProjectData format
+  const convertFirebaseToProjectData = (firebaseData: any): ProjectData => {
+    const teamMembers = [];
+    for (let i = 1; i <= 4; i++) {
+      const nameKey = `Owner_${i}_Name`;
+      const designationKey = `Owner_${i}_Designation_Department`;
+      const name = firebaseData[nameKey];
+      const designation = firebaseData[designationKey];
+      if (name) {
+        teamMembers.push({
+          name,
+          designation: designation || "",
+          role: i === 1 ? "Project Lead" : "Team Member",
+        });
+      }
+    }
+
+    const carouselImages = [];
+    if (firebaseData.Cover_Picture) {
+      carouselImages.push(firebaseData.Cover_Picture);
+    }
+
+    const sections: ProjectSection[] = [];
+    for (let i = 1; i <= 100; i++) {
+      const sectionName = firebaseData[`Section_${i}_Name`];
+      const sectionDescription = firebaseData[`Section_${i}_Description`];
+      const sectionImages: string[] = [];
+      
+      for (let j = 1; j <= 50; j++) {
+        const imgKey = `Section_${i}_Image_${j}`;
+        if (firebaseData[imgKey]) {
+          sectionImages.push(firebaseData[imgKey]);
+        }
+      }
+      
+      if (sectionName || sectionDescription || sectionImages.length > 0) {
+        sections.push({
+          heading: sectionName || "",
+          description: sectionDescription || "",
+          images: sectionImages,
+        });
+      }
+    }
+
+    const projectData: ProjectData = {
+      id: firebaseData.id,
+      title: firebaseData.Title || firebaseData.id || "",
+      coverImage: firebaseData.Cover_Picture || "",
+      shortDescription: firebaseData.Subtitle || firebaseData.Introduction || "",
+      fullDescription: firebaseData.Introduction || "",
+      carouselImages: carouselImages.length > 0 ? carouselImages : [firebaseData.Cover_Picture || ""],
+      teamMembers: teamMembers,
+      tags: firebaseData.Tags || [],
+      order: firebaseData.Order || 0,
+      pdfLink: firebaseData.PDF_Link || firebaseData.pdfLink || "",
+      sections: sections,
+    };
+
+    return projectData;
+  };
+
+  // Fetch project from Firebase if accessed via URL param
+  useEffect(() => {
+    if (propProject) {
+      // Project passed as prop (internal navigation)
+      setProject(propProject);
+      setLoading(false);
+      return;
+    }
+
+    if (!projectSlug) {
+      setLoading(false);
+      setError(true);
+      return;
+    }
+
+    // Check MANUAL_PROJECTS first by comparing slugified titles
+    const manualProject = MANUAL_PROJECTS.find(p => slugify(p.title) === projectSlug);
+    if (manualProject) {
+      setProject(manualProject);
+      setLoading(false);
+      return;
+    }
+
+    // Fetch from Firebase
+    const fetchProject = async () => {
+      try {
+        const projectsCollection = collection(
+          db,
+          "All_Data",
+          "Research_Projects",
+          "research_projects"
+        );
+        const q = query(projectsCollection);
+        const querySnapshot = await getDocs(q);
+
+        let foundProject: ProjectData | null = null;
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          const projectTitle = data.Title || doc.id || "";
+          // Compare slugified title with the URL slug
+          if (slugify(projectTitle) === projectSlug) {
+            foundProject = convertFirebaseToProjectData({ ...data, id: doc.id });
+          }
+        });
+
+        if (foundProject) {
+          setProject(foundProject);
+        } else {
+          setError(true);
+        }
+      } catch (err) {
+        console.error("Error fetching project:", err);
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProject();
+  }, [projectSlug, propProject]);
 
   const nextImage = () => {
+    if (!project) return;
     setCurrentImageIndex((prev) =>
       prev === project.carouselImages.length - 1 ? 0 : prev + 1
     );
   };
 
   const prevImage = () => {
+    if (!project) return;
     setCurrentImageIndex((prev) =>
       prev === 0 ? project.carouselImages.length - 1 : prev - 1
     );
   };
 
+  const handleBack = () => {
+    if (onBack) {
+      onBack();
+    } else {
+      navigate('/research-projects');
+    }
+  };
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-[#2ECC71] text-2xl">Loading project...</div>
+      </main>
+    );
+  }
+
+  if (error || !project) {
+    return (
+      <main className="min-h-screen bg-black flex flex-col items-center justify-center gap-6">
+        <div className="text-white text-2xl">Project not found</div>
+        <button
+          onClick={handleBack}
+          className="px-6 py-3 bg-[#2ECC71] text-white rounded-lg font-semibold hover:bg-[#27AE60] transition-all"
+        >
+          Back to Projects
+        </button>
+      </main>
+    );
+  }
+
   const pdfPreviewUrl = project.pdfLink;
 
   return (
     <main className="min-h-screen bg-black relative overflow-x-hidden">
+      {/* Back Button */}
+      <button
+        onClick={handleBack}
+        className="fixed top-24 left-6 z-40 flex items-center gap-2 px-4 py-2 text-[#2ECC71] hover:text-white bg-black/50 hover:bg-black/80 rounded-lg backdrop-blur-md transition-all border border-[#2ECC71]/30 hover:border-[#2ECC71]"
+      >
+        <ArrowLeft className="w-5 h-5" />
+        <span className="hidden sm:inline">Back</span>
+      </button>
+
       {/* Animated background */}
       <div className="fixed inset-0 -z-10 overflow-hidden">
         {[...Array(15)].map((_, i) => (

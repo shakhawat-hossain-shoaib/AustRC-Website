@@ -60,7 +60,7 @@ function AppContent() {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/enthusiast-acquisition" element={<EnthusiastAcquisitionPage />} />
         <Route path="/research-projects" element={<ResearchProjectsPage />} />
-        <Route path="/research-projects/:projectId" element={<ProjectDetailPage />} />
+        <Route path="/research-projects/:projectSlug" element={<ProjectDetailPage />} />
         {/* Hall of Fame Route */}
         <Route path="/hall-of-fame" element={<HallOfFamePage />} />
         {/* Dynamic Route for Governing Panel (Semesters) */}

@@ -13,7 +13,8 @@ import {
   Eye,
   Zap,
   Star,
-  ArrowUpRight
+  ArrowUpRight,
+  GraduationCap  
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { useEffect, useState, useRef, useCallback } from 'react';
@@ -111,6 +112,7 @@ const PremiumBackground = () => (
 );
 
 // Section Header Component
+// Section Header Component
 const SectionHeader = () => (
   <motion.div
     initial={{ opacity: 0, y: 25 }}
@@ -119,25 +121,6 @@ const SectionHeader = () => (
     transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
     className="text-center mb-10 sm:mb-14 lg:mb-20"
   >
-    {/* Premium Badge */}
-    <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.3, delay: 0.05 }}
-      className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 bg-[#2ECC71]/10 rounded-full border border-[#2ECC71]/20 mb-6 sm:mb-8"
-    >
-      <motion.div
-        animate={{ rotate: 360 }}
-        transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
-      >
-        <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#2ECC71]" />
-      </motion.div>
-      <span className="text-[#2ECC71] text-[11px] sm:text-xs font-semibold tracking-[0.2em] uppercase">
-        Featured Events
-      </span>
-    </motion.div>
-
     {/* Title */}
     <motion.h2
       className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight"
@@ -183,18 +166,7 @@ const SectionHeader = () => (
       </span>
     </motion.h2>
 
-    {/* Subtitle */}
-    <motion.p
-      className="mt-4 sm:mt-6 text-gray-400 text-sm sm:text-base lg:text-lg max-w-2xl mx-auto px-4 leading-relaxed"
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.35, delay: 0.15 }}
-    >
-      Explore our cutting-edge events that drive innovation and shape the future of robotics technology
-    </motion.p>
-
-    {/* Stats Row */}
+    {/* Stats Row (Removed Rating) */}
     <motion.div
       className="flex flex-wrap justify-center gap-8 sm:gap-12 lg:gap-16 mt-8 sm:mt-12"
       initial={{ opacity: 0, y: 15 }}
@@ -205,7 +177,6 @@ const SectionHeader = () => (
       {[
         { value: '25+', label: 'Events', icon: Zap },
         { value: '500+', label: 'Attendees', icon: Users },
-        { value: '4.9', label: 'Rating', icon: Star },
       ].map((stat, i) => (
         <motion.div
           key={i}
@@ -1021,15 +992,26 @@ export function EventsSection() {
                 />
 
                 <span className="relative inline-flex items-center gap-3">
-                  <ArrowRight className="w-5 h-5" />
-                  Explore All Events
-                  <motion.span
-                    animate={{ x: [0, 5, 0] }}
-                    transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
-                  >
-                    <ArrowRight className="w-5 h-5" />
-                  </motion.span>
-                </span>
+  {/* Graduation Cap with Hover Animation */}
+  <motion.div
+    className="w-5 h-5"
+    animate={{ rotate: [0, 15, -10, 0], scale: [1, 1.1, 1, 1.05] }}
+    whileHover={{ scale: 1.2, rotate: 20 }}
+    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+  >
+    <GraduationCap className="w-5 h-5 text-white" />
+  </motion.div>
+
+  Explore All Events
+
+  {/* Animated Arrow */}
+  <motion.span
+    animate={{ x: [0, 5, 0] }}
+    transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+  >
+    <ArrowRight className="w-5 h-5" />
+  </motion.span>
+</span>
               </motion.button>
             </motion.div>
           )}

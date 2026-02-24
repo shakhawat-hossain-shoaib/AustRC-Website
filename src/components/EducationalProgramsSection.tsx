@@ -84,9 +84,9 @@ export function EducationalProgramsSection() {
 
   const stats = [
     { icon: Users, value: '500+', label: 'Students Enrolled' },
-    { icon: BookOpen, value: '25+', label: 'Courses Available' },
-    { icon: Clock, value: '100+', label: 'Hours of Content' },
-    { icon: Star, value: '4.9', label: 'Average Rating' },
+    { icon: BookOpen, value: '25+', label: 'Bootcamps Available' },
+    { icon: Clock, value: '100+', label: 'Hours of Content' }
+    
   ];
 
   return (
@@ -181,7 +181,7 @@ export function EducationalProgramsSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.35, delay: 0.05 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16 max-w-4xl mx-auto"
+          className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-16 max-w-4xl mx-auto"
         >
           {stats.map((stat, index) => (
             <motion.div
