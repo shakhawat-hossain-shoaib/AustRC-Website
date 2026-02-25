@@ -1,13 +1,13 @@
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import { 
-  X, 
   Zap,
   Eye,
   Calendar
 } from 'lucide-react';
-import { Button } from '../ui/button';
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { slugify } from '@/utils/slugify';
 import { db } from '@/config/firebase';
 
 interface Headline {
@@ -404,260 +404,18 @@ const EmptyState = () => (
   </motion.div>
 );
 
-// Event Detail Modal Component
-const EventDetailModal = ({
-  event,
-  cachedImage,
-  onClose,
-}: {
-  event: Event;
-  cachedImage?: string;
-  onClose: () => void;
-}) => {
-  const modalRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handleEscape);
-    return () => window.removeEventListener('keydown', handleEscape);
-  }, [onClose]);
-
-  const handleBackdropClick = (e: React.MouseEvent) => {
-    if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
-      onClose();
-    }
-  };
-
-  return (
-    <>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.3 }}
-        className="fixed inset-0 bg-black/90 backdrop-blur-xl"
-        style={{ zIndex: 99999 }}
-        onClick={handleBackdropClick}
-      />
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 flex items-start justify-center p-4 sm:p-6 lg:p-8 overflow-y-auto py-8 sm:py-16"
-        style={{ zIndex: 100000 }}
-        onClick={handleBackdropClick}
-      >
-        <motion.div
-          ref={modalRef}
-          initial={{ opacity: 0, y: 100, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 100, scale: 0.95 }}
-          transition={{ 
-            duration: 0.5, 
-            type: 'spring', 
-            stiffness: 300, 
-            damping: 30 
-          }}
-          className="relative w-full max-w-4xl overflow-hidden"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="relative bg-gradient-to-b from-gray-900 via-gray-950 to-black rounded-2xl lg:rounded-3xl border border-[#2ECC71]/20 shadow-2xl overflow-hidden">
-            {/* Animated Top Border */}
-            <motion.div
-              className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#2ECC71] to-transparent"
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              transition={{ delay: 0.3, duration: 0.8 }}
-            />
-
-            {/* Close Button */}
-            <motion.button
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2 }}
-              whileHover={{ scale: 1.1, rotate: 90 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={onClose}
-              className="absolute top-4 right-4 sm:top-6 sm:right-6 z-30 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/60 backdrop-blur-md border border-[#2ECC71]/40 flex items-center justify-center text-white hover:bg-[#2ECC71] hover:border-[#2ECC71] hover:text-black transition-all duration-300"
-            >
-              <X className="w-5 h-5 sm:w-6 sm:h-6" />
-            </motion.button>
-
-            {/* Hero Image */}
-            <div className="relative h-48 sm:h-64 lg:h-80 overflow-hidden">
-              <motion.img
-                initial={{ scale: 1.1, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.6 }}
-                src={cachedImage || event.Cover_Picture}
-                alt={event.Event_Name}
-                className="w-full h-full object-cover"
-              />
-              
-              <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/60 to-transparent" />
-              <div className="absolute inset-0 bg-gradient-to-r from-[#2ECC71]/10 to-transparent" />
-
-              {/* Title Section */}
-              <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-8 lg:p-10">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-[#2ECC71] rounded-full mb-4 sm:mb-6"
-                >
-                  <Zap className="w-4 h-4 text-black" />
-                  <span className="text-black text-xs sm:text-sm font-bold tracking-wider uppercase">
-                    Featured Event
-                  </span>
-                </motion.div>
-                
-                <motion.h2
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                  className="text-2xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight"
-                >
-                  {event.Event_Name}
-                </motion.h2>
-              </div>
-            </div>
-
-            {/* Content Body */}
-            <div className="p-6 sm:p-8 lg:p-10 space-y-8 sm:space-y-10">
-              {/* Introduction Section */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-0.5 bg-gradient-to-r from-[#2ECC71] to-transparent rounded-full" />
-                  <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-white">
-                    Introduction
-                  </h3>
-                </div>
-                <div className="bg-white/[0.03] rounded-xl sm:rounded-2xl p-5 sm:p-6 lg:p-7 border border-[#2ECC71]/10 backdrop-blur-sm">
-                  <p className="text-gray-300 text-sm sm:text-base lg:text-lg leading-relaxed whitespace-pre-wrap">
-                    {event.Introduction}
-                  </p>
-                </div>
-              </motion.div>
-
-              {/* Headlines with Images and Descriptions */}
-              {event.headlines && event.headlines.length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.6 }}
-                  className="space-y-8 sm:space-y-10"
-                >
-                  {event.headlines.map((headline, idx) => (
-                    <motion.div
-                      key={idx}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.7 + idx * 0.1 }}
-                      className="bg-white/[0.02] rounded-xl sm:rounded-2xl p-6 sm:p-7 lg:p-8 border border-[#2ECC71]/10 backdrop-blur-sm overflow-hidden"
-                    >
-                      {/* Headline Title */}
-                      <h4 className="text-lg sm:text-xl lg:text-2xl font-bold text-[#2ECC71] mb-4 sm:mb-5 flex items-center gap-3">
-                        <motion.div
-                          animate={{ scale: [1, 1.2, 1] }}
-                          transition={{ duration: 2, repeat: Infinity, delay: idx * 0.3 }}
-                          className="w-2 h-2 sm:w-3 sm:h-3 bg-[#2ECC71] rounded-full"
-                        />
-                        {headline.heading}
-                      </h4>
-
-                      {/* Images - Grid or Carousel */}
-                      {headline.images && headline.images.length > 0 && (
-                        <div className="mb-6 sm:mb-7">
-                          {headline.images.length === 1 ? (
-                            <motion.div
-                              initial={{ opacity: 0, scale: 0.9 }}
-                              animate={{ opacity: 1, scale: 1 }}
-                              transition={{ duration: 0.5 }}
-                              className="relative h-56 sm:h-72 lg:h-96 rounded-lg overflow-hidden flex items-center justify-center bg-gradient-to-br from-[#2ECC71]/20 to-[#27AE60]/10"
-                            >
-                              <img
-                                src={headline.images[0]}
-                                alt={headline.heading}
-                                className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                              />
-                            </motion.div>
-                          ) : (
-                            <div className="grid grid-cols-2 gap-4 w-full">
-                              {headline.images.map((img, imgIdx) => (
-                                <motion.div
-                                  key={imgIdx}
-                                  initial={{ opacity: 0, scale: 0.9 }}
-                                  animate={{ opacity: 1, scale: 1 }}
-                                  transition={{ delay: imgIdx * 0.1, duration: 0.5 }}
-                                  className="relative h-48 sm:h-56 lg:h-64 rounded-lg overflow-hidden flex items-center justify-center bg-gradient-to-br from-[#2ECC71]/20 to-[#27AE60]/10"
-                                >
-                                  <img
-                                    src={img}
-                                    alt={`${headline.heading} ${imgIdx + 1}`}
-                                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                                  />
-                                </motion.div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Description */}
-                      {headline.description && (
-                        <p className="text-gray-300 text-sm sm:text-base lg:text-lg leading-relaxed whitespace-pre-wrap">
-                          {headline.description}
-                        </p>
-                      )}
-                    </motion.div>
-                  ))}
-                </motion.div>
-              )}
-
-              {/* Close Button */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8 }}
-                className="flex gap-3 pt-4 border-t border-[#2ECC71]/10"
-              >
-                <Button
-                  onClick={onClose}
-                  className="flex-1 bg-gradient-to-r from-[#2ECC71] to-[#27AE60] hover:from-[#27AE60] hover:to-[#2ECC71] text-black font-bold h-12 rounded-xl text-sm sm:text-base shadow-lg shadow-[#2ECC71]/20 transition-all"
-                >
-                  <span>Close</span>
-                </Button>
-              </motion.div>
-            </div>
-          </div>
-        </motion.div>
-      </motion.div>
-    </>
-  );
-};
-
 export function EventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [cachedImages, setCachedImages] = useState<{ [key: string]: string }>({});
+  const navigate = useNavigate();
 
   // Helper function to extract all images from event data
   const getAllImageURLs = (data: any): string[] => {
     const imageUrls: string[] = [];
     const dataKeys = Object.keys(data);
     
-    // Fields to exclude (like Cover_Picture which is already used as hero image)
     const excludeFields = ['cover_picture', 'coverpicture', 'heroimage', 'hero_image'];
-    
-    // Patterns that indicate an image field
     const imagePatterns = [
       'image', 'img', 'picture', 'photo', 'url', 'src', 'cover',
       'banner', 'thumbnail', 'icon', 'graphic', 'visual', 'asset'
@@ -665,20 +423,13 @@ export function EventsPage() {
     
     for (const key of dataKeys) {
       const value = data[key];
-      // Check if value is a string and looks like a URL (contains http or firebase storage)
       if (typeof value === 'string' && value.length > 10) {
         const lowerKey = key.toLowerCase();
         const lowerValue = value.toLowerCase();
         
-        // Skip excluded fields
-        if (excludeFields.includes(lowerKey)) {
-          continue;
-        }
+        if (excludeFields.includes(lowerKey)) continue;
         
-        // Check if key matches image patterns
         const isImageKey = imagePatterns.some(pattern => lowerKey.includes(pattern));
-        
-        // Check if value looks like an image URL
         const isImageUrl = lowerValue.includes('http') || 
                           lowerValue.includes('firebase') || 
                           lowerValue.includes('blob:') ||
@@ -706,9 +457,7 @@ export function EventsPage() {
         const fetchedEvents: Event[] = [];
         querySnapshot.forEach((doc) => {
           const data = doc.data();
-          console.log('Raw event data:', data);
           
-          // Extract headlines with their images and descriptions
           const headlines: Headline[] = [];
           let headlineFound = false;
           
@@ -719,10 +468,8 @@ export function EventsPage() {
 
             if (heading) {
               headlineFound = true;
-              // Collect images for this headline - try multiple naming patterns
               const images: string[] = [];
               for (let j = 1; j <= 10; j++) {
-                // List of possible image key patterns to check
                 const imageKeyPatterns = [
                   `Headline_${i}_Image_${j}`,
                   `Headline_${i}_image_${j}`,
@@ -734,7 +481,6 @@ export function EventsPage() {
                   `Headline${i}_image${j}`,
                 ];
                 
-                // Try each pattern
                 let found = false;
                 for (const imageKey of imageKeyPatterns) {
                   if (data[imageKey]) {
@@ -744,7 +490,6 @@ export function EventsPage() {
                   }
                 }
                 
-                // If not found with exact patterns, try case-insensitive search
                 if (!found) {
                   const lowerImagePatterns = imageKeyPatterns.map(p => p.toLowerCase());
                   const dataKeys = Object.keys(data);
@@ -758,7 +503,6 @@ export function EventsPage() {
                 }
               }
 
-              console.log(`Event: ${data.Event_Name}, Headline ${i}: Found ${images.length} images`, images);
               if (images.length > 0 || heading) {
                 headlines.push({
                   heading,
@@ -769,12 +513,8 @@ export function EventsPage() {
             }
           }
           
-          // If no headlines found, look for standalone images in the document
           if (!headlineFound || headlines.length === 0) {
             const allImages = getAllImageURLs(data);
-            console.log(`Event: ${data.Event_Name}, Found ${allImages.length} standalone images`, allImages);
-            
-            // Create a default headline with all found images (no description to avoid duplication)
             if (allImages.length > 0) {
               headlines.push({
                 heading: 'Gallery',
@@ -806,18 +546,6 @@ export function EventsPage() {
     fetchEvents();
   }, []);
 
-  // Lock body scroll when modal is open
-  useEffect(() => {
-    if (selectedEvent) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [selectedEvent]);
-
   // Cache images
   useEffect(() => {
     const cacheImages = async () => {
@@ -844,9 +572,10 @@ export function EventsPage() {
     }
   }, [events]);
 
-  const handleCloseModal = useCallback(() => {
-    setSelectedEvent(null);
-  }, []);
+  const handleEventClick = (event: Event) => {
+    const eventSlug = slugify(event.Event_Name);
+    navigate(`/activities/events/${eventSlug}`);
+  };
 
   return (
     <div className="min-h-screen bg-black text-white pt-24 pb-12 relative overflow-hidden">
@@ -870,7 +599,7 @@ export function EventsPage() {
                   key={event.id}
                   event={event}
                   index={index}
-                  onClick={() => setSelectedEvent(event)}
+                  onClick={() => handleEventClick(event)}
                   cachedImage={cachedImages[event.id]}
                 />
               ))}
@@ -878,17 +607,6 @@ export function EventsPage() {
           )}
         </div>
       </div>
-
-      {/* Modal */}
-      <AnimatePresence mode="wait">
-        {selectedEvent && (
-          <EventDetailModal
-            event={selectedEvent}
-            cachedImage={cachedImages[selectedEvent.id]}
-            onClose={handleCloseModal}
-          />
-        )}
-      </AnimatePresence>
     </div>
   );
 }

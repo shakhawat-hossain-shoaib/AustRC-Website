@@ -22,6 +22,8 @@ import { AchievementsPage } from './components/activities/AchievementsPage';
 import { SocialActivitiesPage } from './components/activities/SocialActivitiesPage';
 import { EducationalActivitiesPage } from './components/activities/EducationalActivitiesPage';
 import { EventWebsitePage } from './components/activities/EventWebsitePage';
+import { EventDetailPage } from './components/activities/EventDetailPage';
+import { AchievementDetailPage } from './components/activities/AchievementDetailPage';
 
 // ✅ THIS IMPORT IS VITAL
 import { ActivityDetailPage } from './components/activities/ActivityDetailPage';
@@ -49,7 +51,9 @@ function AppContent() {
 
         <Route path="/activities" element={<ActivitiesPage />} />
         <Route path="/activities/events" element={<EventsPage />} />
+        <Route path="/activities/events/:eventSlug" element={<EventDetailPage />} />
         <Route path="/activities/achievements" element={<AchievementsPage />} />
+        <Route path="/activities/achievements/:achievementSlug" element={<AchievementDetailPage />} />
         <Route path="/activities/social-activities" element={<SocialActivitiesPage />} />
         <Route path="/activities/educational-activities" element={<EducationalActivitiesPage />} />
         <Route path="/activities/event-website" element={<EventWebsitePage />} />
