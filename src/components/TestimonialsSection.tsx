@@ -42,15 +42,14 @@ export function TestimonialsSection() {
   const [carouselImages, setCarouselImages] = useState<string[]>([]);
   const [cachedImages, setCachedImages] = useState<{ [key: string]: string }>({});
   const [carouselIndex, setCarouselIndex] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const carouselRef = useRef<HTMLDivElement>(null);
   const lastClickTime = useRef(0);
 
+  // clicking the carousel shouldn't advance it, just pause playback
   const handleCarouselClick = useCallback(() => {
-    const now = Date.now();
-    if (now - lastClickTime.current < 500) return; // 0.5s throttle
-    lastClickTime.current = now;
-    setCarouselIndex((prev) => (prev + 1) % carouselImages.length);
-  }, [carouselImages.length]);
+    setIsPaused(true);
+  }, []);
 
   // Fetch images from Firebase
   useEffect(() => {
@@ -118,13 +117,30 @@ export function TestimonialsSection() {
     if (carouselImages.length === 0) return;
 
     const interval = setInterval(() => {
-      if (!isHovered) {
+      if (!isPaused) {
         setCarouselIndex((prev) => (prev + 1) % carouselImages.length);
       }
     }, 7000);
 
     return () => clearInterval(interval);
-  }, [carouselImages.length, isHovered]);
+  }, [carouselImages.length, isPaused]);
+
+  // Resume when clicking/touching outside the carousel
+  useEffect(() => {
+    const handleDocumentInteraction = (e: MouseEvent | TouchEvent) => {
+      if (carouselRef.current && !carouselRef.current.contains(e.target as Node)) {
+        setIsPaused(false);
+      }
+    };
+
+    document.addEventListener("click", handleDocumentInteraction);
+    document.addEventListener("touchstart", handleDocumentInteraction);
+
+    return () => {
+      document.removeEventListener("click", handleDocumentInteraction);
+      document.removeEventListener("touchstart", handleDocumentInteraction);
+    };
+  }, []);
 
   return (
     <section className="py-20 bg-gradient-to-b from-black via-gray-900 to-black relative overflow-hidden">
@@ -156,12 +172,15 @@ export function TestimonialsSection() {
             viewport={{ once: true }}
             transition={{ duration: 0.35 }}
             style={{ perspective: "1000px" }}
-            className="w-full max-w-[500px]"
+            className="mx-auto w-full max-w-md"
           >
             <div
-              className="relative aspect-square w-full overflow-hidden rounded-2xl border border-[rgba(46,204,113,0.3)] shadow-[0_0_50px_0_rgba(46,204,113,0.4)] cursor-pointer"
-              onMouseEnter={() => setIsHovered(true)}
-              onMouseLeave={() => setIsHovered(false)}
+              ref={carouselRef}
+              className="relative aspect-square w-full overflow-hidden rounded-2xl border border-[rgba(46,204,113,0.3)] shadow-[0_0_50px_0_rgba(46,204,113,0.4)] cursor-pointer max-w-full"
+              onMouseEnter={() => setIsPaused(true)}
+              onMouseLeave={() => setIsPaused(false)}
+              onTouchStart={() => setIsPaused(true)}
+              onTouchEnd={() => setIsPaused(false)}
               onClick={handleCarouselClick}
             >
               <AnimatePresence mode="wait">
