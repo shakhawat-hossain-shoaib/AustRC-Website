@@ -27,6 +27,8 @@ import { AchievementDetailPage } from './components/activities/AchievementDetail
 
 // ✅ THIS IMPORT IS VITAL
 import { ActivityDetailPage } from './components/activities/ActivityDetailPage';
+import { CollaborationsPage } from './components/CollaborationsPage';
+import { SponsorsPage } from './components/SponsorsPage';
 
 
 // Scroll to top on every route change
@@ -54,22 +56,48 @@ function AppContent() {
         <Route path="/activities/events" element={<EventsPage />} />
         <Route path="/activities/events/:eventSlug" element={<EventDetailPage />} />
         <Route path="/activities/achievements" element={<AchievementsPage />} />
+        <Route
+          path="/activities/social-activities"
+          element={<SocialActivitiesPage />}
+        />
+        <Route
+          path="/activities/educational-activities"
+          element={<EducationalActivitiesPage />}
+        />
+        <Route
+          path="/activities/event-website"
+          element={<EventWebsitePage />}
+        />
+        <Route path="/sponsors" element={<SponsorsPage />} />
+        <Route path="/collaborations" element={<CollaborationsPage />} />
         <Route path="/activities/achievements/:achievementSlug" element={<AchievementDetailPage />} />
         <Route path="/activities/social-activities" element={<SocialActivitiesPage />} />
         <Route path="/activities/educational-activities" element={<EducationalActivitiesPage />} />
         <Route path="/activities/event-website" element={<EventWebsitePage />} />
         <Route path="/notices" element={<NoticesPage />} />
         {/* ✅ THE DYNAMIC ROUTE FOR DETAIL PAGES */}
-        <Route path="/activity/:category/:id" element={<ActivityDetailPage />} />
+        <Route
+          path="/activity/:category/:id"
+          element={<ActivityDetailPage />}
+        />
 
         <Route path="/about" element={<AboutPage />} />
-        <Route path="/enthusiast-acquisition" element={<EnthusiastAcquisitionPage />} />
+        <Route
+          path="/enthusiast-acquisition"
+          element={<EnthusiastAcquisitionPage />}
+        />
         <Route path="/research-projects" element={<ResearchProjectsPage />} />
-        <Route path="/research-projects/:projectSlug" element={<ProjectDetailPage />} />
+        <Route
+          path="/research-projects/:projectSlug"
+          element={<ProjectDetailPage />}
+        />
         {/* Hall of Fame Route */}
         <Route path="/hall-of-fame" element={<HallOfFamePage />} />
         {/* Dynamic Route for Governing Panel (Semesters) */}
-        <Route path="/governing-panel/:panelId" element={<GoverningPanelPage />} />
+        <Route
+          path="/governing-panel/:panelId"
+          element={<GoverningPanelPage />}
+        />
 
         <Route path="/developers" element={<DevelopersPage />} />
         <Route path="/contact" element={<ContactPage />} />

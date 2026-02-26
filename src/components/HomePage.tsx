@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
+import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 import { HeroSection } from "./HeroSection";
 import { EventsSection } from "./EventsSection";
 import { EducationalProgramsSection } from "./EducationalProgramsSection";
@@ -7,6 +9,8 @@ import { ResearchProjectsHomepageSection } from "./ResearchProjectsHomepageSecti
 import { TestimonialsSection } from "./TestimonialsSection";
 import { CollaborationsSection } from "./CollaborationsSection";
 import { SponsorsSection } from "./SponsorsSection";
+
+// Animated background particles
 import {NoticesBoardHomepageSection} from "./NoticesBoardHomePageSection";
 // Animated background particles - reduced for mobile performance
 function AnimatedBackground() {
@@ -47,7 +51,7 @@ function AnimatedBackground() {
   );
 }
 
-// Section divider with animation
+// Section divider
 function AnimatedDivider() {
   return (
     <motion.div
@@ -60,7 +64,7 @@ function AnimatedDivider() {
   );
 }
 
-// Scroll progress indicator
+// Scroll progress
 function ScrollProgress() {
   const [scrollProgress, setScrollProgress] = useState(0);
 
@@ -91,7 +95,11 @@ export function HomePage() {
       <AnimatedBackground />
       <ScrollProgress />
 
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+      >
         <HeroSection />
       </motion.div>
 <AnimatedDivider />
@@ -144,24 +152,48 @@ export function HomePage() {
 
       <AnimatedDivider />
 
+      {/* --- COLLABORATIONS SECTION WITH SOLID BUTTON --- */}
       <motion.div
         initial={{ opacity: 0, y: 50 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.2 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
+        className="flex flex-col items-center"
       >
         <CollaborationsSection />
+        <Link
+          to="/collaborations"
+          className="mt-10 group flex items-center gap-3 px-10 py-4 bg-[#2ECC71] text-black font-black rounded-2xl hover:shadow-[0_0_30px_rgba(46,204,113,0.4)] transition-all duration-300 transform hover:-translate-y-1 uppercase tracking-widest text-sm"
+        >
+          <span>Explore All Collaborations</span>
+          <ArrowRight
+            size={20}
+            className="group-hover:translate-x-1 transition-transform"
+          />
+        </Link>
       </motion.div>
 
       <AnimatedDivider />
 
+      {/* --- SPONSORS SECTION WITH SOLID BUTTON --- */}
       <motion.div
         initial={{ opacity: 0, y: 50 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.2 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
+        className="flex flex-col items-center pb-20"
       >
         <SponsorsSection />
+        <Link
+          to="/sponsors"
+          className="mt-10 group flex items-center gap-3 px-10 py-4 bg-[#2ECC71] text-black font-black rounded-2xl hover:shadow-[0_0_30px_rgba(46,204,113,0.4)] transition-all duration-300 transform hover:-translate-y-1 uppercase tracking-widest text-sm"
+        >
+          <span>Meet Our Full Sponsor Network</span>
+          <ArrowRight
+            size={20}
+            className="group-hover:translate-x-1 transition-transform"
+          />
+        </Link>
       </motion.div>
 
       <div className="hidden lg:block fixed bottom-10 right-10 w-32 h-32 bg-[#2ECC71]/20 rounded-full blur-3xl pointer-events-none z-0" />
