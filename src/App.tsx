@@ -15,7 +15,8 @@ import { Footer } from './components/Footer';
 import { CursorGlow } from './components/CursorGlow';
 import { ContactPage } from './components/ContactPage';
 import { FindAustrcIdPage } from './components/FindAustrcIdPage';
-
+//import { SponsorsPage } from "./components/SponsorsPage";
+//import { CollaborationsPage } from "./components/CollaborationsPage";
 // Sub-Pages
 import { EventsPage } from './components/activities/EventsPage';
 import { AchievementsPage } from './components/activities/AchievementsPage';
@@ -25,6 +26,8 @@ import { EventWebsitePage } from './components/activities/EventWebsitePage';
 
 // ✅ THIS IMPORT IS VITAL
 import { ActivityDetailPage } from './components/activities/ActivityDetailPage';
+import { CollaborationsPage } from './components/CollaborationsPage';
+import { SponsorsPage } from './components/SponsorsPage';
 
 // Scroll to top on every route change
 function ScrollToTop() {
@@ -50,21 +53,44 @@ function AppContent() {
         <Route path="/activities" element={<ActivitiesPage />} />
         <Route path="/activities/events" element={<EventsPage />} />
         <Route path="/activities/achievements" element={<AchievementsPage />} />
-        <Route path="/activities/social-activities" element={<SocialActivitiesPage />} />
-        <Route path="/activities/educational-activities" element={<EducationalActivitiesPage />} />
-        <Route path="/activities/event-website" element={<EventWebsitePage />} />
+        <Route
+          path="/activities/social-activities"
+          element={<SocialActivitiesPage />}
+        />
+        <Route
+          path="/activities/educational-activities"
+          element={<EducationalActivitiesPage />}
+        />
+        <Route
+          path="/activities/event-website"
+          element={<EventWebsitePage />}
+        />
+        <Route path="/sponsors" element={<SponsorsPage />} />
+        <Route path="/collaborations" element={<CollaborationsPage />} />
 
         {/* ✅ THE DYNAMIC ROUTE FOR DETAIL PAGES */}
-        <Route path="/activity/:category/:id" element={<ActivityDetailPage />} />
+        <Route
+          path="/activity/:category/:id"
+          element={<ActivityDetailPage />}
+        />
 
         <Route path="/about" element={<AboutPage />} />
-        <Route path="/enthusiast-acquisition" element={<EnthusiastAcquisitionPage />} />
+        <Route
+          path="/enthusiast-acquisition"
+          element={<EnthusiastAcquisitionPage />}
+        />
         <Route path="/research-projects" element={<ResearchProjectsPage />} />
-        <Route path="/research-projects/:projectSlug" element={<ProjectDetailPage />} />
+        <Route
+          path="/research-projects/:projectSlug"
+          element={<ProjectDetailPage />}
+        />
         {/* Hall of Fame Route */}
         <Route path="/hall-of-fame" element={<HallOfFamePage />} />
         {/* Dynamic Route for Governing Panel (Semesters) */}
-        <Route path="/governing-panel/:panelId" element={<GoverningPanelPage />} />
+        <Route
+          path="/governing-panel/:panelId"
+          element={<GoverningPanelPage />}
+        />
 
         <Route path="/developers" element={<DevelopersPage />} />
         <Route path="/contact" element={<ContactPage />} />
