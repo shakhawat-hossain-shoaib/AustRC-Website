@@ -15,14 +15,14 @@ import { Footer } from './components/Footer';
 import { CursorGlow } from './components/CursorGlow';
 import { ContactPage } from './components/ContactPage';
 import { FindAustrcIdPage } from './components/FindAustrcIdPage';
-//import { SponsorsPage } from "./components/SponsorsPage";
-//import { CollaborationsPage } from "./components/CollaborationsPage";
 // Sub-Pages
 import { EventsPage } from './components/activities/EventsPage';
 import { AchievementsPage } from './components/activities/AchievementsPage';
 import { SocialActivitiesPage } from './components/activities/SocialActivitiesPage';
 import { EducationalActivitiesPage } from './components/activities/EducationalActivitiesPage';
 import { EventWebsitePage } from './components/activities/EventWebsitePage';
+import { EventDetailPage } from './components/activities/EventDetailPage';
+import { AchievementDetailPage } from './components/activities/AchievementDetailPage';
 
 // ✅ THIS IMPORT IS VITAL
 import { ActivityDetailPage } from './components/activities/ActivityDetailPage';
@@ -52,6 +52,7 @@ function AppContent() {
 
         <Route path="/activities" element={<ActivitiesPage />} />
         <Route path="/activities/events" element={<EventsPage />} />
+        <Route path="/activities/events/:eventSlug" element={<EventDetailPage />} />
         <Route path="/activities/achievements" element={<AchievementsPage />} />
         <Route
           path="/activities/social-activities"
@@ -67,6 +68,10 @@ function AppContent() {
         />
         <Route path="/sponsors" element={<SponsorsPage />} />
         <Route path="/collaborations" element={<CollaborationsPage />} />
+        <Route path="/activities/achievements/:achievementSlug" element={<AchievementDetailPage />} />
+        <Route path="/activities/social-activities" element={<SocialActivitiesPage />} />
+        <Route path="/activities/educational-activities" element={<EducationalActivitiesPage />} />
+        <Route path="/activities/event-website" element={<EventWebsitePage />} />
 
         {/* ✅ THE DYNAMIC ROUTE FOR DETAIL PAGES */}
         <Route

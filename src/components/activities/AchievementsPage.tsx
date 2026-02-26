@@ -1,8 +1,10 @@
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from '@/config/firebase';
-import { Trophy, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { Trophy, ChevronLeft, ChevronRight } from 'lucide-react';
+import { slugify } from '@/utils/slugify';
 
 // Hero Section Background - exact copy from landing page
 function HeroBackground() {
@@ -250,19 +252,12 @@ export function AchievementsPage() {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedAchievement, setSelectedAchievement] = useState<Achievement | null>(null);
+  const navigate = useNavigate();
 
-  // Prevent body scroll when modal is open
-  useEffect(() => {
-    if (selectedAchievement) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [selectedAchievement]);
+  const handleAchievementClick = (achievement: Achievement) => {
+    const achievementSlug = slugify(achievement.Name || achievement.id);
+    navigate(`/activities/achievements/${achievementSlug}`);
+  };
 
   useEffect(() => {
     // Reference to the achievements subcollection
@@ -364,7 +359,7 @@ export function AchievementsPage() {
                   key={achievement.id}
                   achievement={achievement}
                   index={index}
-                  onClick={() => setSelectedAchievement(achievement)}
+                  onClick={() => handleAchievementClick(achievement)}
                 />
               ))}
             </div>
@@ -372,160 +367,9 @@ export function AchievementsPage() {
         </div>
       </div>
 
-      {/* Achievement Detail Modal */}
-      <AnimatePresence>
-        {selectedAchievement && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSelectedAchievement(null)}
-              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50"
-            />
-
-            {/* Modal Content */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
-            >
-              <div
-                className="bg-gradient-to-br from-[#0a1810] to-black border border-[#2ECC71]/30 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden pointer-events-auto shadow-2xl"
-                onClick={(e) => e.stopPropagation()}
-              >
-                {/* Modal Header */}
-                <div className="sticky top-0 flex justify-between items-center p-4 bg-black/40 backdrop-blur-sm border-b border-[#2ECC71]/20 z-10">
-                  <h2 className="text-2xl font-bold text-white">
-                    {selectedAchievement.Name || 'Achievement Details'}
-                  </h2>
-                  <button
-                    onClick={() => setSelectedAchievement(null)}
-                    className="p-2 hover:bg-[#2ECC71]/20 rounded-lg transition-colors"
-                    aria-label="Close modal"
-                  >
-                    <X className="w-6 h-6 text-[#2ECC71]" />
-                  </button>
-                </div>
-
-                {/* Modal Body */}
-                <div className="overflow-y-auto max-h-[calc(90vh-80px)]">
-                  <AchievementModalContent achievement={selectedAchievement} />
-                </div>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-      
       {/* Glow effect - hidden on mobile for performance */}
       <div className="hidden lg:block fixed bottom-10 right-10 w-32 h-32 bg-[#2ECC71]/20 rounded-full blur-3xl pointer-events-none z-0" />
     </main>
   );
 }
 
-// Modal Content Component with Full Image Carousel
-function AchievementModalContent({ achievement }: { achievement: Achievement }) {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
-  // Get all image URLs
-  const getImageUrls = (): string[] => {
-    const images: string[] = [];
-    for (let i = 1; i <= 10; i++) {
-      const imageKey = `Image_${i}`;
-      if (achievement[imageKey]) {
-        images.push(achievement[imageKey]);
-      }
-    }
-    return images;
-  };
-
-  const images = getImageUrls();
-  const hasMultipleImages = images.length > 1;
-
-  const nextImage = () => {
-    setCurrentImageIndex((prev) => (prev + 1) % images.length);
-  };
-
-  const prevImage = () => {
-    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
-  };
-
-  // Auto-play carousel
-  useEffect(() => {
-    if (!hasMultipleImages) return;
-
-    const interval = setInterval(() => {
-      nextImage();
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, [currentImageIndex, hasMultipleImages]);
-
-  return (
-    <div className="p-6 space-y-6">
-      {/* Full Image Carousel */}
-      {images.length > 0 && (
-        <div className="relative h-96 bg-black rounded-xl overflow-hidden">
-          <img
-            src={images[currentImageIndex]}
-            alt={`${achievement.Name} - Image ${currentImageIndex + 1}`}
-            className="w-full h-full object-contain"
-          />
-
-          {/* Navigation Buttons */}
-          {hasMultipleImages && (
-            <>
-              <button
-                onClick={prevImage}
-                className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/70 hover:bg-black/90 text-white p-3 rounded-full transition-all z-10"
-                aria-label="Previous image"
-              >
-                <ChevronLeft className="w-6 h-6" />
-              </button>
-              <button
-                onClick={nextImage}
-                className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/70 hover:bg-black/90 text-white p-3 rounded-full transition-all z-10"
-                aria-label="Next image"
-              >
-                <ChevronRight className="w-6 h-6" />
-              </button>
-
-              {/* Image Counter */}
-              <div className="absolute top-4 right-4 bg-black/70 backdrop-blur-sm px-4 py-2 rounded-full text-white font-medium z-10">
-                {currentImageIndex + 1} / {images.length}
-              </div>
-
-              {/* Dot Indicators */}
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-                {images.map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setCurrentImageIndex(idx)}
-                    className={`w-3 h-3 rounded-full transition-all ${idx === currentImageIndex
-                      ? 'bg-[#2ECC71] w-8'
-                      : 'bg-white/50 hover:bg-white/80'
-                      }`}
-                    aria-label={`Go to image ${idx + 1}`}
-                  />
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-      )}
-
-      {/* Full Description */}
-      <div className="space-y-4">
-        <div>
-          <h3 className="text-lg font-semibold text-[#2ECC71] mb-2">Description</h3>
-          <p className="text-gray-300 text-base leading-relaxed whitespace-pre-wrap">
-            {achievement.Description || 'No description available'}
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
