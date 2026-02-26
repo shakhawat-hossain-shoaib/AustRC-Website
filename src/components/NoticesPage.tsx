@@ -263,13 +263,13 @@ const FullNoticeCard = ({
                   </div>
                   {/* Date Content */}
                   <div className="flex-1 flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 to-black px-1">
-                    <span className="text-[#2ECC71] text-[9px] sm:text-[10px] font-bold tracking-wider">
+                    <span className="text-[#2ECC71] text-[8px] sm:text-[9px] font-bold tracking-wider">
                       {dateInfo.month}
                     </span>
-                    <span className="text-white text-lg sm:text-xl font-bold leading-none mt-0.5">
+                    <span className="text-white text-m sm:text-m font-bold leading-none ">
                       {dateInfo.day}
                     </span>
-                    <span className="text-gray-500 text-[8px] sm:text-[9px] font-medium mt-0.5">
+                    <span className="text-gray-500 text-[8px] sm:text-[9px] font-medium ">
                       {dateInfo.year}
                     </span>
                   </div>
@@ -424,7 +424,7 @@ export default function NoticesPage() {
     <>
       <div className="min-h-screen bg-black">
         {/* Hero Section */}
-        <section className="relative pt-24 pb-12 sm:pt-32 sm:pb-16 overflow-hidden">
+        <section className="relative z-50 pt-24 pb-12 sm:pt-32 sm:pb-16 overflow-visible isolate">
           <div className="absolute inset-0 bg-[linear-gradient(rgba(46,204,113,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(46,204,113,0.03)_1px,transparent_1px)] bg-[size:60px_60px]" />
           <div className="absolute -top-48 -left-48 w-96 h-96 bg-[#2ECC71]/10 rounded-full blur-[120px]" />
           <div className="absolute -bottom-48 -right-48 w-96 h-96 bg-[#2ECC71]/10 rounded-full blur-[120px]" />
@@ -485,18 +485,19 @@ export default function NoticesPage() {
               >
                 {/* Search Bar */}
                 <div className="relative flex-1">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                  <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                   <input
                     type="text"
                     placeholder="Search notices..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 bg-gray-900/50 border border-[#2ECC71]/20 rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:border-[#2ECC71]/50 transition-colors"
+                    className="w-full pr-4 py-3 bg-gray-900/50 border border-[#2ECC71]/20 rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:border-[#2ECC71]/50 transition-colors"
+                    style={{ paddingLeft: '3rem' }}
                   />
                 </div>
 
                 {/* Filter Dropdown */}
-                <div className="relative">
+                <div className="relative z-[9999]">
                   <button
                     onClick={() => setShowFilterDropdown(!showFilterDropdown)}
                     className="w-full sm:w-auto px-6 py-3 bg-gray-900/50 border border-[#2ECC71]/20 rounded-xl text-white flex items-center justify-center gap-2 hover:border-[#2ECC71]/50 transition-colors"
@@ -512,7 +513,7 @@ export default function NoticesPage() {
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="absolute top-full mt-2 right-0 w-48 bg-gray-900 border border-[#2ECC71]/20 rounded-xl overflow-hidden shadow-xl z-50"
+                        className="absolute top-full mt-2 right-0 w-48 bg-gray-900 border border-[#2ECC71]/20 rounded-xl overflow-hidden shadow-2xl z-[10000]"
                       >
                         {filterOptions.map((option) => (
                           <button
@@ -551,7 +552,7 @@ export default function NoticesPage() {
 
         {/* Notices Grid Section */}
         <section className="relative py-12 sm:py-16 pb-24 sm:pb-32">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 max-w-4xl">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative max-w-4xl">
             {loading ? (
               <div className="space-y-4">
                 {[...Array(5)].map((_, i) => (

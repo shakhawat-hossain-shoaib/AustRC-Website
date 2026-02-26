@@ -303,7 +303,8 @@ export default function ResearchProjectsPage() {
                 placeholder="Search projects by name, description, or tags..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-4 pr-12 py-4 bg-gradient-to-r from-[rgba(46,204,113,0.05)] to-transparent border border-[rgba(46,204,113,0.3)] rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[rgba(46,204,113,0.6)] transition-all"
+                className="w-full bg-gradient-to-r from-[rgba(46,204,113,0.05)] to-transparent border border-[rgba(46,204,113,0.3)] rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-[rgba(46,204,113,0.6)] transition-all"
+                style={{ paddingLeft: '1.25rem', paddingRight: '3.5rem', paddingTop: '1rem', paddingBottom: '1rem' }}
               />
               <button
                 type="button"

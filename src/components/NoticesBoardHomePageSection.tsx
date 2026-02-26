@@ -117,7 +117,7 @@ const NoticeCard = ({
           <div className="relative flex gap-3 sm:gap-4">
             {/* Date Badge - Calendar Style */}
             <div className="flex-shrink-0">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg bg-gradient-to-br from-gray-800 to-gray-900 border border-[#2ECC71]/40 overflow-hidden flex flex-col shadow-lg">
+              <div className="w-14 h-16 sm:w-16 sm:h-20 rounded-lg bg-gradient-to-br from-gray-800 to-gray-900 border border-[#2ECC71]/40 overflow-hidden flex flex-col shadow-lg">
                 {/* Calendar Top Bar */}
                 <div className="bg-gradient-to-r from-[#2ECC71] to-[#27AE60] px-1.5 py-0.5 flex items-center justify-center">
                   <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-black" />
@@ -127,7 +127,7 @@ const NoticeCard = ({
                   <span className="text-[#2ECC71] text-[8px] sm:text-[9px] font-bold tracking-wider">
                     {dateInfo.month}
                   </span>
-                  <span className="text-white text-sm sm:text-base font-bold leading-none mt-0.5">
+                  <span className="text-white text-m sm:text-m font-bold leading-none">
                     {dateInfo.day}
                   </span>
                   <span className="text-gray-500 text-[7px] sm:text-[8px] font-medium mt-0.5">
