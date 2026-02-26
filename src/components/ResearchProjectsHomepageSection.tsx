@@ -148,7 +148,7 @@ const ProjectCard = ({
             </div>
 
             {/* Image Section */}
-            <div className="relative h-48 sm:h-52 overflow-hidden">
+            <div className="relative aspect-video max-h-48 overflow-hidden">
               {project.Cover_Picture ? (
                 <motion.img
                   src={cachedImage || project.Cover_Picture}

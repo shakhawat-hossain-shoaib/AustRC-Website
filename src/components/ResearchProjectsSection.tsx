@@ -165,7 +165,7 @@ export function ResearchProjectsSection() {
                   onClick={() => setSelectedProject(project)}
                 >
                   <Card className="group overflow-hidden bg-gradient-to-br from-[rgba(46,204,113,0.05)] to-transparent border-[rgba(46,204,113,0.2)] hover:border-[rgba(46,204,113,0.5)] transition-all duration-300 hover:shadow-[0_0_40px_0_rgba(46,204,113,0.3)] h-full backdrop-blur-sm pointer-events-none">
-                    <div className="relative overflow-hidden h-48">
+                    <div className="relative overflow-hidden aspect-video max-h-48">
                       <img
                         src={cachedImages[project.id] || project.Cover_Picture}
                         alt={project.Title}

@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { ArrowLeft, ChevronLeft, ChevronRight, Users, FileText } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, Users, FileText, ChevronDown, ChevronUp } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -18,6 +18,7 @@ export function ProjectDetailPage({ project: propProject, onBack }: ProjectDetai
   const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showPdfViewer, setShowPdfViewer] = useState(false);
+  const [expandedCodeSections, setExpandedCodeSections] = useState<{ [key: number]: boolean }>({});
   const [project, setProject] = useState<ProjectData | null>(propProject || null);
   const [loading, setLoading] = useState(!propProject && !!projectSlug);
   const [error, setError] = useState(false);
@@ -233,7 +234,7 @@ export function ProjectDetailPage({ project: propProject, onBack }: ProjectDetai
           className="mb-12"
         >
           <div className="relative rounded-2xl overflow-hidden shadow-[0_0_60px_0_rgba(46,204,113,0.3)]">
-            <div className="aspect-video relative">
+            <div className="relative bg-black/40 aspect-video max-h-48 sm:max-h-52">
               {project.carouselImages[currentImageIndex] ? (
                 <img
                   src={project.carouselImages[currentImageIndex]}
@@ -450,15 +451,63 @@ export function ProjectDetailPage({ project: propProject, onBack }: ProjectDetai
 
                     {/* Section Description */}
                     {section.description && (
-                      <div className="space-y-6 text-justify mb-8">
-                        {section.description.split('\n\n').map((paragraph, idx) => (
-                          <p
-                            key={idx}
-                            className="text-gray-300 leading-relaxed text-base md:text-lg"
-                          >
-                            {paragraph.trim()}
-                          </p>
-                        ))}
+                      <div className="space-y-6 mb-8">
+                        {/* Check if this is a code section */}
+                        {section.heading?.toLowerCase().includes('code') || 
+                         section.heading?.toLowerCase().includes('arduino') ||
+                         section.description.includes('void setup()') ||
+                         section.description.includes('void loop()') ||
+                         section.description.includes('#include') ? (
+                          // Code section styling with collapse/expand
+                          <div className="relative">
+                            <div className="absolute top-4 right-4 px-3 py-1 bg-[#2ECC71]/20 border border-[#2ECC71]/40 rounded text-[#2ECC71] text-xs font-semibold z-10">
+                              CODE
+                            </div>
+                            <div className={`relative transition-all duration-300 ${
+                              expandedCodeSections[sectionIdx] ? '' : 'max-h-[200px] overflow-hidden'
+                            }`}>
+                              <pre className="bg-gradient-to-br from-gray-900 to-black border border-[#2ECC71]/30 rounded-xl p-6 overflow-x-auto shadow-lg">
+                                <code className="text-white text-sm font-mono leading-loose whitespace-pre block">
+                                  {section.description}
+                                </code>
+                              </pre>
+                              {!expandedCodeSections[sectionIdx] && (
+                                <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black via-black/90 to-transparent pointer-events-none rounded-b-xl" />
+                              )}
+                            </div>
+                            <button
+                              onClick={() => setExpandedCodeSections(prev => ({
+                                ...prev,
+                                [sectionIdx]: !prev[sectionIdx]
+                              }))}
+                              className="mt-2 w-full px-4 py-3 bg-[#2ECC71]/10 hover:bg-[#2ECC71]/20 border border-[#2ECC71]/30 hover:border-[#2ECC71]/50 rounded-lg text-[#2ECC71] font-semibold transition-all flex items-center justify-center gap-2"
+                            >
+                              {expandedCodeSections[sectionIdx] ? (
+                                <>
+                                  <ChevronUp className="w-5 h-5" />
+                                  Collapse Code
+                                </>
+                              ) : (
+                                <>
+                                  <ChevronDown className="w-5 h-5" />
+                                  Expand Full Code
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        ) : (
+                          // Regular text section
+                          <div className="text-justify">
+                            {section.description.split('\n\n').map((paragraph, idx) => (
+                              <p
+                                key={idx}
+                                className="text-gray-300 leading-relaxed text-base md:text-lg mb-6"
+                              >
+                                {paragraph.trim()}
+                              </p>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     )}
 
@@ -481,7 +530,7 @@ export function ProjectDetailPage({ project: propProject, onBack }: ProjectDetai
                             <img
                               src={image}
                               alt={`${section.heading || 'Section'} - Image ${imgIdx + 1}`}
-                              className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110"
+                              className="w-full h-auto object-contain"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                           </motion.div>
