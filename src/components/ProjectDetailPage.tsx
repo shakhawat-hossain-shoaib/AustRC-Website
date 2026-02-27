@@ -225,7 +225,7 @@ export function ProjectDetailPage({ project: propProject, onBack }: ProjectDetai
         ))}
       </div>
 
-      <div className="container mx-auto px-4 pt-20 pb-24 max-w-6xl">
+      <div className="container mx-auto px-4 pt-32 md:pt-40 pb-24 max-w-6xl">
         {/* Image Carousel */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -233,8 +233,8 @@ export function ProjectDetailPage({ project: propProject, onBack }: ProjectDetai
           transition={{ duration: 0.8 }}
           className="mb-12 flex justify-center"
         >
-          <div className="relative rounded-2xl overflow-hidden shadow-[0_0_60px_0_rgba(46,204,113,0.3)] w-full max-w-[256px]">
-            <div className="relative bg-black/40 h-[254px]">
+          <div className="relative rounded-2xl overflow-hidden shadow-[0_0_60px_0_rgba(46,204,113,0.3)] w-full max-w-2xl">
+            <div className="relative bg-black/40 h-[300px]">
               {project.carouselImages[currentImageIndex] ? (
                 <img
                   src={project.carouselImages[currentImageIndex]}

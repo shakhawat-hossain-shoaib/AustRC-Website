@@ -195,7 +195,7 @@ export function ActivityDetailPage() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="w-full max-w-4xl aspect-video rounded-3xl overflow-hidden border border-[#2ECC71]/30 bg-[#0a1810] shadow-[0_0_50px_rgba(46,204,113,0.15)] mb-12 relative group"
+            className="w-full max-w-4xl h-[400px] rounded-3xl overflow-hidden border border-[#2ECC71]/30 bg-[#0a1810] shadow-[0_0_50px_rgba(46,204,113,0.15)] mb-12 relative group"
           >
             {data.Image ? (
               <img src={data.Image} alt={data.Name} className="w-full h-full object-cover" />
