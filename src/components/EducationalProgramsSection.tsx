@@ -179,44 +179,6 @@ export function EducationalProgramsSection() {
             </span>
           </motion.h2>
 
-          <motion.p
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.35, delay: 0.1 }}
-            className="text-gray-400 max-w-2xl mx-auto text-lg leading-relaxed"
-          >
-            Transform your career with our comprehensive programs. Simple steps to mastery,
-            no technical background required.
-          </motion.p>
-        </motion.div>
-
-        {/* Stats Bar */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.35, delay: 0.05 }}
-          className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-16 max-w-4xl mx-auto"
-        >
-          {stats.map((stat, index) => (
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.3, delay: 0.05 * index }}
-              whileHover={{ scale: 1.05, y: -5 }}
-              className="relative p-4 rounded-xl bg-gradient-to-br from-[rgba(46,204,113,0.1)] to-transparent border border-[rgba(46,204,113,0.2)] backdrop-blur-sm group cursor-default"
-            >
-              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-[rgba(46,204,113,0.2)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <div className="relative flex flex-col items-center text-center">
-                <stat.icon className="w-5 h-5 text-[#2ECC71] mb-2" />
-                <span className="text-2xl font-bold text-white">{stat.value}</span>
-                <span className="text-xs text-gray-400 mt-1">{stat.label}</span>
-              </div>
-            </motion.div>
-          ))}
         </motion.div>
 
         {/* Programs Grid */}
@@ -289,27 +251,7 @@ export function EducationalProgramsSection() {
                       </div>
                     )}
 
-                    {/* Program number badge */}
-                    <motion.div
-                      className="absolute top-4 left-4 z-10"
-                      whileHover={{ scale: 1.1, rotate: 5 }}
-                    >
-                      <div className="px-3 py-1.5 bg-black/60 backdrop-blur-md rounded-full border border-[rgba(46,204,113,0.4)] flex items-center gap-2">
-                        <div className="w-2 h-2 bg-[#2ECC71] rounded-full animate-pulse shadow-[0_0_10px_0_rgba(46,204,113,0.8)]" />
-                        <span className="text-[#2ECC71] text-xs font-semibold">Program {program.Order}</span>
-                      </div>
-                    </motion.div>
 
-                    {/* Floating elements */}
-                    <motion.div
-                      className="absolute top-4 right-4 z-10"
-                      animate={{ y: [-3, 3, -3] }}
-                      transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                    >
-                      <div className="w-10 h-10 bg-[rgba(46,204,113,0.2)] backdrop-blur-md rounded-full flex items-center justify-center border border-[rgba(46,204,113,0.3)]">
-                        <BookOpen className="w-5 h-5 text-[#2ECC71]" />
-                      </div>
-                    </motion.div>
                   </div>
 
                   {/* Content Section */}
@@ -322,17 +264,7 @@ export function EducationalProgramsSection() {
                         {program.Name}
                       </motion.h3>
 
-                      <div className="flex items-center gap-3 text-xs text-gray-500">
-                        <span className="flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          Self-paced
-                        </span>
-                        <span className="w-1 h-1 bg-gray-600 rounded-full" />
-                        <span className="flex items-center gap-1">
-                          <Users className="w-3 h-3" />
-                          All Levels
-                        </span>
-                      </div>
+
                     </div>
 
                     <p

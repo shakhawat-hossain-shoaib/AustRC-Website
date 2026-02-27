@@ -164,27 +164,6 @@ const ProjectCard = ({
                 </div>
               )}
 
-              {/* Status Indicator */}
-              <motion.div
-                className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1.5 bg-black/60 backdrop-blur-md rounded-full border border-[rgba(46,204,113,0.3)]"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1 + 0.3 }}
-              >
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#2ECC71] opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#2ECC71]" />
-                </span>
-                <span className="text-[10px] sm:text-xs text-gray-300 font-medium">Active</span>
-              </motion.div>
-
-              {/* Project Number */}
-              <div className="absolute top-4 right-4">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-[#2ECC71] to-[#27AE60] flex items-center justify-center text-white font-bold text-sm sm:text-base shadow-lg shadow-[#2ECC71]/30">
-                  {String(index + 1).padStart(2, '0')}
-                </div>
-              </div>
-
               {/* Hover Overlay */}
               <motion.div
                 className="absolute inset-0 bg-[#2ECC71]/20 flex items-center justify-center"
@@ -221,23 +200,8 @@ const ProjectCard = ({
                 {project.Introduction}
               </p>
 
-              {/* Team Preview */}
-              <div className="flex items-center justify-between pt-2">
-                <div className="flex items-center gap-2">
-                  <div className="flex -space-x-2">
-                    {[...Array(Math.min(3, 4))].map((_, i) => (
-                      <div
-                        key={i}
-                        className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-gradient-to-br from-[#2ECC71]/30 to-[#27AE60]/30 border-2 border-gray-900 flex items-center justify-center"
-                      >
-                        <Users className="w-3 h-3 text-[#2ECC71]" />
-                      </div>
-                    ))}
-                  </div>
-                  <span className="text-[10px] sm:text-xs text-gray-500">Team</span>
-                </div>
-
-                {/* Arrow Button */}
+              {/* Arrow Button */}
+              <div className="flex items-center justify-end pt-2">
                 <motion.div
                   className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[rgba(46,204,113,0.1)] border border-[rgba(46,204,113,0.3)] flex items-center justify-center"
                   animate={{
@@ -464,35 +428,6 @@ export function ResearchProjectsHomepageSection() {
               </span>
             </motion.h2>
 
-            {/* Description */}
-            <motion.p
-              className="text-gray-400 text-sm sm:text-base lg:text-lg max-w-2xl mx-auto leading-relaxed"
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.35, delay: 0.12 }}
-            >
-              Explore our cutting-edge research initiatives and innovative projects that are
-              shaping the future of robotics and automation technology.
-            </motion.p>
-
-            {/* Stats Row */}
-            <motion.div
-              className="flex flex-wrap justify-center gap-6 sm:gap-10 mt-8 sm:mt-10"
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.35, delay: 0.15 }}
-            >
-              {stats.map((stat, index) => (
-                <div key={index} className="text-center">
-                  <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#2ECC71]">
-                    {stat.value}
-                  </div>
-                  <div className="text-xs sm:text-sm text-gray-500">{stat.label}</div>
-                </div>
-              ))}
-            </motion.div>
           </motion.div>
 
           {/* Projects Grid */}
