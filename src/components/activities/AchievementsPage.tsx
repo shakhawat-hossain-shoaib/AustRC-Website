@@ -312,9 +312,7 @@ export function AchievementsPage() {
             transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
-            <span className="text-[#2ECC71] text-sm font-medium tracking-wider uppercase mb-2 block">
-              Hall of Excellence
-            </span>
+            
             <h1 className="text-5xl font-bold mb-6">Our Achievements</h1>
             <p className="text-gray-400 max-w-2xl mx-auto">
               Celebrating the milestones, awards, and recognition our members have brought to the club.
