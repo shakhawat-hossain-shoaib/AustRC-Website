@@ -1,6 +1,5 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { Card, CardContent } from './ui/card';
-import { Badge } from './ui/badge';
 import { ExternalLink, X } from 'lucide-react';
 import { Button } from './ui/button';
 import { useEffect, useState } from 'react';
@@ -24,11 +23,6 @@ interface ProjectData {
   [key: string]: string | number | undefined;
 }
 
-const statusColors: Record<string, string> = {
-  'In Progress': 'bg-blue-500',
-  'Completed': 'bg-[#2ECC71]',
-  'Planning': 'bg-orange-500',
-};
 
 export function ResearchProjectsSection() {
   const [projects, setProjects] = useState<ProjectData[]>([]);
@@ -39,16 +33,21 @@ export function ResearchProjectsSection() {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const projectsCollection = collection(db, 'All_Data', 'Research_Page', 'All_Projects_of_RC');
+        const projectsCollection = collection(db, 'All_Data', 'Research_Projects', 'research_projects');
         const q = query(projectsCollection, orderBy('Order', 'asc'));
         const querySnapshot = await getDocs(q);
         
         const fetchedProjects: ProjectData[] = [];
         querySnapshot.forEach((doc) => {
           if (fetchedProjects.length < 4) {
+            const data = doc.data();
             fetchedProjects.push({
               id: doc.id,
-              ...doc.data() as Omit<ProjectData, 'id'>,
+              Title: data.Title || doc.id || '',
+              Introduction: data.Introduction || '',
+              Cover_Picture: data.Cover_Picture || '',
+              Order: data.Order || 0,
+              ...data,
             });
           }
         });

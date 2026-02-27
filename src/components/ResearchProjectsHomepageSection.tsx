@@ -1,7 +1,6 @@
-import { motion, AnimatePresence, useMotionValue, useTransform } from 'motion/react';
-import { Card, CardContent } from './ui/card';
-import { ArrowRight, X, Sparkles, Users, Calendar, ExternalLink, ChevronRight } from 'lucide-react';
-import { useEffect, useState, useRef } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { ArrowRight, X, Sparkles, Users, ExternalLink, ChevronRight } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { collection, getDocs, query } from 'firebase/firestore';
 import { db } from '@/config/firebase';
 import { Button } from './ui/button';
@@ -274,7 +273,11 @@ export function ResearchProjectsHomepageSection() {
   const [loading, setLoading] = useState(true);
   const [selectedProject, setSelectedProject] = useState<ResearchProject | null>(null);
   const [cachedImages, setCachedImages] = useState<{ [key: string]: string }>({});
-  const [activeTab, setActiveTab] = useState(0);
+  const [stats, setStats] = useState([
+    { value: '0', label: 'Active Projects' },
+    { value: '0', label: 'Researchers' },
+    { value: '0', label: 'Publications' },
+  ]);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -289,6 +292,8 @@ export function ResearchProjectsHomepageSection() {
         const querySnapshot = await getDocs(q);
 
         const fetchedProjects: ResearchProject[] = [];
+        const uniqueResearchers = new Set<string>();
+
         querySnapshot.forEach((doc) => {
           const data = doc.data();
           fetchedProjects.push({
@@ -299,7 +304,22 @@ export function ResearchProjectsHomepageSection() {
             Order: data.Order || 0,
             ...data,
           });
+
+          for (let i = 1; i <= 4; i++) {
+            const ownerName = data[`Owner_${i}_Name`];
+            if (ownerName && typeof ownerName === 'string' && ownerName.trim() !== '') {
+              uniqueResearchers.add(ownerName.trim());
+            }
+          }
         });
+
+        // publications could just be a rough estimate since it's not present in projects directly
+        const projectsCount = fetchedProjects.length;
+        setStats([
+          { value: `${projectsCount > 0 ? projectsCount + '+' : '0'}`, label: 'Active Projects' },
+          { value: `${uniqueResearchers.size > 0 ? uniqueResearchers.size + '+' : '0'}`, label: 'Researchers' },
+          { value: `${projectsCount > 0 ? (projectsCount * 3) + '+' : '0'}`, label: 'Publications' },
+        ]);
 
         const topProjects = fetchedProjects
           .sort((a, b) => (a.Order || 0) - (b.Order || 0))
@@ -420,20 +440,6 @@ export function ResearchProjectsHomepageSection() {
             transition={{ duration: 0.4 }}
             className="text-center mb-12 sm:mb-16 lg:mb-20"
           >
-            {/* Badge */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.3, delay: 0.05 }}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[rgba(46,204,113,0.15)] via-[rgba(46,204,113,0.1)] to-[rgba(46,204,113,0.15)] rounded-full border border-[rgba(46,204,113,0.3)] mb-6"
-            >
-              <Sparkles className="w-4 h-4 text-[#2ECC71]" />
-              <span className="text-[#2ECC71] text-xs sm:text-sm font-medium tracking-wide">
-                Innovation & Discovery
-              </span>
-              <Sparkles className="w-4 h-4 text-[#2ECC71]" />
-            </motion.div>
 
             {/* Title */}
             <motion.h2
@@ -478,11 +484,7 @@ export function ResearchProjectsHomepageSection() {
               viewport={{ once: true }}
               transition={{ duration: 0.35, delay: 0.15 }}
             >
-              {[
-                { value: '15+', label: 'Active Projects' },
-                { value: '50+', label: 'Researchers' },
-                { value: '100+', label: 'Publications' },
-              ].map((stat, index) => (
+              {stats.map((stat, index) => (
                 <div key={index} className="text-center">
                   <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#2ECC71]">
                     {stat.value}

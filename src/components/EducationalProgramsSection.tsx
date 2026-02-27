@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { Card, CardContent } from './ui/card';
-import { ArrowRight, BookOpen, Users, Clock, Star, GraduationCap } from 'lucide-react';
+import { ArrowRight, BookOpen, Users, Clock, GraduationCap } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '@/config/firebase';
@@ -20,6 +20,11 @@ export function EducationalProgramsSection() {
   const [loading, setLoading] = useState(true);
   const [cachedImages, setCachedImages] = useState<{ [key: string]: string }>({});
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+  const [stats, setStats] = useState([
+    { icon: Users, value: '0', label: 'Students Enrolled' },
+    { icon: BookOpen, value: '0', label: 'Programs Available' },
+    { icon: Clock, value: '0', label: 'Hours of Content' }
+  ]);
 
   useEffect(() => {
     const fetchPrograms = async () => {
@@ -45,6 +50,32 @@ export function EducationalProgramsSection() {
           .slice(0, 2);
 
         setPrograms(topPrograms);
+
+        let totalStudents = 0;
+        let totalHours = 0;
+        let validStudentsCount = 0;
+        let validHoursCount = 0;
+        
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          const students = Number(data.Students_Enrolled || data.StudentsEnrolled || data.students || data.Students || data.Enrolled || 0);
+          const hours = Number(data.Hours_of_Content || data.HoursOfContent || data.hours || data.Hours || 0);
+          
+          if (students > 0) validStudentsCount++;
+          if (hours > 0) validHoursCount++;
+          
+          totalStudents += isNaN(students) ? 0 : students;
+          totalHours += isNaN(hours) ? 0 : hours;
+        });
+
+        const newStats = [
+          { icon: Users, value: validStudentsCount > 0 ? `${totalStudents}+` : `${fetchedPrograms.length * 20}+`, label: 'Students Enrolled' },
+          { icon: BookOpen, value: `${fetchedPrograms.length}+`, label: 'Programs Available' },
+          { icon: Clock, value: validHoursCount > 0 ? `${totalHours}+` : `${fetchedPrograms.length * 10}+`, label: 'Hours of Content' }
+        ];
+        
+        setStats(newStats);
+
       } catch (error) {
         console.error('Error fetching educational programs:', error);
       } finally {
@@ -82,12 +113,7 @@ export function EducationalProgramsSection() {
     }
   }, [programs]);
 
-  const stats = [
-    { icon: Users, value: '500+', label: 'Students Enrolled' },
-    { icon: BookOpen, value: '25+', label: 'Bootcamps Available' },
-    { icon: Clock, value: '100+', label: 'Hours of Content' }
-    
-  ];
+
 
   return (
     <section id="programs" className="py-24 bg-black relative overflow-hidden">
@@ -130,16 +156,6 @@ export function EducationalProgramsSection() {
           transition={{ duration: 0.4 }}
           className="text-center mb-20"
         >
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            whileInView={{ scale: 1, opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.3 }}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[rgba(46,204,113,0.15)] to-[rgba(46,204,113,0.05)] rounded-full border border-[rgba(46,204,113,0.3)] mb-6 backdrop-blur-sm"
-          >
-            <GraduationCap className="w-4 h-4 text-[#2ECC71]" />
-            <span className="text-[#2ECC71] text-sm font-medium tracking-wide">Learn & Grow</span>
-          </motion.div>
 
           <motion.h2
             initial={{ opacity: 0, y: 15 }}
