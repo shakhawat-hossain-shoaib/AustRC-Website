@@ -21,6 +21,7 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '@/config/firebase';
 import { useNavigate } from 'react-router-dom';
+import { slugify } from '@/utils/slugify';
 
 interface Headline {
   heading: string;
@@ -405,6 +406,7 @@ const EventModal = ({
   onClose: () => void;
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   // Handle escape key
   useEffect(() => {
@@ -567,19 +569,29 @@ const EventModal = ({
                 </div>
               </motion.div>
 
-              {/* Close Button at Bottom */}
+              {/* Action Buttons at Bottom */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.8 }}
-                className="flex gap-3 pt-4 border-t border-[#2ECC71]/10"
+                className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-[#2ECC71]/10"
               >
-                <Button
+                <button
+                  onClick={() => {
+                    onClose();
+                    navigate(`/activities/events/${slugify(event.Event_Name)}`);
+                  }}
+                  className="flex-1 inline-flex items-center justify-center bg-gradient-to-r from-[#2ECC71] to-[#27AE60] hover:from-[#27AE60] hover:to-[#2ECC71] text-black font-bold h-12 sm:h-13 rounded-xl text-sm sm:text-base shadow-lg shadow-[#2ECC71]/20 transition-all"
+                >
+                  <span>View Full Event</span>
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </button>
+                <button
                   onClick={onClose}
-                  className="flex-1 bg-gradient-to-r from-[#2ECC71] to-[#27AE60] hover:from-[#27AE60] hover:to-[#2ECC71] text-black font-bold h-12 sm:h-13 rounded-xl text-sm sm:text-base shadow-lg shadow-[#2ECC71]/20 transition-all"
+                  className="flex-1 inline-flex items-center justify-center bg-white/5 border-2 border-[#2ECC71]/30 hover:bg-[#2ECC71]/10 text-white font-bold h-12 sm:h-13 rounded-xl text-sm sm:text-base transition-all"
                 >
                   <span>Close</span>
-                </Button>
+                </button>
               </motion.div>
             </div>
           </div>
