@@ -1171,10 +1171,7 @@ export function AboutPage() {
                     <h3 className="text-3xl font-bold text-[#2ECC71]">Our Mission</h3>
                   </div>
                   <p className="text-lg text-gray-300 leading-relaxed">
-                    To enrich knowledge in robotics and foster sustainable projects through comprehensive
-                    educational programs, interactive workshops, specialized training sessions, and competitive
-                    events. We aim to empower students with practical skills and theoretical knowledge to excel
-                    in the field of robotics and automation.
+                  To advance robotics knowledge and sustainability by equipping students with practical and theoretical expertise through structured programs, workshops, training, and competitions.
                   </p>
                 </div>
               </motion.div>
