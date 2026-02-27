@@ -318,7 +318,7 @@ The website was led and significantly developed by Khorshed Alam Khairul, whose 
                     </div>
 
                     {/* Website Preview with iframe */}
-                    <div className="flex flex-col">
+                    <div className="flex flex-col min-h-[400px] sm:min-h-[500px] lg:min-h-0">
                       <div 
                         className="absolute inset-0 bg-gradient-to-br from-[#2ECC71]/20 to-transparent rounded-2xl blur-xl will-change-[opacity]"
                         style={{ animation: 'cardGlow 3s ease-in-out infinite' }}
@@ -339,7 +339,7 @@ The website was led and significantly developed by Khorshed Alam Khairul, whose 
                           </div>
                           
                           {/* Actual Website iframe */}
-                          <div className="flex-1">
+                          <div className="h-[350px] sm:h-[450px] lg:h-[400px]">
                             <iframe
                               src={project.link}
                               title={`${project.title} Preview`}
