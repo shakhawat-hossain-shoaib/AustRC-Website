@@ -243,17 +243,17 @@ export function EventDetailPage() {
         <span className="hidden sm:inline text-sm font-medium">Back</span>
       </button>
 
-      <div className="relative z-10 container mx-auto px-4 pt-20 pb-24 max-w-5xl">
+      <div className="relative z-10 container mx-auto px-4 pt-32 md:pt-40 pb-24 max-w-5xl">
         {/* Cover Image */}
         {event.Cover_Picture && (
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="mb-10 sm:mb-12"
+            className="mb-10 sm:mb-12 flex justify-center"
           >
-            <div className="relative rounded-2xl overflow-hidden shadow-[0_0_60px_0_rgba(46,204,113,0.3)]">
-              <div className="aspect-video relative">
+            <div className="relative rounded-2xl overflow-hidden shadow-[0_0_60px_0_rgba(46,204,113,0.3)] w-full max-w-2xl">
+              <div className="relative h-[300px]">
                 <img
                   src={event.Cover_Picture}
                   alt={event.Event_Name}
