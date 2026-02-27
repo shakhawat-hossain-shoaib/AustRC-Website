@@ -428,7 +428,7 @@ export function ResearchProjectsHomepageSection() {
               </span>
             </motion.h2>
 
-          </motion.div>
+ </motion.div>
 
           {/* Projects Grid */}
           {loading ? (

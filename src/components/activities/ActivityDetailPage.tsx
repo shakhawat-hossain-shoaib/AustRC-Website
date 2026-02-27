@@ -140,7 +140,7 @@ export function ActivityDetailPage() {
       <div className="h-32 md:h-40 w-full" />
 
       {/* Main Container */}
-      <div className="container mx-auto px-6 max-w-5xl relative z-10 pb-20">
+      <div className="container mx-auto px-6 max-w-5xl relative z-10 pb-32">
         
         {/* ✅ FIX 2: Back Button Container - High Z-Index & bright colors */}
         <div className="w-full flex justify-start mb-8 relative z-50">

@@ -49,6 +49,7 @@ function AppContent() {
       <ScrollToTop />
       <CursorGlow />
       <Navbar />
+      <div className="pb-20">
       <Routes>
         <Route path="/" element={<HomePage />} />
 
@@ -105,6 +106,7 @@ function AppContent() {
         <Route path="/find-austrc-id" element={<FindAustrcIdPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </div>
       {!isAboutPage && <Footer theme="dark" />}
     </div>
   );

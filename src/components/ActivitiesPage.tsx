@@ -55,7 +55,7 @@ export function ActivitiesPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-black text-white pt-24 pb-24">
+    <div className="min-h-screen bg-black text-white pt-24 pb-32">
       {/* Hero Section */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}

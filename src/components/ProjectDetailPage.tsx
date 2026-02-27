@@ -192,7 +192,7 @@ export function ProjectDetailPage({ project: propProject, onBack }: ProjectDetai
   const pdfPreviewUrl = project.pdfLink;
 
   return (
-    <main className="min-h-screen bg-black relative overflow-x-hidden">
+    <main className="min-h-screen bg-black relative overflow-x-hidden pb-24">
       {/* Back Button */}
       <button
         onClick={handleBack}

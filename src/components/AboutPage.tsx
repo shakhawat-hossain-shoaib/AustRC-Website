@@ -19,7 +19,6 @@ import {
   Sparkles,
   Zap,
   Star,
-  Heart,
   ChevronRight,
   MapPin,
   Phone,
@@ -30,12 +29,9 @@ import {
   Pause,
   Calendar,
   Award,
-  Users2,
   Medal,
   Flag,
-  Globe,
-  Car,
-  Drone
+  Globe
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import logo from '@/assets/logo.png';
@@ -188,7 +184,7 @@ const GallerySection = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [flippedIndex, setFlippedIndex] = useState<number | null>(null);
-  const autoPlayRef = useRef<NodeJS.Timeout>();
+  const autoPlayRef = useRef<NodeJS.Timeout>(undefined);
 
   const galleryItems = [
     {
@@ -238,7 +234,6 @@ const GallerySection = () => {
       width: '280px',
       height: '360px',
       cursor: 'pointer',
-      transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
     };
 
     if (offset === 0) {
@@ -413,7 +408,7 @@ const ProjectsSection = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [direction, setDirection] = useState(0);
-  const autoPlayRef = useRef<NodeJS.Timeout>();
+  const autoPlayRef = useRef<NodeJS.Timeout>(undefined);
 
   const projects = [
     {
@@ -959,7 +954,7 @@ export function AboutPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden">
+    <div className="min-h-screen bg-black relative overflow-hidden pb-24">
       {/* Animated Background - Fixed position so it stays while scrolling */}
       <div className="fixed inset-0 z-0">
         <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black" />
@@ -1560,6 +1555,9 @@ export function AboutPage() {
             </p>
           </motion.div>
         </motion.div>
+
+        {/* Spacer before footer */}
+        <div className="h-20" />
 
         {/* Footer - Now inside the dark container */}
         <DarkFooter />

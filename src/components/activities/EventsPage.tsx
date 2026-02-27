@@ -129,23 +129,6 @@ const PageHeader = () => (
     transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
     className="text-center mb-12 sm:mb-16 lg:mb-20"
   >
-    <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
-      className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 bg-[#2ECC71]/10 rounded-full border border-[#2ECC71]/20 mb-6 sm:mb-8"
-    >
-      <motion.div
-        animate={{ rotate: 360 }}
-        transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
-      >
-        <Zap className="w-4 h-4 text-[#2ECC71]" />
-      </motion.div>
-      <span className="text-[#2ECC71] text-xs font-semibold tracking-[0.2em] uppercase">
-        All Events
-      </span>
-    </motion.div>
-
     <motion.h1
       className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6"
       initial={{ opacity: 0, y: 20 }}
@@ -578,7 +561,7 @@ export function EventsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white pt-24 pb-12 relative overflow-hidden">
+    <div className="min-h-screen bg-black text-white pt-24 pb-24 relative overflow-hidden">
       {/* Background */}
       <HeroBackground />
 
