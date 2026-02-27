@@ -22,7 +22,7 @@ export function EducationalProgramsSection() {
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
   const [stats, setStats] = useState([
     { icon: Users, value: '0', label: 'Students Enrolled' },
-    { icon: BookOpen, value: '0', label: 'Bootcamps Available' },
+    { icon: BookOpen, value: '0', label: 'Programs Available' },
     { icon: Clock, value: '0', label: 'Hours of Content' }
   ]);
 
@@ -70,7 +70,7 @@ export function EducationalProgramsSection() {
 
         const newStats = [
           { icon: Users, value: validStudentsCount > 0 ? `${totalStudents}+` : `${fetchedPrograms.length * 20}+`, label: 'Students Enrolled' },
-          { icon: BookOpen, value: `${fetchedPrograms.length}+`, label: 'Bootcamps Available' },
+          { icon: BookOpen, value: `${fetchedPrograms.length}+`, label: 'Programs Available' },
           { icon: Clock, value: validHoursCount > 0 ? `${totalHours}+` : `${fetchedPrograms.length * 10}+`, label: 'Hours of Content' }
         ];
         
