@@ -196,7 +196,9 @@ export function ProjectDetailPage({ project: propProject, onBack }: ProjectDetai
       {/* Back Button */}
       <button
         onClick={handleBack}
-        className="fixed top-24 left-6 z-40 flex items-center gap-2 px-4 py-2 text-[#2ECC71] hover:text-white bg-black/50 hover:bg-black/80 rounded-lg backdrop-blur-md transition-all border border-[#2ECC71]/30 hover:border-[#2ECC71]"
+        className="fixed z-50 left-[calc(1rem+logo-width)] top-[calc(navbar-height+0.5rem)]
+             flex items-center gap-2 px-3 py-1 bg-black/50 hover:bg-black/70
+             text-[#2ECC71] rounded-lg backdrop-blur-md transition-all border border-[#2ECC71]/30 hover:border-[#2ECC71]"
       >
         <ArrowLeft className="w-5 h-5" />
         <span className="hidden sm:inline">Back</span>

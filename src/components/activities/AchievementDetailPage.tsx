@@ -179,14 +179,14 @@ export function AchievementDetailPage() {
       <HeroBackground />
 
       {/* Back Button */}
-      <div className="fixed top-24 left-4 sm:left-8 z-40">
+      <div className="fixed top-24 left-4 sm:left-8 z-50">
         <motion.button
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          onClick={() => navigate('/activities/achievements')}
+          onClick={() => navigate(-1)}
           className="flex items-center gap-2 px-4 py-2 bg-black/60 backdrop-blur-md border border-[#2ECC71]/30 rounded-full text-white hover:bg-[#2ECC71]/20 transition-all"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-5 h-5" />
           <span className="text-sm font-medium">Back</span>
         </motion.button>
       </div>
