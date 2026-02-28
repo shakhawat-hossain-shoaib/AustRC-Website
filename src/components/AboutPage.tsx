@@ -720,7 +720,7 @@ const DarkFooter = () => {
                 </span>
               </div>
               <p className="text-sm mb-4 text-gray-400">
-                Making robotics accessible through innovation. Built with passion on cutting-edge technology.
+                Making robotics accessible through innovation and cutting-edge technology.
               </p>
               <div className="flex gap-3">
                 {socialLinks.map(({ icon: Icon, href, label }) => (
@@ -903,27 +903,27 @@ export function AboutPage() {
     {
       icon: <Lightbulb className="w-8 h-8" />,
       title: 'Innovative Development',
-      description: 'Fostering creativity and innovation in robotics through hands-on projects and cutting-edge technology.'
+      description: 'Promoting creativity and innovation in robotics through hands-on projects and advanced technology.'
     },
     {
       icon: <GraduationCap className="w-8 h-8" />,
       title: 'Knowledge Enhancement',
-      description: 'Organizing workshops, trainings, and competitions to enhance technical skills and expertise.'
+      description: 'Organizing workshops and competitions to boost technical skills.'
     },
     {
       icon: <MessageSquare className="w-8 h-8" />,
       title: 'Educational Outreach',
-      description: 'Conducting seminars, discussions, and knowledge-sharing sessions for continuous learning.'
+      description: 'Hosting seminars and discussions to promote continuous learning.'
     },
     {
       icon: <Users className="w-8 h-8" />,
       title: 'Social Development',
-      description: 'Building strong collaborations and networks within and beyond AUST community.'
+      description: 'Building strong collaborations and networks within and beyond AUST.'
     },
     {
       icon: <FileText className="w-8 h-8" />,
       title: 'Information Sharing',
-      description: 'Publishing newsletters, magazines, and updates to keep members informed and engaged.'
+      description: 'Publishing newsletters and updates to keep members informed and engaged.'
     },
     {
       icon: <Cpu className="w-8 h-8" />,
@@ -1011,7 +1011,7 @@ export function AboutPage() {
                 >
                   <Rocket className="w-4 h-4 text-[#2ECC71]" />
                 </motion.div>
-                <span className="text-[#2ECC71] text-sm font-medium">Pioneering the Future of Robotics</span>
+                <span className="text-[#2ECC71] text-sm font-medium"></span>
                 <motion.div
                   animate={{ scale: [1, 1.2, 1] }}
                   transition={{ duration: 2, repeat: Infinity }}
@@ -1065,7 +1065,7 @@ export function AboutPage() {
                 transition={{ duration: 0.8, delay: 0.6 }}
                 className="text-xl text-gray-400"
               >
-                Where innovation meets aspiration
+               
               </motion.p>
 
               {/* Decorative line */}
@@ -1117,10 +1117,8 @@ export function AboutPage() {
                 <div className="absolute bottom-0 right-0 w-20 h-20 border-b-2 border-r-2 border-[#2ECC71] rounded-br-3xl opacity-50" />
 
                 <p className="text-xl text-gray-300 leading-relaxed text-center">
-                  AUSTRC is a leading student robotics club at Ahsanullah University of Science and Technology,
-                  established in <span className="text-[#2ECC71] font-semibold">Fall 2021</span>. With an active student-community, the club encourages developing and
-                  materializing innovative robotics ideas — from microcontroller-based bots to large-scale projects
-                  like <span className="text-[#2ECC71] font-semibold">Mars Rover</span> & <span className="text-[#2ECC71] font-semibold">autonomous quadcopters</span>.
+                  AUSTRC is a leading robotics club at Ahsanullah University of Science and Technology established in <span className="text-[#2ECC71] font-semibold">Fall 2021</span>
+                  An active community builds robotics projects from micro to large scale.<span className="text-[#2ECC71] font-semibold">Mars Rover</span> & <span className="text-[#2ECC71] font-semibold">autonomous quadcopters</span>.
                 </p>
               </div>
             </motion.div>
@@ -1166,7 +1164,7 @@ export function AboutPage() {
                     <h3 className="text-3xl font-bold text-[#2ECC71]">Our Mission</h3>
                   </div>
                   <p className="text-lg text-gray-300 leading-relaxed">
-                  To advance robotics knowledge and sustainability by equipping students with practical and theoretical expertise through structured programs, workshops, training, and competitions.
+                  To advance robotics and sustainability through structured learning, workshops, and competitions.
                   </p>
                 </div>
               </motion.div>
@@ -1201,10 +1199,7 @@ export function AboutPage() {
                     <h3 className="text-3xl font-bold text-[#2ECC71]">Our Vision</h3>
                   </div>
                   <p className="text-lg text-gray-300 leading-relaxed">
-                    To build strong bonds across clubs and groups inside and outside AUST, combining technological
-                    growth with social development. We envision a collaborative ecosystem where innovation thrives,
-                    knowledge is shared freely, and robotics enthusiasts from diverse backgrounds unite to create
-                    impactful solutions for tomorrow's challenges.
+                    To build strong collaborations within and beyond AUST that advance technology, innovation, and social impact.
                   </p>
                 </div>
               </motion.div>
@@ -1299,13 +1294,11 @@ export function AboutPage() {
                     <h3 className="text-3xl font-bold text-[#2ECC71]">Who Can Join</h3>
                   </div>
                   <p className="text-lg text-gray-300 leading-relaxed mb-6">
-                    AUSTRC welcomes all students from Ahsanullah University of Science and Technology who are
-                    passionate about robotics, technology, and innovation.
+                    AUSTRC welcomes all AUST students passionate about robotics, technology, and innovation.
                   </p>
                   <div className="bg-[rgba(46,204,113,0.1)] border-l-4 border-[#2ECC71] p-6 rounded-lg">
                     <p className="text-gray-300">
-                      A one-time registration fee grants you full club rights and privileges, including access to
-                      workshops, equipment, mentorship, and all club activities.
+                      A one-time fee gives you full access to all club workshops, equipment, mentorship, and activities
                     </p>
                   </div>
                 </div>
@@ -1334,8 +1327,7 @@ export function AboutPage() {
                     <h3 className="text-3xl font-bold text-[#2ECC71]">Leadership Structure</h3>
                   </div>
                   <p className="text-lg text-gray-300 leading-relaxed mb-6">
-                    Our club is governed by a dedicated Executive Committee that ensures smooth operations and
-                    continuous growth.
+                    The club is led by a dedicated Executive Committee ensuring smooth operations and sustained growth.
                   </p>
                   <div className="space-y-3 mb-6">
                     {['President', 'Vice President', 'Treasurer', 'General Secretary', 'Organizing Secretary', 'Directors & Panels'].map((role, idx) => (
@@ -1543,8 +1535,8 @@ export function AboutPage() {
             >
               <Sparkles className="w-6 h-6 text-[#2ECC71]" />
             </motion.div>
-            <p className="text-gray-400 relative z-10">
-              AUSTRC — Where Innovation Meets Excellence
+            {/* <p className="text-gray-400 relative z-10">
+             
               <motion.span
                 className="text-[#2ECC71] inline-block ml-2"
                 animate={{ scale: [1, 1.3, 1] }}
@@ -1552,7 +1544,7 @@ export function AboutPage() {
               >
                 ♥
               </motion.span>
-            </p>
+            </p> */}
           </motion.div>
         </motion.div>
 
