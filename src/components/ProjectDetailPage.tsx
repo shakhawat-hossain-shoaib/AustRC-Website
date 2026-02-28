@@ -193,16 +193,21 @@ export function ProjectDetailPage({ project: propProject, onBack }: ProjectDetai
 
   return (
     <main className="min-h-screen bg-black relative overflow-x-hidden pb-24">
+      {/* Spacer to push content below navbar */}
+      <div className="h-32 md:h-40 w-full" />
+
       {/* Back Button */}
-      <button
-        onClick={handleBack}
-        className="fixed z-50 left-[calc(1rem+logo-width)] top-[calc(navbar-height+0.5rem)]
-             flex items-center gap-2 px-3 py-1 bg-black/50 hover:bg-black/70
-             text-[#2ECC71] rounded-lg backdrop-blur-md transition-all border border-[#2ECC71]/30 hover:border-[#2ECC71]"
-      >
-        <ArrowLeft className="w-5 h-5" />
-        <span className="hidden sm:inline">Back</span>
-      </button>
+      <div className="container mx-auto px-6 max-w-5xl">
+        <div className="w-full flex justify-start mb-8 relative z-50">
+          <button
+            onClick={handleBack}
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/10 border border-[#2ECC71]/30 rounded-full text-[#2ECC71] hover:bg-[#2ECC71] hover:text-black transition-all duration-300 cursor-pointer shadow-lg backdrop-blur-md"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="font-bold tracking-wide">Back</span>
+          </button>
+        </div>
+      </div>
 
       {/* Animated background */}
       <div className="fixed inset-0 -z-10 overflow-hidden">
@@ -227,7 +232,7 @@ export function ProjectDetailPage({ project: propProject, onBack }: ProjectDetai
         ))}
       </div>
 
-      <div className="container mx-auto px-4 pt-32 md:pt-40 pb-24 max-w-6xl">
+      <div className="container mx-auto px-4 pb-24 max-w-6xl">
         {/* Image Carousel */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}

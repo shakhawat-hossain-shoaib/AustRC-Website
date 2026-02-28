@@ -178,20 +178,20 @@ export function AchievementDetailPage() {
     <div className="min-h-screen bg-black text-white relative">
       <HeroBackground />
 
-      {/* Back Button */}
-      <div className="fixed top-24 left-4 sm:left-8 z-50">
-        <motion.button
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 px-4 py-2 bg-black/60 backdrop-blur-md border border-[#2ECC71]/30 rounded-full text-white hover:bg-[#2ECC71]/20 transition-all"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          <span className="text-sm font-medium">Back</span>
-        </motion.button>
-      </div>
+      {/* Spacer to push content below navbar */}
+      <div className="h-32 md:h-40 w-full" />
 
-      <div className="relative z-10 pt-32 pb-16 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 pb-16 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Back Button */}
+        <div className="w-full flex justify-start mb-8 relative z-50">
+          <button
+            onClick={() => navigate('/activities/achievements')}
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/10 border border-[#2ECC71]/30 rounded-full text-[#2ECC71] hover:bg-[#2ECC71] hover:text-black transition-all duration-300 cursor-pointer shadow-lg backdrop-blur-md"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="font-bold tracking-wide">Back</span>
+          </button>
+        </div>
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
